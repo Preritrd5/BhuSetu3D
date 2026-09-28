@@ -1,0 +1,21 @@
+{
+  "name": "BhuSetu 3D — Spatial Cadastral Intelligence",
+  "short_name": "BhuSetu 3D",
+  "description": "Enterprise 3D Cadastral Digital Twin & Multi-Epoch Spatial Intelligence Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F1210",
+  "theme_color": "#0F1210",
+  "icons": [
+    {
+      "src": "/brand/bhusetu-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/bhusetu-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

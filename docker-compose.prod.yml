@@ -1,0 +1,100 @@
+# ==============================================================================
+# BhuSetu 3D Production Docker Compose Topology
+# Team: TANTRAKATHA | SIH 2026 (SIH26011)
+# Phase 14: Production Deployment + Security + Performance Hardening
+#
+# MANDATORY ARCHITECTURAL PRINCIPLE:
+# Supabase PostgreSQL 16 + PostGIS 3.4 is the SOLE canonical database platform.
+# NO local PostgreSQL / PostGIS container is run.
+# ==============================================================================
+
+version: "3.8"
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Edge Reverse Proxy (TLS termination, Rate Limiting, Request Bounding)
+  # ----------------------------------------------------------------------------
+  reverse-proxy:
+    image: nginx:1.25-alpine
+    container_name: bhusetu_prod_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_started
+    networks:
+      - bhusetu-internal
+
+  # ----------------------------------------------------------------------------
+  # 2. FastAPI Backend Engine (Non-root, Multi-worker, Hardened)
+  # ----------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    container_name: bhusetu_prod_api
+    restart: always
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+      DATABASE_URL: ${DATABASE_URL}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["https://bhusetu3d.gov.in"]}
+      MAX_REQUEST_SIZE_BYTES: 52428800
+      RATE_LIMIT_ENABLED: "true"
+      LOG_LEVEL: INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    networks:
+      - bhusetu-internal
+
+  # ----------------------------------------------------------------------------
+  # 3. Next.js Frontend Application Shell (Non-root, Optimized Standalone)
+  # ----------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.web
+    container_name: bhusetu_prod_web
+    restart: always
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1536M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    networks:
+      - bhusetu-internal
+
+networks:
+  bhusetu-internal:
+    driver: bridge
+    internal: false

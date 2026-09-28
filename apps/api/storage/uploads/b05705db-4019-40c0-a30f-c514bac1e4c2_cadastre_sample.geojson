@@ -1,0 +1,1 @@
+{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[77.56, 13.0], [77.562, 13.0], [77.562, 13.002], [77.56, 13.002], [77.56, 13.0]]]}, "properties": {"ulpin_2d": "KA-BLR-001-P001", "survey_number": "101/A", "land_use": "RESIDENTIAL"}}]}

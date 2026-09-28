@@ -1,0 +1,1890 @@
+{
+  "parcels": [
+    {
+      "parcelId": "PARCEL-001",
+      "legacyId": "66666666-6666-4000-8000-000000000102",
+      "ulpin": "KA-BLR-2026-P102",
+      "surveyNumber": "Survey 102/3B",
+      "areaSqm": 1850,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.57198,
+          12.9981
+        ],
+        [
+          77.57248,
+          12.9981
+        ],
+        [
+          77.57248,
+          13.0001
+        ],
+        [
+          77.57198,
+          13.0001
+        ],
+        [
+          77.57198,
+          12.9981
+        ]
+      ],
+      "centroid": [
+        77.57223,
+        12.9991
+      ],
+      "primaryBuildingIds": [
+        "BLDG-001"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-004",
+      "ulpin": "KA-BLR-2026-P104",
+      "surveyNumber": "Survey 102/4",
+      "areaSqm": 1120,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.57252,
+          12.9981
+        ],
+        [
+          77.5731,
+          12.9981
+        ],
+        [
+          77.5731,
+          12.9991
+        ],
+        [
+          77.57252,
+          12.9991
+        ],
+        [
+          77.57252,
+          12.9981
+        ]
+      ],
+      "centroid": [
+        77.57281,
+        12.9986
+      ],
+      "primaryBuildingIds": [
+        "BLDG-004"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-005",
+      "ulpin": "KA-BLR-2026-P105",
+      "surveyNumber": "Survey 102/5",
+      "areaSqm": 1140,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.57252,
+          12.99915
+        ],
+        [
+          77.5731,
+          12.99915
+        ],
+        [
+          77.5731,
+          13.0001
+        ],
+        [
+          77.57252,
+          13.0001
+        ],
+        [
+          77.57252,
+          12.99915
+        ]
+      ],
+      "centroid": [
+        77.57281,
+        12.99962
+      ],
+      "primaryBuildingIds": [
+        "BLDG-005"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-002",
+      "legacyId": "66666666-6666-4000-8000-000000000101",
+      "ulpin": "KA-BLR-2026-P101",
+      "surveyNumber": "Survey 101/2A",
+      "areaSqm": 1680,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.57198,
+          12.9961
+        ],
+        [
+          77.57245,
+          12.9961
+        ],
+        [
+          77.57245,
+          12.9977
+        ],
+        [
+          77.57198,
+          12.9977
+        ],
+        [
+          77.57198,
+          12.9961
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        12.9969
+      ],
+      "primaryBuildingIds": [
+        "BLDG-002",
+        "BLDG-002B"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-006",
+      "ulpin": "KA-BLR-2026-P106",
+      "surveyNumber": "Survey 101/3",
+      "areaSqm": 880,
+      "category": "INSTITUTIONAL",
+      "footprint": [
+        [
+          77.57198,
+          12.99515
+        ],
+        [
+          77.57245,
+          12.99515
+        ],
+        [
+          77.57245,
+          12.996
+        ],
+        [
+          77.57198,
+          12.996
+        ],
+        [
+          77.57198,
+          12.99515
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        12.99557
+      ],
+      "primaryBuildingIds": [
+        "BLDG-006"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-007",
+      "ulpin": "KA-BLR-2026-P107",
+      "surveyNumber": "Survey 101/4",
+      "areaSqm": 1950,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.5725,
+          12.99515
+        ],
+        [
+          77.5731,
+          12.99515
+        ],
+        [
+          77.5731,
+          12.9977
+        ],
+        [
+          77.5725,
+          12.9977
+        ],
+        [
+          77.5725,
+          12.99515
+        ]
+      ],
+      "centroid": [
+        77.5728,
+        12.99642
+      ],
+      "primaryBuildingIds": [
+        "BLDG-007"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-003",
+      "legacyId": "66666666-6666-4000-8000-000000000103",
+      "ulpin": "KA-BLR-2026-P103",
+      "surveyNumber": "Survey 103/1",
+      "areaSqm": 1350,
+      "category": "MIXED_USE",
+      "footprint": [
+        [
+          77.57198,
+          13.0004
+        ],
+        [
+          77.57245,
+          13.0004
+        ],
+        [
+          77.57245,
+          13.0018
+        ],
+        [
+          77.57198,
+          13.0018
+        ],
+        [
+          77.57198,
+          13.0004
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        13.0011
+      ],
+      "primaryBuildingIds": [
+        "BLDG-003"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-008",
+      "ulpin": "KA-BLR-2026-P108",
+      "surveyNumber": "Survey 103/2",
+      "areaSqm": 540,
+      "category": "INSTITUTIONAL",
+      "footprint": [
+        [
+          77.57198,
+          13.00185
+        ],
+        [
+          77.57245,
+          13.00185
+        ],
+        [
+          77.57245,
+          13.0023
+        ],
+        [
+          77.57198,
+          13.0023
+        ],
+        [
+          77.57198,
+          13.00185
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        13.00207
+      ],
+      "primaryBuildingIds": [
+        "BLDG-008"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-009",
+      "ulpin": "KA-BLR-2026-P109",
+      "surveyNumber": "Survey 103/3",
+      "areaSqm": 2150,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.5725,
+          13.0004
+        ],
+        [
+          77.5731,
+          13.0004
+        ],
+        [
+          77.5731,
+          13.0023
+        ],
+        [
+          77.5725,
+          13.0023
+        ],
+        [
+          77.5725,
+          13.0004
+        ]
+      ],
+      "centroid": [
+        77.5728,
+        13.00135
+      ],
+      "primaryBuildingIds": [
+        "BLDG-009"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-010",
+      "ulpin": "KA-BLR-2026-P110",
+      "surveyNumber": "Survey 104/1",
+      "areaSqm": 2900,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.5736,
+          12.9982
+        ],
+        [
+          77.5748,
+          12.9982
+        ],
+        [
+          77.5748,
+          12.9996
+        ],
+        [
+          77.5736,
+          12.9996
+        ],
+        [
+          77.5736,
+          12.9982
+        ]
+      ],
+      "centroid": [
+        77.5742,
+        12.9989
+      ],
+      "primaryBuildingIds": [
+        "BLDG-010"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-011",
+      "ulpin": "KA-BLR-2026-P111",
+      "surveyNumber": "Survey 104/2",
+      "areaSqm": 2200,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.5749,
+          12.9982
+        ],
+        [
+          77.5758,
+          12.9982
+        ],
+        [
+          77.5758,
+          12.9996
+        ],
+        [
+          77.5749,
+          12.9996
+        ],
+        [
+          77.5749,
+          12.9982
+        ]
+      ],
+      "centroid": [
+        77.57535,
+        12.9989
+      ],
+      "primaryBuildingIds": [
+        "BLDG-011"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-012",
+      "ulpin": "KA-BLR-2026-P112",
+      "surveyNumber": "Survey 104/3",
+      "areaSqm": 2600,
+      "category": "MIXED_USE",
+      "footprint": [
+        [
+          77.5736,
+          12.996
+        ],
+        [
+          77.5748,
+          12.996
+        ],
+        [
+          77.5748,
+          12.9976
+        ],
+        [
+          77.5736,
+          12.9976
+        ],
+        [
+          77.5736,
+          12.996
+        ]
+      ],
+      "centroid": [
+        77.5742,
+        12.9968
+      ],
+      "primaryBuildingIds": [
+        "BLDG-012"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-013",
+      "ulpin": "KA-BLR-2026-P113",
+      "surveyNumber": "Survey 104/4",
+      "areaSqm": 2100,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.5749,
+          12.996
+        ],
+        [
+          77.5758,
+          12.996
+        ],
+        [
+          77.5758,
+          12.9976
+        ],
+        [
+          77.5749,
+          12.9976
+        ],
+        [
+          77.5749,
+          12.996
+        ]
+      ],
+      "centroid": [
+        77.57535,
+        12.9968
+      ],
+      "primaryBuildingIds": [
+        "BLDG-013"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-014",
+      "ulpin": "KA-BLR-2026-P114",
+      "surveyNumber": "Survey 104/5",
+      "areaSqm": 2750,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.5736,
+          13.0006
+        ],
+        [
+          77.5748,
+          13.0006
+        ],
+        [
+          77.5748,
+          13.002
+        ],
+        [
+          77.5736,
+          13.002
+        ],
+        [
+          77.5736,
+          13.0006
+        ]
+      ],
+      "centroid": [
+        77.5742,
+        13.0013
+      ],
+      "primaryBuildingIds": [
+        "BLDG-014"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-015",
+      "ulpin": "KA-BLR-2026-P115",
+      "surveyNumber": "Survey 104/6",
+      "areaSqm": 1980,
+      "category": "INSTITUTIONAL",
+      "footprint": [
+        [
+          77.5749,
+          13.0006
+        ],
+        [
+          77.5758,
+          13.0006
+        ],
+        [
+          77.5758,
+          13.002
+        ],
+        [
+          77.5749,
+          13.002
+        ],
+        [
+          77.5749,
+          13.0006
+        ]
+      ],
+      "centroid": [
+        77.57535,
+        13.0013
+      ],
+      "primaryBuildingIds": [
+        "BLDG-015"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-016",
+      "ulpin": "KA-BLR-2026-P116",
+      "surveyNumber": "Survey 105/1",
+      "areaSqm": 2100,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.5702,
+          12.9981
+        ],
+        [
+          77.5714,
+          12.9981
+        ],
+        [
+          77.5714,
+          12.9999
+        ],
+        [
+          77.5702,
+          12.9999
+        ],
+        [
+          77.5702,
+          12.9981
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        12.999
+      ],
+      "primaryBuildingIds": [
+        "BLDG-016"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-017",
+      "ulpin": "KA-BLR-2026-P117",
+      "surveyNumber": "Survey 105/2",
+      "areaSqm": 3200,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.5686,
+          12.9981
+        ],
+        [
+          77.57,
+          12.9981
+        ],
+        [
+          77.57,
+          12.9999
+        ],
+        [
+          77.5686,
+          12.9999
+        ],
+        [
+          77.5686,
+          12.9981
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        12.999
+      ],
+      "primaryBuildingIds": [
+        "BLDG-017"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-018",
+      "ulpin": "KA-BLR-2026-P118",
+      "surveyNumber": "Survey 105/3",
+      "areaSqm": 2450,
+      "category": "INSTITUTIONAL",
+      "footprint": [
+        [
+          77.5686,
+          12.9961
+        ],
+        [
+          77.57,
+          12.9961
+        ],
+        [
+          77.57,
+          12.9976
+        ],
+        [
+          77.5686,
+          12.9976
+        ],
+        [
+          77.5686,
+          12.9961
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        12.99685
+      ],
+      "primaryBuildingIds": [
+        "BLDG-018"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-019",
+      "ulpin": "KA-BLR-2026-P119",
+      "surveyNumber": "Survey 105/4",
+      "areaSqm": 1980,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.5702,
+          12.9961
+        ],
+        [
+          77.5714,
+          12.9961
+        ],
+        [
+          77.5714,
+          12.9976
+        ],
+        [
+          77.5702,
+          12.9976
+        ],
+        [
+          77.5702,
+          12.9961
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        12.99685
+      ],
+      "primaryBuildingIds": [
+        "BLDG-019"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-020",
+      "ulpin": "KA-BLR-2026-P120",
+      "surveyNumber": "Survey 105/5",
+      "areaSqm": 1850,
+      "category": "OPEN_RESERVE",
+      "footprint": [
+        [
+          77.5702,
+          13.0004
+        ],
+        [
+          77.5714,
+          13.0004
+        ],
+        [
+          77.5714,
+          13.0019
+        ],
+        [
+          77.5702,
+          13.0019
+        ],
+        [
+          77.5702,
+          13.0004
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        13.00115
+      ],
+      "primaryBuildingIds": [],
+      "isUndeveloped": true
+    },
+    {
+      "parcelId": "PARCEL-021",
+      "ulpin": "KA-BLR-2026-P121",
+      "surveyNumber": "Survey 105/6",
+      "areaSqm": 2600,
+      "category": "RESIDENTIAL",
+      "footprint": [
+        [
+          77.5686,
+          13.0004
+        ],
+        [
+          77.57,
+          13.0004
+        ],
+        [
+          77.57,
+          13.0019
+        ],
+        [
+          77.5686,
+          13.0019
+        ],
+        [
+          77.5686,
+          13.0004
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        13.00115
+      ],
+      "primaryBuildingIds": [
+        "BLDG-020"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-022",
+      "ulpin": "KA-BLR-2026-P122",
+      "surveyNumber": "Survey 106/1",
+      "areaSqm": 2400,
+      "category": "COMMERCIAL",
+      "footprint": [
+        [
+          77.5686,
+          12.9936
+        ],
+        [
+          77.57,
+          12.9936
+        ],
+        [
+          77.57,
+          12.9947
+        ],
+        [
+          77.5686,
+          12.9947
+        ],
+        [
+          77.5686,
+          12.9936
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        12.99415
+      ],
+      "primaryBuildingIds": [
+        "BLDG-021"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-023",
+      "ulpin": "KA-BLR-2026-P123",
+      "surveyNumber": "Survey 106/2",
+      "areaSqm": 1800,
+      "category": "MIXED_USE",
+      "footprint": [
+        [
+          77.5702,
+          12.9936
+        ],
+        [
+          77.5714,
+          12.9936
+        ],
+        [
+          77.5714,
+          12.9947
+        ],
+        [
+          77.5702,
+          12.9947
+        ],
+        [
+          77.5702,
+          12.9936
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        12.99415
+      ],
+      "primaryBuildingIds": [
+        "BLDG-022"
+      ]
+    },
+    {
+      "parcelId": "PARCEL-024",
+      "ulpin": "KA-BLR-2026-P124",
+      "surveyNumber": "Survey 106/3",
+      "areaSqm": 2200,
+      "category": "INSTITUTIONAL",
+      "footprint": [
+        [
+          77.572,
+          12.9936
+        ],
+        [
+          77.5731,
+          12.9936
+        ],
+        [
+          77.5731,
+          12.9947
+        ],
+        [
+          77.572,
+          12.9947
+        ],
+        [
+          77.572,
+          12.9936
+        ]
+      ],
+      "centroid": [
+        77.57255,
+        12.99415
+      ],
+      "primaryBuildingIds": [
+        "BLDG-023"
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "buildingId": "BLDG-001",
+      "legacyId": "77777777-7777-4000-8000-000000000102",
+      "code": "BLD-KA-BLR-102",
+      "parcelId": "PARCEL-001",
+      "legacyParcelId": "66666666-6666-4000-8000-000000000102",
+      "name": "Aura Horizon Commercial Complex",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Commercial Office Complex",
+      "floorCount": 3,
+      "height": 14.5,
+      "sanctionedHeight": 11.5,
+      "hasConflict": true,
+      "isPrimaryDemo": true,
+      "footprint": [
+        [
+          77.57205,
+          12.9983
+        ],
+        [
+          77.57237,
+          12.9983
+        ],
+        [
+          77.57237,
+          12.9999
+        ],
+        [
+          77.57205,
+          12.9999
+        ],
+        [
+          77.57205,
+          12.9983
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        12.9991
+      ],
+      "primaryColor": "#0C2535",
+      "outlineColor": "#00F0FF",
+      "hasCurtainWall": true,
+      "hasColonnade": true,
+      "hasPenthouse": true,
+      "roofType": "UTILITY_CAGE",
+      "propertyStatus": "DISPUTED"
+    },
+    {
+      "buildingId": "BLDG-004",
+      "code": "BLD-KA-BLR-104",
+      "parcelId": "PARCEL-004",
+      "name": "Horizon East Corporate Wing",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Corporate Annex",
+      "floorCount": 4,
+      "height": 14,
+      "sanctionedHeight": 14,
+      "footprint": [
+        [
+          77.57258,
+          12.9982
+        ],
+        [
+          77.57302,
+          12.9982
+        ],
+        [
+          77.57302,
+          12.999
+        ],
+        [
+          77.57258,
+          12.999
+        ],
+        [
+          77.57258,
+          12.9982
+        ]
+      ],
+      "centroid": [
+        77.5728,
+        12.9986
+      ],
+      "primaryColor": "#152233",
+      "outlineColor": "#38BDF8",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-005",
+      "code": "BLD-KA-BLR-105",
+      "parcelId": "PARCEL-005",
+      "name": "Horizon Tech Pavilion",
+      "typology": "TYPE_A_LOW_RISE",
+      "typologyLabel": "Exhibition & Retail Pavilion",
+      "floorCount": 2,
+      "height": 8,
+      "sanctionedHeight": 8,
+      "footprint": [
+        [
+          77.57258,
+          12.99925
+        ],
+        [
+          77.57302,
+          12.99925
+        ],
+        [
+          77.57302,
+          13
+        ],
+        [
+          77.57258,
+          13
+        ],
+        [
+          77.57258,
+          12.99925
+        ]
+      ],
+      "centroid": [
+        77.5728,
+        12.99962
+      ],
+      "primaryColor": "#1A2638",
+      "outlineColor": "#2DD4BF",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-002",
+      "legacyId": "77777777-7777-4000-8000-000000000101",
+      "code": "BLD-KA-BLR-101",
+      "parcelId": "PARCEL-002",
+      "legacyParcelId": "66666666-6666-4000-8000-000000000101",
+      "name": "Malleshwaram Residency",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Residential Multi-Family",
+      "floorCount": 3,
+      "height": 10.5,
+      "sanctionedHeight": 10.5,
+      "footprint": [
+        [
+          77.57205,
+          12.99645
+        ],
+        [
+          77.57235,
+          12.99645
+        ],
+        [
+          77.57235,
+          12.99755
+        ],
+        [
+          77.57205,
+          12.99755
+        ],
+        [
+          77.57205,
+          12.99645
+        ]
+      ],
+      "centroid": [
+        77.5722,
+        12.997
+      ],
+      "primaryColor": "#1B2433",
+      "outlineColor": "#475569",
+      "hasBalconies": true,
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-002B",
+      "code": "BLD-KA-BLR-101B",
+      "parcelId": "PARCEL-002",
+      "name": "Malleshwaram Security & Service Annexe",
+      "typology": "TYPE_A_LOW_RISE",
+      "typologyLabel": "Service & Security Pavilion",
+      "floorCount": 1,
+      "height": 4.2,
+      "sanctionedHeight": 4.5,
+      "footprint": [
+        [
+          77.57206,
+          12.99615
+        ],
+        [
+          77.57232,
+          12.99615
+        ],
+        [
+          77.57232,
+          12.99635
+        ],
+        [
+          77.57206,
+          12.99635
+        ],
+        [
+          77.57206,
+          12.99615
+        ]
+      ],
+      "centroid": [
+        77.57219,
+        12.99625
+      ],
+      "primaryColor": "#1E293B",
+      "outlineColor": "#64748B",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-006",
+      "code": "BLD-KA-BLR-106",
+      "parcelId": "PARCEL-006",
+      "name": "South End Community Dispensary",
+      "typology": "TYPE_A_LOW_RISE",
+      "typologyLabel": "Community Health Facility",
+      "floorCount": 2,
+      "height": 7.5,
+      "sanctionedHeight": 8,
+      "footprint": [
+        [
+          77.57205,
+          12.99525
+        ],
+        [
+          77.57238,
+          12.99525
+        ],
+        [
+          77.57238,
+          12.9959
+        ],
+        [
+          77.57205,
+          12.9959
+        ],
+        [
+          77.57205,
+          12.99525
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        12.99557
+      ],
+      "primaryColor": "#16202D",
+      "outlineColor": "#14B8A6",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-007",
+      "code": "BLD-KA-BLR-107",
+      "parcelId": "PARCEL-007",
+      "name": "Sampige Gardens Residential Block",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Residential Apartments",
+      "floorCount": 4,
+      "height": 15,
+      "sanctionedHeight": 15,
+      "footprint": [
+        [
+          77.57258,
+          12.9953
+        ],
+        [
+          77.57302,
+          12.9953
+        ],
+        [
+          77.57302,
+          12.9975
+        ],
+        [
+          77.57258,
+          12.9975
+        ],
+        [
+          77.57258,
+          12.9953
+        ]
+      ],
+      "centroid": [
+        77.5728,
+        12.9964
+      ],
+      "primaryColor": "#1B2433",
+      "outlineColor": "#475569",
+      "hasBalconies": true,
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-003",
+      "legacyId": "77777777-7777-4000-8000-000000000103",
+      "code": "BLD-KA-BLR-103",
+      "parcelId": "PARCEL-003",
+      "legacyParcelId": "66666666-6666-4000-8000-000000000103",
+      "name": "Green Valley Arcade",
+      "typology": "TYPE_A_LOW_RISE",
+      "typologyLabel": "Retail Commercial Arcade",
+      "floorCount": 2,
+      "height": 7.5,
+      "sanctionedHeight": 7.5,
+      "footprint": [
+        [
+          77.57205,
+          13.0006
+        ],
+        [
+          77.5723,
+          13.0006
+        ],
+        [
+          77.5723,
+          13.0016
+        ],
+        [
+          77.57205,
+          13.0016
+        ],
+        [
+          77.57205,
+          13.0006
+        ]
+      ],
+      "centroid": [
+        77.572175,
+        13.0011
+      ],
+      "primaryColor": "#1E293B",
+      "outlineColor": "#64748B",
+      "hasColonnade": true,
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-008",
+      "code": "BLD-KA-BLR-108",
+      "parcelId": "PARCEL-008",
+      "name": "Postal Sorting & Transit Sub-Office",
+      "typology": "TYPE_A_LOW_RISE",
+      "typologyLabel": "Public Postal Facility",
+      "floorCount": 2,
+      "height": 6.8,
+      "sanctionedHeight": 7,
+      "footprint": [
+        [
+          77.57205,
+          13.00192
+        ],
+        [
+          77.57238,
+          13.00192
+        ],
+        [
+          77.57238,
+          13.00222
+        ],
+        [
+          77.57205,
+          13.00222
+        ],
+        [
+          77.57205,
+          13.00192
+        ]
+      ],
+      "centroid": [
+        77.57221,
+        13.00207
+      ],
+      "primaryColor": "#182230",
+      "outlineColor": "#334155",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-009",
+      "code": "BLD-KA-BLR-109",
+      "parcelId": "PARCEL-009",
+      "name": "North Star Corporate Tower",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "Commercial High-Rise",
+      "floorCount": 7,
+      "height": 24.5,
+      "sanctionedHeight": 25,
+      "podiumHeight": 5.5,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.57258,
+          13.0006
+        ],
+        [
+          77.57302,
+          13.0006
+        ],
+        [
+          77.57302,
+          13.0021
+        ],
+        [
+          77.57258,
+          13.0021
+        ],
+        [
+          77.57258,
+          13.0006
+        ]
+      ],
+      "centroid": [
+        77.5728,
+        13.00135
+      ],
+      "primaryColor": "#0E1A27",
+      "outlineColor": "#38BDF8",
+      "roofType": "PENTHOUSE_ENCLOSURE",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-010",
+      "code": "BLD-KA-BLR-110",
+      "parcelId": "PARCEL-010",
+      "name": "Cauvery Tech Innovation Park",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "Technology Corporate Campus",
+      "floorCount": 9,
+      "height": 32,
+      "sanctionedHeight": 32,
+      "podiumHeight": 6.5,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.57375,
+          12.99835
+        ],
+        [
+          77.57465,
+          12.99835
+        ],
+        [
+          77.57465,
+          12.99945
+        ],
+        [
+          77.57375,
+          12.99945
+        ],
+        [
+          77.57375,
+          12.99835
+        ]
+      ],
+      "centroid": [
+        77.5742,
+        12.9989
+      ],
+      "primaryColor": "#0E1A27",
+      "outlineColor": "#00F0FF",
+      "roofType": "PENTHOUSE_ENCLOSURE",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-011",
+      "code": "BLD-KA-BLR-111",
+      "parcelId": "PARCEL-011",
+      "name": "Metro View Residences Tower 1",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "High-Rise Residential",
+      "floorCount": 8,
+      "height": 28,
+      "sanctionedHeight": 28,
+      "hasBalconies": true,
+      "footprint": [
+        [
+          77.57502,
+          12.99835
+        ],
+        [
+          77.57568,
+          12.99835
+        ],
+        [
+          77.57568,
+          12.99945
+        ],
+        [
+          77.57502,
+          12.99945
+        ],
+        [
+          77.57502,
+          12.99835
+        ]
+      ],
+      "centroid": [
+        77.57535,
+        12.9989
+      ],
+      "primaryColor": "#1B2433",
+      "outlineColor": "#475569",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-012",
+      "code": "BLD-KA-BLR-112",
+      "parcelId": "PARCEL-012",
+      "name": "Sampige Plaza Retail Concourse",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Commercial Retail Arcade",
+      "floorCount": 4,
+      "height": 14.5,
+      "sanctionedHeight": 15,
+      "hasColonnade": true,
+      "footprint": [
+        [
+          77.57375,
+          12.99615
+        ],
+        [
+          77.57465,
+          12.99615
+        ],
+        [
+          77.57465,
+          12.99745
+        ],
+        [
+          77.57375,
+          12.99745
+        ],
+        [
+          77.57375,
+          12.99615
+        ]
+      ],
+      "centroid": [
+        77.5742,
+        12.9968
+      ],
+      "primaryColor": "#1E293B",
+      "outlineColor": "#64748B",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-013",
+      "code": "BLD-KA-BLR-113",
+      "parcelId": "PARCEL-013",
+      "name": "Metro View Residences Tower 2",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Residential Apartments",
+      "floorCount": 5,
+      "height": 18,
+      "sanctionedHeight": 18,
+      "hasBalconies": true,
+      "footprint": [
+        [
+          77.57502,
+          12.99615
+        ],
+        [
+          77.57568,
+          12.99615
+        ],
+        [
+          77.57568,
+          12.99745
+        ],
+        [
+          77.57502,
+          12.99745
+        ],
+        [
+          77.57502,
+          12.99615
+        ]
+      ],
+      "centroid": [
+        77.57535,
+        12.9968
+      ],
+      "primaryColor": "#1B2433",
+      "outlineColor": "#475569",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-014",
+      "code": "BLD-KA-BLR-114",
+      "parcelId": "PARCEL-014",
+      "name": "Orchid Heights Sky Residence",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "Premium Residential Tower",
+      "floorCount": 8,
+      "height": 28,
+      "sanctionedHeight": 28,
+      "podiumHeight": 6,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.57375,
+          13.00075
+        ],
+        [
+          77.57465,
+          13.00075
+        ],
+        [
+          77.57465,
+          13.00185
+        ],
+        [
+          77.57375,
+          13.00185
+        ],
+        [
+          77.57375,
+          13.00075
+        ]
+      ],
+      "centroid": [
+        77.5742,
+        13.0013
+      ],
+      "primaryColor": "#0E1A27",
+      "outlineColor": "#38BDF8",
+      "roofType": "PENTHOUSE_ENCLOSURE",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-015",
+      "code": "BLD-KA-BLR-115",
+      "parcelId": "PARCEL-015",
+      "name": "East Gate Municipal Logistics Bhavan",
+      "typology": "TYPE_D_SPECIAL",
+      "typologyLabel": "Municipal Logistics & Services",
+      "floorCount": 4,
+      "height": 16,
+      "sanctionedHeight": 16,
+      "footprint": [
+        [
+          77.57502,
+          13.00075
+        ],
+        [
+          77.57568,
+          13.00075
+        ],
+        [
+          77.57568,
+          13.00185
+        ],
+        [
+          77.57502,
+          13.00185
+        ],
+        [
+          77.57502,
+          13.00075
+        ]
+      ],
+      "centroid": [
+        77.57535,
+        13.0013
+      ],
+      "primaryColor": "#16202D",
+      "outlineColor": "#475569",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-016",
+      "code": "BLD-KA-BLR-116",
+      "parcelId": "PARCEL-016",
+      "name": "West Avenue Arcade & Commercial Hub",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Commercial Retail Arcade",
+      "floorCount": 4,
+      "height": 14.5,
+      "sanctionedHeight": 15,
+      "hasColonnade": true,
+      "footprint": [
+        [
+          77.57035,
+          12.99825
+        ],
+        [
+          77.57125,
+          12.99825
+        ],
+        [
+          77.57125,
+          12.99975
+        ],
+        [
+          77.57035,
+          12.99975
+        ],
+        [
+          77.57035,
+          12.99825
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        12.999
+      ],
+      "primaryColor": "#1E293B",
+      "outlineColor": "#64748B",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-017",
+      "code": "BLD-KA-BLR-117",
+      "parcelId": "PARCEL-017",
+      "name": "Aura West Corporate Pinnacle",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "Corporate Headquarters Landmark",
+      "floorCount": 10,
+      "height": 35,
+      "sanctionedHeight": 35,
+      "podiumHeight": 6.5,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.56875,
+          12.99825
+        ],
+        [
+          77.56985,
+          12.99825
+        ],
+        [
+          77.56985,
+          12.99975
+        ],
+        [
+          77.56875,
+          12.99975
+        ],
+        [
+          77.56875,
+          12.99825
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        12.999
+      ],
+      "primaryColor": "#0E1A27",
+      "outlineColor": "#38BDF8",
+      "roofType": "PENTHOUSE_ENCLOSURE",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-018",
+      "code": "BLD-KA-BLR-118",
+      "parcelId": "PARCEL-018",
+      "name": "Karnataka State Financial Bhavan",
+      "typology": "TYPE_D_SPECIAL",
+      "typologyLabel": "State Financial Institution",
+      "floorCount": 5,
+      "height": 19,
+      "sanctionedHeight": 20,
+      "footprint": [
+        [
+          77.56875,
+          12.99625
+        ],
+        [
+          77.56985,
+          12.99625
+        ],
+        [
+          77.56985,
+          12.99745
+        ],
+        [
+          77.56875,
+          12.99745
+        ],
+        [
+          77.56875,
+          12.99625
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        12.99685
+      ],
+      "primaryColor": "#152332",
+      "outlineColor": "#475569",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-019",
+      "code": "BLD-KA-BLR-119",
+      "parcelId": "PARCEL-019",
+      "name": "Cauvery Executive Suites",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Executive Serviced Suites",
+      "floorCount": 5,
+      "height": 17.5,
+      "sanctionedHeight": 18,
+      "hasBalconies": true,
+      "footprint": [
+        [
+          77.57035,
+          12.99625
+        ],
+        [
+          77.57125,
+          12.99625
+        ],
+        [
+          77.57125,
+          12.99745
+        ],
+        [
+          77.57035,
+          12.99745
+        ],
+        [
+          77.57035,
+          12.99625
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        12.99685
+      ],
+      "primaryColor": "#1B2433",
+      "outlineColor": "#475569",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-020",
+      "code": "BLD-KA-BLR-121",
+      "parcelId": "PARCEL-021",
+      "name": "Greenwood Heights Tower",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "Residential High-Rise",
+      "floorCount": 7,
+      "height": 24,
+      "sanctionedHeight": 24,
+      "hasBalconies": true,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.56875,
+          13.00055
+        ],
+        [
+          77.56985,
+          13.00055
+        ],
+        [
+          77.56985,
+          13.00175
+        ],
+        [
+          77.56875,
+          13.00175
+        ],
+        [
+          77.56875,
+          13.00055
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        13.00115
+      ],
+      "primaryColor": "#1B2433",
+      "outlineColor": "#475569",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-021",
+      "code": "BLD-KA-BLR-122",
+      "parcelId": "PARCEL-022",
+      "name": "Sankey Heights Commercial Plaza",
+      "typology": "TYPE_C_TALLER",
+      "typologyLabel": "Commercial Business Plaza",
+      "floorCount": 8,
+      "height": 28,
+      "sanctionedHeight": 28,
+      "podiumHeight": 5.5,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.56875,
+          12.99375
+        ],
+        [
+          77.56985,
+          12.99375
+        ],
+        [
+          77.56985,
+          12.99455
+        ],
+        [
+          77.56875,
+          12.99455
+        ],
+        [
+          77.56875,
+          12.99375
+        ]
+      ],
+      "centroid": [
+        77.5693,
+        12.99415
+      ],
+      "primaryColor": "#0E1A27",
+      "outlineColor": "#38BDF8",
+      "roofType": "PENTHOUSE_ENCLOSURE",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-022",
+      "code": "BLD-KA-BLR-123",
+      "parcelId": "PARCEL-023",
+      "name": "Vyalikaval Heritage Chambers",
+      "typology": "TYPE_B_MID_RISE",
+      "typologyLabel": "Heritage Commercial Office",
+      "floorCount": 4,
+      "height": 14,
+      "sanctionedHeight": 14,
+      "footprint": [
+        [
+          77.57035,
+          12.99375
+        ],
+        [
+          77.57125,
+          12.99375
+        ],
+        [
+          77.57125,
+          12.99455
+        ],
+        [
+          77.57035,
+          12.99455
+        ],
+        [
+          77.57035,
+          12.99375
+        ]
+      ],
+      "centroid": [
+        77.5708,
+        12.99415
+      ],
+      "primaryColor": "#1E293B",
+      "outlineColor": "#64748B",
+      "roofType": "FLAT_PARAPET",
+      "propertyStatus": "VERIFIED"
+    },
+    {
+      "buildingId": "BLDG-023",
+      "code": "BLD-KA-BLR-124",
+      "parcelId": "PARCEL-024",
+      "name": "Metro Interchange Hub A",
+      "typology": "TYPE_D_SPECIAL",
+      "typologyLabel": "Multi-Modal Transit Terminal",
+      "floorCount": 6,
+      "height": 22,
+      "sanctionedHeight": 22,
+      "podiumHeight": 5.5,
+      "hasPenthouse": true,
+      "footprint": [
+        [
+          77.57215,
+          12.99375
+        ],
+        [
+          77.57295,
+          12.99375
+        ],
+        [
+          77.57295,
+          12.99455
+        ],
+        [
+          77.57215,
+          12.99455
+        ],
+        [
+          77.57215,
+          12.99375
+        ]
+      ],
+      "centroid": [
+        77.57255,
+        12.99415
+      ],
+      "primaryColor": "#0E1A27",
+      "outlineColor": "#38BDF8",
+      "roofType": "STEPPED",
+      "propertyStatus": "VERIFIED"
+    }
+  ]
+}

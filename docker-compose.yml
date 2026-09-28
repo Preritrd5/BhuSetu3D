@@ -1,0 +1,63 @@
+# ============================================================================
+# BhuSetu 3D: DOCKER COMPOSE APPLICATION ENVIRONMENT
+# Team: TANTRAKATHA | Smart India Hackathon 2026 (SIH26011)
+# Phase 2: Authentication, Authorization & Application Shell
+#
+# NOTE: In accordance with Phase 2 locked architecture, Supabase is the
+# SOLE DATABASE PLATFORM. No local PostgreSQL / PostGIS container is run.
+# ============================================================================
+
+version: "3.8"
+
+services:
+  # --------------------------------------------------------------------------
+  # SERVICE 1: FastAPI Backend Engine
+  # --------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    container_name: bhusetu_api
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE_URL: ${DATABASE_URL}
+      SUPABASE_URL: ${SUPABASE_URL:-https://qcobqjtrhhdwzmadfykq.supabase.co}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:-sb_publishable_lCZMVQiaV9X-GnUjdYx-TA_2iHm3AHp}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000","http://127.0.0.1:3000"]}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bhusetu-network
+
+  # --------------------------------------------------------------------------
+  # SERVICE 2: Next.js Frontend Application Shell
+  # --------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.web
+    container_name: bhusetu_web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://qcobqjtrhhdwzmadfykq.supabase.co}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-sb_publishable_lCZMVQiaV9X-GnUjdYx-TA_2iHm3AHp}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "3000:3000"
+    networks:
+      - bhusetu-network
+
+networks:
+  bhusetu-network:
+    driver: bridge

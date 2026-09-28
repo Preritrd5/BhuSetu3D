@@ -1,0 +1,104 @@
+"""
+BhuSetu 3D Authentication & Authorization Dependencies
+Team: TANTRAKATHA | SIH 2026 (SIH26011)
+Phase 2: Authentication, Authorization & Application Shell
+"""
+from typing import Dict, Any, List, Callable
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database.connection import get_db
+from app.models.user import User
+from app.core.security import verify_supabase_jwt
+from app.services.auth_service import AuthService
+from app.core.logging import logger
+
+security_scheme = HTTPBearer(auto_error=False)
+
+
+async def get_token_claims(
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
+) -> Dict[str, Any]:
+    """
+    Extracts and cryptographically validates the Supabase Auth Bearer JWT.
+    Raises HTTP 401 if missing, expired, or invalid.
+    """
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required. Please provide a valid Bearer token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    token = credentials.credentials
+    claims = await verify_supabase_jwt(token)
+    return claims
+
+
+async def get_current_user(
+    claims: Dict[str, Any] = Depends(get_token_claims),
+    db: AsyncSession = Depends(get_db)
+) -> User:
+    """
+    Resolves the authenticated Supabase user against the canonical public.users table.
+    Enforces active status and identity binding.
+    """
+    auth_user_id = claims.get("sub")
+    email = claims.get("email")
+
+    if not auth_user_id or not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token payload is missing essential identity claims.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    user = await AuthService.resolve_application_user(
+        db=db,
+        auth_user_id=auth_user_id,
+        email=email
+    )
+    return user
+
+
+def require_role(required_role: str) -> Callable:
+    """
+    Dependency factory enforcing a specific role requirement.
+    ADMIN role always has access across all endpoints.
+    """
+    async def role_checker(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role == "ADMIN":
+            return current_user
+        if current_user.role != required_role:
+            logger.warning(
+                f"Access denied for user {current_user.email} (Role: {current_user.role}). Required: {required_role}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Restricted: This action requires the '{required_role}' role."
+            )
+        return current_user
+
+    return role_checker
+
+
+def require_any_role(allowed_roles: List[str]) -> Callable:
+    """
+    Dependency factory enforcing that the user possesses at least one of the allowed roles.
+    ADMIN role always possesses access.
+    """
+    async def multi_role_checker(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role == "ADMIN":
+            return current_user
+        if current_user.role not in allowed_roles:
+            logger.warning(
+                f"Access denied for user {current_user.email} (Role: {current_user.role}). Allowed: {allowed_roles}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access Restricted: Your role '{current_user.role}' is not authorized for this resource."
+            )
+        return current_user
+
+    return multi_role_checker

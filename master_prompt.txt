@@ -1,0 +1,1208 @@
+<USER_REQUEST>
+BHUSETU 3D — FINAL 3D DIGITAL-TWIN UI/UX REDESIGN
+AND MULTI-LEVEL SPATIAL INTERACTION
+
+============================================================
+IMPORTANT
+============================================================
+
+This replaces the previous UI redesign prompt.
+
+The FOUR provided reference images are the visual direction.
+
+The goal is NOT simply:
+
+    "make the dashboard prettier"
+
+The goal is:
+
+    TURN BHUSETU 3D INTO AN IMMERSIVE, INTERACTIVE
+    3D PROPERTY DIGITAL-TWIN WORKSPACE.
+
+The 3D world is the primary interface.
+
+The UI is contextual and floats around the 3D world.
+
+============================================================
+1. PRODUCT
+============================================================
+
+Product:
+
+    BhuSetu 3D
+
+Tagline:
+
+    Evidence-Backed 3D Property Intelligence Platform
+
+Do NOT show in the visible web application:
+
+    SIH
+    SIH26011
+    Smart India Hackathon
+    TANTRAKATHA
+    Team
+    Phase numbers
+    Problem Statement
+    Hackathon branding
+
+The visible application must look like a standalone professional product.
+
+============================================================
+2. MAIN DESIGN PHILOSOPHY
+============================================================
+
+The application must feel like:
+
+    3D digital twin
+    + GIS
+    + property intelligence
+    + spatial investigation
+
+NOT:
+
+    admin dashboard
+    generic SaaS
+    map with cards around it
+
+The center of the experience is the actual 3D environment.
+
+============================================================
+3. FULL-SCREEN 3D ENVIRONMENT
+============================================================
+
+The main workspace should be dominated by:
+
+    buildings
+    parcels
+    roads
+    infrastructure
+    terrain/environment
+    spatial context
+
+Use the existing CesiumJS / real 3D implementation.
+
+Do NOT replace the real scene with screenshots.
+
+Do NOT create a fake decorative building as the actual property.
+
+Improve the presentation of the real geometry using:
+
+    lighting
+    shadows
+    materials
+    camera
+    atmosphere
+    selection highlighting
+    level-of-detail
+
+============================================================
+4. CRITICAL INTERACTION MODEL
+============================================================
+
+THIS IS THE MOST IMPORTANT REQUIREMENT.
+
+BhuSetu 3D must support MULTI-LEVEL SPATIAL SELECTION.
+
+The user must be able to progressively drill into the 3D world.
+
+Hierarchy:
+
+    CITY / SITE
+        ↓
+    PARCEL
+        ↓
+    BUILDING
+        ↓
+    FLOOR
+        ↓
+    ROOM / UNIT / HALL / CORRIDOR
+        ↓
+    DOOR / WINDOW / OTHER SUPPORTED ELEMENT
+
+Do NOT stop interaction at:
+
+    Building
+
+Do NOT stop interaction at:
+
+    Floor
+
+The building must become progressively inspectable.
+
+============================================================
+5. CITY LEVEL
+============================================================
+
+Default experience:
+
+    many buildings visible
+
+    parcels visible where appropriate
+
+    roads/infrastructure visible
+
+    city/region context
+
+User can:
+
+    orbit
+    zoom
+    pan
+    search
+    select
+
+The scene should feel like a real 3D city/property environment.
+
+============================================================
+6. BUILDING SELECTION
+============================================================
+
+When the user clicks a building:
+
+    identify building
+
+    highlight building
+
+    outline building
+
+    smoothly move/focus camera
+
+    open compact Building Inspector
+
+    show property/building information
+
+Do NOT immediately open a giant full-screen panel.
+
+The selected building becomes the focus of the spatial experience.
+
+Example:
+
+    BUILDING B-102
+
+    3 Floors
+    241 m²
+    10.8 m Height
+
+    [Overview]
+    [Evidence]
+    [History]
+    [Analysis]
+
+============================================================
+7. BUILDING HIGHLIGHT
+============================================================
+
+Selected building should receive:
+
+    subtle cyan/teal outline
+    slightly brighter material
+    optional surrounding selection halo
+
+Other buildings should remain visible but visually secondary.
+
+Do not make the entire building neon.
+
+============================================================
+8. BUILDING CAMERA FOCUS
+============================================================
+
+Selecting a building must:
+
+    smoothly focus camera
+
+    frame building appropriately
+
+    preserve surrounding spatial context
+
+Do not jump abruptly.
+
+============================================================
+9. FLOOR INTERACTION
+============================================================
+
+Once a building is selected:
+
+    floors become individually selectable.
+
+Example:
+
+    FLOOR 03
+    FLOOR 02
+    FLOOR 01
+
+Clicking a floor:
+
+    highlights only that floor
+
+    optionally isolates/ghosts other floors
+
+    opens Floor Inspector
+
+    keeps parent Building context
+
+Example:
+
+    FLOOR 03
+
+    Elevation:
+        7.2 m
+
+    Parent:
+        B-102
+
+    Units:
+        4
+
+============================================================
+10. FLOOR VISUALIZATION
+============================================================
+
+Make floor separation visually understandable using:
+
+    horizontal segmentation
+    subtle transparency
+    level markers
+    elevation labels
+    selected-floor highlighting
+
+The actual 3D model must remain visible.
+
+============================================================
+11. INTERIOR / SUB-SPACE INTERACTION
+============================================================
+
+THIS IS REQUIRED WHERE ACTUAL GEOMETRY/DATA EXISTS.
+
+The system should support deeper building inspection:
+
+    Floor
+      ↓
+    Room
+      ↓
+    Hall / Corridor
+      ↓
+    Door
+      ↓
+    Window / other supported element
+
+Do not treat the floor as the final level.
+
+============================================================
+12. ROOM SELECTION
+============================================================
+
+If room geometry/data exists:
+
+clicking a room must:
+
+    highlight room
+
+    show room boundary
+
+    focus camera appropriately
+
+    open Room Inspector
+
+Example:
+
+    ROOM 302
+
+    Type:
+        Office / Residential / etc. if actually available
+
+    Area:
+        24.8 m²
+
+    Floor:
+        03
+
+    Building:
+        B-102
+
+Do not invent room attributes that do not exist.
+
+============================================================
+13. HALL / CORRIDOR SELECTION
+============================================================
+
+If hall/corridor geometry exists:
+
+click it.
+
+The system should:
+
+    highlight the hall/corridor
+
+    show its geometry
+
+    open contextual information
+
+Example:
+
+    HALL / CORRIDOR
+
+    Floor:
+        03
+
+    Area:
+        36.4 m²
+
+Use actual backend data.
+
+============================================================
+14. DOOR SELECTION
+============================================================
+
+If door geometry/data exists:
+
+clicking the door must:
+
+    highlight door
+
+    show contextual information
+
+Example:
+
+    DOOR D-302-04
+
+    Parent Room:
+        Room 302
+
+    Parent Floor:
+        Floor 03
+
+    Building:
+        B-102
+
+Only show attributes that actually exist.
+
+============================================================
+15. WINDOW / OTHER ELEMENTS
+============================================================
+
+Where the underlying model supports them, allow selection of:
+
+    windows
+    stairs
+    lifts
+    columns
+    walls
+    roofs
+    other supported building elements
+
+Do NOT fabricate elements simply to make the demo look richer.
+
+============================================================
+16. IMPORTANT DATA RULE
+============================================================
+
+The UI must support the deepest level that the available backend/model
+actually supports.
+
+If the current data model only supports:
+
+    Parcel
+    Building
+    Floor
+    Unit
+
+then implement those properly.
+
+DO NOT invent:
+
+    rooms
+    doors
+    windows
+    halls
+
+as if they were authoritative data.
+
+Instead:
+
+    design the interaction architecture so these deeper entities can be
+    added when real geometry/data exists.
+
+If internal geometry already contains these elements:
+
+    make them selectable now.
+
+============================================================
+17. CONTEXTUAL BREADCRUMB
+============================================================
+
+When drilling down, show a subtle breadcrumb:
+
+    City
+      / Parcel P-102
+      / Building B-102
+      / Floor 03
+      / Room 302
+
+This lets the user understand where they are.
+
+============================================================
+18. CLICK DEPTH
+============================================================
+
+Each click should make the context narrower.
+
+Example:
+
+    CITY
+      ↓
+    BUILDING
+      ↓
+    FLOOR
+      ↓
+    ROOM
+      ↓
+    DOOR
+
+At every step:
+
+    selected object highlighted
+    camera focused
+    relevant inspector shown
+    parent context retained
+
+============================================================
+19. BACK / UP LEVEL
+============================================================
+
+Provide a clear:
+
+    Back
+    Up One Level
+
+interaction.
+
+Example:
+
+    Room 302
+       ↑
+    Floor 03
+       ↑
+    Building B-102
+       ↑
+    Parcel P-102
+
+Do not force the user to reset the entire scene.
+
+============================================================
+20. OUTLINER
+============================================================
+
+The left floating Outliner should mirror the real hierarchy.
+
+Example:
+
+    P-102
+      └ Building B-102
+          ├ Floor 01
+          │   ├ Unit 101
+          │   ├ Room 101
+          │   └ Hall
+          │
+          ├ Floor 02
+          │   ├ Unit 201
+          │   └ Rooms
+          │
+          └ Floor 03
+              ├ Unit 301
+              ├ Room 302
+              ├ Hall
+              └ Doors
+
+Only show entities that actually exist.
+
+Selecting an Outliner item must select the corresponding real 3D object.
+
+============================================================
+21. LEFT PANEL
+============================================================
+
+Compact floating panel:
+
+    Layers
+    Outliner
+    Tools
+
+Layers:
+
+    Parcels
+    Buildings
+    Roads
+    Water
+    Drainage
+    Electricity
+    Evidence
+    Conflicts
+    Changes
+
+Outliner:
+
+    actual property hierarchy
+
+Tools:
+
+    Select
+    Measure
+    Compare
+    2D/3D
+    Camera
+
+============================================================
+22. RIGHT PANEL
+============================================================
+
+Contextual Inspector.
+
+When nothing is selected:
+
+    hidden/minimized.
+
+When building selected:
+
+    Building Inspector.
+
+When floor selected:
+
+    Floor Inspector.
+
+When room selected:
+
+    Room Inspector.
+
+When door selected:
+
+    Door Inspector.
+
+The inspector changes according to the selected entity.
+
+============================================================
+23. INSPECTOR PRINCIPLE
+============================================================
+
+Do NOT use one giant generic Property Inspector for everything.
+
+Use:
+
+    Property Inspector
+    Building Inspector
+    Floor Inspector
+    Room Inspector
+    Unit Inspector
+    Infrastructure Inspector
+    Finding Inspector
+
+Reuse the same visual system/components.
+
+============================================================
+24. PROPERTY INSPECTOR
+============================================================
+
+When parcel/property is selected:
+
+    Property ID
+    ULPIN-oriented identifier
+    parcel area
+    building count
+    evidence
+    quality
+    verification
+    history
+
+============================================================
+25. BUILDING INSPECTOR
+============================================================
+
+When building selected:
+
+    Building ID
+    Floors
+    Height
+    Footprint
+    Units
+    Evidence
+    Quality
+    History
+    Conflicts
+
+============================================================
+26. FLOOR INSPECTOR
+============================================================
+
+Show:
+
+    Floor ID / Level
+    Elevation
+    Parent Building
+    Units
+    Rooms if available
+    Evidence
+
+============================================================
+27. ROOM INSPECTOR
+============================================================
+
+Show only actual available attributes:
+
+    Room ID
+    Area
+    Type
+    Parent Floor
+    Evidence
+    Geometry information
+
+============================================================
+28. DOOR INSPECTOR
+============================================================
+
+If supported:
+
+    Door ID
+    Parent Room
+    Parent Floor
+    Building
+    Evidence
+
+============================================================
+29. INFRASTRUCTURE INSPECTOR
+============================================================
+
+For:
+
+    Road
+    Drainage
+    Water
+    Electricity
+
+show:
+
+    ID
+    Type
+    Distance
+    Evidence
+    History
+    Provenance
+
+Use real spatial relationships.
+
+============================================================
+30. FLOATING METRICS
+============================================================
+
+Use compact floating metrics, not dashboard cards.
+
+Property:
+
+    3 Floors
+    12 Units
+    241 m²
+    Quality 86
+
+City:
+
+    12,482 Properties
+    18,231 Buildings
+    143 Changes
+    37 Conflicts
+
+Only actual values.
+
+============================================================
+31. SPATIAL FINDINGS
+============================================================
+
+When finding selected:
+
+    camera → affected geometry
+
+    geometry → highlighted
+
+    inspector → finding details
+
+Example:
+
+    Spatial Discrepancy
+
+    Building extends beyond parcel.
+
+    Affected:
+        14.8 m²
+
+    Confidence:
+        87%
+
+    [Evidence]
+    [Verify]
+
+============================================================
+32. AI INVESTIGATOR
+============================================================
+
+Ask:
+
+    "What changed in this building?"
+
+    "Which rooms/floors are available?"
+
+    "What infrastructure is nearby?"
+
+    "Is this building spatially within the parcel?"
+
+AI answers using actual backend data.
+
+If room-level data exists, AI may navigate to:
+
+    Room
+    Floor
+    Door
+
+through controlled structured actions.
+
+============================================================
+33. AI → 3D SELECTION
+============================================================
+
+Very important:
+
+AI result should be able to highlight actual objects.
+
+Example:
+
+    User:
+        "Show me floor 3."
+
+AI action:
+
+    SELECT_FLOOR(Floor 03)
+
+Result:
+
+    floor highlighted
+    camera adjusted
+    Floor Inspector opened
+
+Another:
+
+    "Show Room 302."
+
+Result:
+
+    room highlighted
+    camera focused
+    Room Inspector opened
+
+This must use validated structured actions.
+
+============================================================
+34. HISTORY
+============================================================
+
+History works at whichever entity supports temporal data.
+
+Possible:
+
+    Property History
+    Building History
+    Floor History
+    Infrastructure History
+
+The bottom timeline remains contextual.
+
+============================================================
+35. TEMPORAL OBJECT SELECTION
+============================================================
+
+When history is active:
+
+    2024
+    2025
+    2026
+
+the selected object should correspond to the selected historical state.
+
+Do not display current geometry while pretending it is historical.
+
+============================================================
+36. EVIDENCE
+============================================================
+
+Evidence must link to the selected spatial entity.
+
+Examples:
+
+    Building evidence
+
+    Floor evidence
+
+    Room evidence
+
+    Change evidence
+
+only when actual records exist.
+
+============================================================
+37. PROVENANCE
+============================================================
+
+Show:
+
+    source
+    dataset
+    processing
+    derived geometry
+    result
+
+for selected entities where supported.
+
+============================================================
+38. VERIFICATION
+============================================================
+
+Verification should remain contextual.
+
+Example:
+
+    Building Conflict
+       ↓
+    inspect geometry
+       ↓
+    inspect evidence
+       ↓
+    review history
+       ↓
+    human decision
+
+============================================================
+39. 2D / 3D
+============================================================
+
+Keep:
+
+    3D = primary
+
+    2D = alternate cadastral/spatial view
+
+Switching preserves:
+
+    selected entity
+    property identity
+    location
+
+============================================================
+40. CAMERA
+============================================================
+
+Implement smooth:
+
+    focus
+    zoom
+    orbit
+    pan
+    reset
+
+The camera should understand the entity type.
+
+Building:
+
+    frame entire building.
+
+Floor:
+
+    frame floor level.
+
+Room:
+
+    closer interior/section framing where geometry supports it.
+
+Door:
+
+    close enough to identify selected element.
+
+Do not zoom impossibly close if the geometry does not support it.
+
+============================================================
+41. DETAIL LEVEL
+============================================================
+
+At city scale:
+
+    show simplified buildings.
+
+At property scale:
+
+    show detailed geometry.
+
+At building scale:
+
+    show floors.
+
+At floor scale:
+
+    show rooms/units.
+
+At room scale:
+
+    show doors/windows/elements where available.
+
+This is the desired progressive-detail experience.
+
+============================================================
+42. INTERACTION PRIORITY
+============================================================
+
+Clicking geometry must always take priority over decorative UI.
+
+The 3D scene should never feel like a static background.
+
+It is the actual application.
+
+============================================================
+43. VISUAL STYLE
+============================================================
+
+Use the four reference images for:
+
+    dark immersive environment
+    realistic building presentation
+    subtle cyan/teal accent
+    floating dark panels
+    compact analytics
+    spatial controls
+    depth
+    shadows
+    cinematic camera
+
+Do NOT copy their logos, labels, data, or product identity.
+
+============================================================
+44. REMOVE CURRENT DASHBOARD LOOK
+============================================================
+
+Remove/rework:
+
+    giant permanent sidebar
+    huge inspector
+    giant legend
+    repeated Active badges
+    phase labels
+    saturated blue canvas
+    primitive cyan block presentation
+    excessive cards
+    unnecessary borders
+
+============================================================
+45. BOTTOM TOOLBAR
+============================================================
+
+Use compact:
+
+    Select
+    Layers
+    Measure
+    Compare
+    Timeline
+    2D/3D
+    Camera
+
+============================================================
+46. TOP BAR
+============================================================
+
+Minimal:
+
+    BhuSetu 3D
+
+    Search / Ask BhuSetu
+
+    User
+
+No hackathon/internal branding.
+
+============================================================
+47. PERFORMANCE
+============================================================
+
+Because there may be many selectable objects:
+
+    use efficient entity lookup
+    spatial indexes
+    level-of-detail
+    lazy loading
+    cleanup event handlers
+    avoid rendering unnecessary detailed entities
+
+Do not create thousands of React DOM elements for geometry.
+
+Cesium remains responsible for spatial rendering.
+
+============================================================
+48. ACTUAL DATA ONLY
+============================================================
+
+Do not fabricate:
+
+    rooms
+    halls
+    doors
+    windows
+    units
+    metrics
+    evidence
+
+If these exist in backend/model:
+
+    expose them.
+
+If not:
+
+    keep the architecture ready but do not misrepresent them.
+
+============================================================
+49. FINAL EXPERIENCE
+============================================================
+
+The complete experience should feel like:
+
+    CITY
+      ↓
+    SELECT BUILDING
+      ↓
+    BUILDING HIGHLIGHTS
+      ↓
+    INSPECT BUILDING
+      ↓
+    SELECT FLOOR
+      ↓
+    FLOOR HIGHLIGHTS
+      ↓
+    SELECT ROOM / UNIT
+      ↓
+    ROOM HIGHLIGHTS
+      ↓
+    SELECT DOOR / SUPPORTED ELEMENT
+      ↓
+    ELEMENT HIGHLIGHTS
+      ↓
+    INSPECT DATA / EVIDENCE / HISTORY / ANALYSIS
+
+============================================================
+50. FINAL SUCCESS CRITERIA
+============================================================
+
+[ ] Full-screen immersive 3D world
+[ ] Many buildings visible initially
+[ ] Building selection works
+[ ] Building highlights
+[ ] Camera focuses building
+[ ] Building Inspector appears
+[ ] Floor selection works where geometry/data exists
+[ ] Floor highlights
+[ ] Floor Inspector appears
+[ ] Room selection works where geometry/data exists
+[ ] Room highlights
+[ ] Room Inspector appears
+[ ] Hall/corridor selection works where supported
+[ ] Door selection works where supported
+[ ] Window/other elements work where supported
+[ ] Outliner mirrors actual hierarchy
+[ ] Breadcrumb shows current selection depth
+[ ] Up-one-level navigation works
+[ ] Infrastructure is spatially visible
+[ ] Conflicts highlight actual geometry
+[ ] AI can navigate to supported spatial entities
+[ ] History works contextually
+[ ] Evidence links to selected entity
+[ ] Verification remains contextual
+[ ] 2D/3D synchronization works
+[ ] Floating UI replaces dashboard-heavy layout
+[ ] No giant permanent sidebar
+[ ] No saturated blue map canvas
+[ ] No SIH/team/phase branding
+[ ] Real backend geometry is used
+[ ] No fabricated rooms/doors/etc.
+[ ] Existing backend functionality preserved
+[ ] Performance remains acceptable
+[ ] No major console/runtime errors
+
+============================================================
+FINAL COMMAND
+============================================================
+
+DO NOT BUILD A DASHBOARD WITH A 3D MAP.
+
+BUILD AN INTERACTIVE 3D PROPERTY DIGITAL TWIN.
+
+The user's primary interaction must be:
+
+    LOOK
+      ↓
+    SELECT
+      ↓
+    FOCUS
+      ↓
+    INSPECT
+      ↓
+    DRILL DOWN
+      ↓
+    ANALYZE
+      ↓
+    VERIFY
+
+The 3D scene must respond to the user at every supported spatial level.
+
+The application should begin with many buildings.
+
+The user selects one building.
+
+That building highlights.
+
+The camera focuses it.
+
+The user drills into:
+
+    Floor
+    Room
+    Hall
+    Unit
+    Door
+    Window
+    Other supported spatial elements
+
+Each selected object receives:
+
+    visual highlight
+    camera focus
+    contextual inspector
+    evidence/provenance where available
+    spatial analysis where applicable
+    history where available
+
+Use actual data.
+
+Do not fabricate unsupported detail.
+
+Keep all BhuSetu features.
+
+Redesign the UI around the 3D world.
+
+Implement.
+
+Test.
+
+Fix.
+
+Retest.
+
+STOP.
+
+building is not visible right now fix issue, i need exactly like in that image as shown u before
+
+completed?? if not right now proceed
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-26T11:13:57+05:30.
+</ADDITIONAL_METADATA>

@@ -1,0 +1,8 @@
+{
+  "name": "@astatine/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript definitions for ASTATINE",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "private": true
+}

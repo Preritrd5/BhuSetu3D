@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  color: #F4F0E8;
+  background-color: #0F1210;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accessible focus outlines for architectural precision */
+:focus-visible {
+  outline: 2px solid #B56E48;
+  outline-offset: 2px;
+}
+
+/* Touch manipulation: removes tap delay */
+button,
+a,
+input,
+select,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Custom architectural scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F1210;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E2522;
+  border-radius: 2px;
+  border: 1px solid rgba(244, 240, 232, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2B3530;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  /* Architectural CTA Action */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[6px] bg-[#B56E48] hover:bg-[#A35E39] text-[#F4F0E8] text-xs font-semibold tracking-wide shadow-[0_2px_12px_rgba(181,110,72,0.25)] hover:shadow-[0_4px_20px_rgba(181,110,72,0.4)] transition-all duration-200 select-none cursor-pointer;
+  }
+
+  /* Architectural Secondary Action */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#F4F0E8] border border-[rgba(244,240,232,0.12)] hover:border-[#B56E48]/50 text-xs font-medium tracking-wide transition-all duration-200 select-none cursor-pointer;
+  }
+
+  /* Architectural Structural Container */
+  .glass-card {
+    @apply bg-[#141816]/95 border border-[rgba(244,240,232,0.08)] rounded-[14px] shadow-[0_12px_36px_-4px_rgba(0,0,0,0.6)];
+  }
+
+  /* Architectural Interactive Container */
+  .glass-card-interactive {
+    @apply bg-[#141816]/95 border border-[rgba(244,240,232,0.08)] hover:border-[rgba(181,110,72,0.35)] hover:bg-[#1A201D] rounded-[14px] shadow-[0_12px_36px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_16px_45px_-4px_rgba(0,0,0,0.75)] transition-all duration-200 cursor-pointer;
+  }
+
+  /* Architectural Selective HUD Panel */
+  .glass-panel {
+    @apply bg-[#141816]/90 backdrop-blur-[20px] border border-[rgba(244,240,232,0.1)] shadow-[0_16px_45px_rgba(0,0,0,0.7)];
+  }
+
+  /* Geodetic Grid Background Pattern */
+  .bg-geodetic-grid {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(244, 240, 232, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(244, 240, 232, 0.03) 1px, transparent 1px);
+  }
+}

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "astatine-api"
+version = "1.0.0"
+description = "ASTATINE Backend API - 3D ULPIN Generation & Vertical Property Mapping System"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "TANTRAKATHA", email = "tantrakatha@sih2026.gov.in" }
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning"
+]
