@@ -232,7 +232,7 @@ export default function VerificationQueuePage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
       moduleName="Statutory Review Queue"
     >
-      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
+      <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
@@ -241,7 +241,7 @@ export default function VerificationQueuePage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[#23847D] text-[11px] font-mono font-bold uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[#23847D] text-xs font-mono font-bold uppercase tracking-wider">
                     STATUTORY REVIEW WORKFLOW
                   </span>
                   <h1 className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-[#F4F0E8] flex items-center gap-2">

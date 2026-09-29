@@ -22,11 +22,11 @@ export default function AdminPage() {
 
   return (
     <ProtectedRoute requiredRole="ADMIN" moduleName="Platform Administration">
-      <div className="flex-1 flex overflow-hidden select-none bg-[#0F1210]">
+      <div className="flex-1 flex overflow-hidden select-none bg-[#0F1210] min-h-[calc(100vh-4rem)]">
         <Sidebar />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-[#0F1210]">
-          <div className="border-b border-[rgba(244,240,232,0.06)] pb-5">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6 bg-[#0F1210]">
+          <div className="border-b border-[rgba(244,240,232,0.08)] pb-4">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="text-xs font-mono px-2.5 py-0.5 rounded-[4px] bg-[#1C1613] text-[#E09F67] border border-[#B56E48]/35 font-bold uppercase tracking-wider">
                 ADMINISTRATION CONSOLE
@@ -47,14 +47,14 @@ export default function AdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               href="/admin/users"
-              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] hover:border-[#2EB8B0]/50 hover:bg-[#151B18] transition-all group shadow-sm flex flex-col justify-between"
+              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] hover:border-[#2EB8B0]/50 hover:bg-[#151B18] transition-all group shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-[6px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] flex items-center justify-center text-[#2EB8B0]">
+                  <div className="w-10 h-10 rounded-[6px] bg-[#161B18] border border-[rgba(244,240,232,0.10)] flex items-center justify-center text-[#2EB8B0]">
                     <Users className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
+                  <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
                     4 Personas
                   </span>
                 </div>
@@ -65,7 +65,7 @@ export default function AdminPage() {
                   Inspect institutional evaluator profiles (Vikram Sen, Kavita Sharma, Sunil Rao, Priya Nair), active authentication sessions, and department mappings.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.04)] flex items-center justify-between text-xs font-mono text-[#2EB8B0]">
+              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.06)] flex items-center justify-between text-xs font-mono text-[#2EB8B0] font-semibold">
                 <span>Manage Evaluators</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
               </div>
@@ -73,14 +73,14 @@ export default function AdminPage() {
 
             <Link
               href="/admin/roles"
-              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] hover:border-[#B56E48]/50 hover:bg-[#181411] transition-all group shadow-sm flex flex-col justify-between"
+              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48]/50 hover:bg-[#181411] transition-all group shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-[6px] bg-[#1C1613] border border-[#B56E48]/30 flex items-center justify-center text-[#E09F67]">
                     <Shield className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#B56E48]/20 border border-[#B56E48]/35 text-[#E09F67] font-bold uppercase">
+                  <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#B56E48]/20 border border-[#B56E48]/35 text-[#E09F67] font-bold uppercase">
                     4 Roles
                   </span>
                 </div>
@@ -91,7 +91,7 @@ export default function AdminPage() {
                   Inspect granular permissions across ADMIN, GOVERNMENT_OFFICER, SURVEYOR, and ANALYST for properties, verification, conflicts, and evidence.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.04)] flex items-center justify-between text-xs font-mono text-[#E09F67]">
+              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.06)] flex items-center justify-between text-xs font-mono text-[#E09F67] font-semibold">
                 <span>View Capability Matrix</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
               </div>
@@ -99,14 +99,14 @@ export default function AdminPage() {
 
             <Link
               href="/admin/audit"
-              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] hover:border-[#2EB8B0]/50 hover:bg-[#151B18] transition-all group shadow-sm flex flex-col justify-between"
+              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] hover:border-[#2EB8B0]/50 hover:bg-[#151B18] transition-all group shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 rounded-[6px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] flex items-center justify-center text-[#2EB8B0]">
+                  <div className="w-10 h-10 rounded-[6px] bg-[#161B18] border border-[rgba(244,240,232,0.10)] flex items-center justify-center text-[#2EB8B0]">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
+                  <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
                     Chained Hashes
                   </span>
                 </div>
@@ -117,7 +117,7 @@ export default function AdminPage() {
                   Full append-only audit trail logging logins, role verifications, statutory review sign-offs, and boundary mutations with SHA-256 integrity verification.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.04)] flex items-center justify-between text-xs font-mono text-[#2EB8B0]">
+              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.06)] flex items-center justify-between text-xs font-mono text-[#2EB8B0] font-semibold">
                 <span>Inspect Audit Ledger</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
               </div>
@@ -125,14 +125,14 @@ export default function AdminPage() {
 
             <Link
               href="/admin/settings"
-              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] hover:border-[#B56E48]/50 hover:bg-[#181411] transition-all group shadow-sm flex flex-col justify-between"
+              className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48]/50 hover:bg-[#181411] transition-all group shadow-sm flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 rounded-[6px] bg-[#1C1613] border border-[#B56E48]/30 flex items-center justify-center text-[#E09F67]">
                     <Sliders className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#CBD5E1] font-bold uppercase">
+                  <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#CBD5E1] font-bold uppercase">
                     EPSG:32643
                   </span>
                 </div>
@@ -143,7 +143,7 @@ export default function AdminPage() {
                   Configure coordinate reference system projections (UTM Zone 43N), base datum levels (920.50m MSL), and setback tolerance limits.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.04)] flex items-center justify-between text-xs font-mono text-[#E09F67]">
+              <div className="mt-4 pt-3 border-t border-[rgba(244,240,232,0.06)] flex items-center justify-between text-xs font-mono text-[#E09F67] font-semibold">
                 <span>Configure GIS Engine</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
               </div>

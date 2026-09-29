@@ -232,14 +232,14 @@ export default function EvidenceVaultPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"]}
       moduleName="Cryptographic Evidence Vault"
     >
-      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
+      <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Header */}
           <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-[11px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2.5 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)] w-fit mb-1.5">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2.5 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)] w-fit mb-1.5">
                 <FileCheck2 className="w-3.5 h-3.5 text-[#C47B50]" />
                 <span>CRYPTOGRAPHIC EVIDENCE VAULT & PROVENANCE</span>
               </div>

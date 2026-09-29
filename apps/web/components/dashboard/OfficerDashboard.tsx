@@ -56,46 +56,46 @@ export function OfficerDashboard() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* 1. Officer Key Focus Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-[10px] bg-[#171310] border border-[#B56E48]/35">
-          <div className="text-[11px] font-mono text-[#E09F67] uppercase">Pending Statutory Verifications</div>
-          <div className="text-2xl font-bold font-mono text-[#E09F67] mt-1">3 Cases</div>
-          <div className="text-xs text-[#CBD5E1] font-mono mt-1 flex items-center gap-1">
+        <div className="p-4 rounded-[10px] bg-[#171310] border border-[#B56E48]/40">
+          <div className="text-xs font-mono text-[#E09F67] uppercase tracking-wider font-semibold">Pending Statutory Verifications</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#E09F67] mt-1">3 Cases</div>
+          <div className="text-xs text-[#CBD5E1] font-mono mt-1.5 flex items-center gap-1 font-medium">
             <Clock className="w-3.5 h-3.5 text-[#B56E48]" />
             Awaiting Official Determination
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Setback & Height Violations</div>
-          <div className="text-2xl font-bold font-mono text-[#F4F0E8] mt-1">5 Active</div>
-          <div className="text-xs text-[#2EB8B0] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Setback & Height Violations</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#F4F0E8] mt-1">5 Active</div>
+          <div className="text-xs text-[#2EB8B0] font-mono mt-1.5 font-medium">
             LiDAR Audited Discrepancies
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Legally Sealed This Month</div>
-          <div className="text-2xl font-bold font-mono text-[#2EB8B0] mt-1">18 Cleared</div>
-          <div className="text-xs text-[#94A3B8] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Legally Sealed This Month</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#2EB8B0] mt-1">18 Cleared</div>
+          <div className="text-xs text-[#94A3B8] font-mono mt-1.5 font-medium">
             Chained Cryptographic Signatures
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Jurisdiction Scope</div>
-          <div className="text-2xl font-bold font-mono text-[#F4F0E8] mt-1">Ward 101</div>
-          <div className="text-xs text-[#CBD5E1] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Jurisdiction Scope</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#F4F0E8] mt-1">Ward 101</div>
+          <div className="text-xs text-[#CBD5E1] font-mono mt-1.5 font-medium">
             142 Commercial & Mixed Parcels
           </div>
         </div>
       </div>
 
       {/* 2. Priority Statutory Review Queue (Immediate Focus) */}
-      <div className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[rgba(244,240,232,0.06)]">
+      <div className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[rgba(244,240,232,0.08)]">
           <div className="flex items-center gap-2">
             <Scale className="w-4 h-4 text-[#B56E48]" />
             <h2 className="text-sm font-bold font-mono text-[#F4F0E8] uppercase tracking-wide">
@@ -104,7 +104,7 @@ export function OfficerDashboard() {
           </div>
           <Link
             href="/verification"
-            className="text-xs font-mono text-[#2EB8B0] hover:underline flex items-center gap-1"
+            className="text-xs font-mono text-[#2EB8B0] hover:underline flex items-center gap-1 font-semibold"
           >
             <span>Open Review Queue</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -115,18 +115,18 @@ export function OfficerDashboard() {
           {PENDING_CASES.map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-[8px] bg-[#0E1210] border border-[rgba(244,240,232,0.06)] hover:border-[rgba(244,240,232,0.14)] transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="p-4 rounded-[8px] bg-[#0E1210] border border-[rgba(244,240,232,0.08)] hover:border-[rgba(244,240,232,0.16)] transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-bold font-mono text-[#F4F0E8]">{item.title}</span>
                   <span className="text-xs font-mono text-[#94A3B8]">· {item.ward}</span>
-                  <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-bold uppercase ${item.severityColor}`}>
+                  <span className={`text-xs font-mono px-2 py-0.5 rounded border font-bold uppercase ${item.severityColor}`}>
                     {item.severity}
                   </span>
                 </div>
                 <div className="text-xs font-mono text-[#CBD5E1]">{item.issue}</div>
-                <div className="text-[11px] font-mono text-[#94A3B8]">
+                <div className="text-xs font-mono text-[#94A3B8]">
                   Evidence Source: <span className="text-[#2EB8B0]">{item.source}</span>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export function OfficerDashboard() {
               <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href={item.href}
-                  className="px-3.5 py-2 rounded-[5px] bg-[#176C68] hover:bg-[#1E827D] text-[#F4F0E8] text-xs font-mono font-semibold transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-[5px] bg-[#176C68] hover:bg-[#1E827D] text-[#F4F0E8] text-xs font-mono font-semibold transition-all shadow-sm flex items-center gap-1.5 min-h-[38px]"
                 >
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>{item.actionText}</span>

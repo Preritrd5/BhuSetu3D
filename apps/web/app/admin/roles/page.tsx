@@ -123,11 +123,11 @@ export default function AdminRolesPage() {
 
   return (
     <ProtectedRoute requiredRole="ADMIN" moduleName="Role Capability Matrix">
-      <div className="flex-1 flex overflow-hidden select-none bg-[#0F1210]">
+      <div className="flex-1 flex overflow-hidden select-none bg-[#0F1210] min-h-[calc(100vh-4rem)]">
         <Sidebar />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-[#0F1210]">
-          <div className="border-b border-[rgba(244,240,232,0.06)] pb-5">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6 bg-[#0F1210]">
+          <div className="border-b border-[rgba(244,240,232,0.08)] pb-4">
             <div className="flex items-center gap-2 mb-1.5">
               <Link
                 href="/admin"

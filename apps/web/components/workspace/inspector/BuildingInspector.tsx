@@ -260,12 +260,12 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
                         {floor.floor_label || `Floor ${floor.floor_code}`}
                       </span>
                       {floor.is_unsanctioned && (
-                        <span className="px-1.5 py-0.2 rounded-[4px] bg-rose-900/80 text-rose-300 text-[9px] font-mono font-bold shrink-0">
+                        <span className="px-2 py-0.5 rounded-[4px] bg-rose-900/80 text-rose-300 text-xs font-mono font-bold shrink-0">
                           UNSANCTIONED
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-[#77867C] font-mono block mt-0.5">
+                    <span className="text-xs text-[#94A3B8] font-mono block mt-0.5">
                       {floor.floor_code} • {floor.base_elevation}m – {floor.ceiling_elevation}m MSL
                       ({floor.floor_area_sqm}m²)
                     </span>

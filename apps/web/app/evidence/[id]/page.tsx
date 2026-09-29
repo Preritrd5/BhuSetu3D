@@ -103,7 +103,7 @@ export default function EvidenceDetailPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"]}
       moduleName="Evidence Dossier"
     >
-      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
+      <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">

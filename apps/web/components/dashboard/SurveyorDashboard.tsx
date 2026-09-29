@@ -60,53 +60,53 @@ export function SurveyorDashboard() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* 1. Surveyor Operational Field Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Assigned Field Surveys</div>
-          <div className="text-2xl font-bold font-mono text-[#2EB8B0] mt-1">4 Active</div>
-          <div className="text-xs text-[#CBD5E1] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Assigned Field Surveys</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#2EB8B0] mt-1">4 Active</div>
+          <div className="text-xs text-[#CBD5E1] font-mono mt-1.5 font-medium">
             Malleshwaram Cadastral Sector
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Sensor Datasets Pending</div>
-          <div className="text-2xl font-bold font-mono text-[#F4F0E8] mt-1">2 Datasets</div>
-          <div className="text-xs text-[#E09F67] font-mono mt-1 flex items-center gap-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Sensor Datasets Pending</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#F4F0E8] mt-1">2 Datasets</div>
+          <div className="text-xs text-[#E09F67] font-mono mt-1.5 flex items-center gap-1 font-medium">
             <Clock className="w-3.5 h-3.5 text-[#B56E48]" />
             LiDAR & Drone Mesh
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Field Verifications Logged</div>
-          <div className="text-2xl font-bold font-mono text-[#F4F0E8] mt-1">12 Submitted</div>
-          <div className="text-xs text-[#94A3B8] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Field Verifications Logged</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#F4F0E8] mt-1">12 Submitted</div>
+          <div className="text-xs text-[#94A3B8] font-mono mt-1.5 font-medium">
             Ready for Statutory Review
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">RTK GPS Calibration</div>
-          <div className="text-2xl font-bold font-mono text-[#4ADE80] mt-1">±1.4 cm</div>
-          <div className="text-xs text-[#CBD5E1] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">RTK GPS Calibration</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#4ADE80] mt-1">±1.4 cm</div>
+          <div className="text-xs text-[#CBD5E1] font-mono mt-1.5 font-medium">
             PPK Dual-Frequency Locked
           </div>
         </div>
       </div>
 
       {/* 2. Active Field Cadastre Assignments */}
-      <div className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[rgba(244,240,232,0.06)]">
+      <div className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[rgba(244,240,232,0.08)]">
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-[#2EB8B0]" />
             <h2 className="text-sm font-bold font-mono text-[#F4F0E8] uppercase tracking-wide">
               Active Field Cadastre Assignments & Surveys
             </h2>
           </div>
-          <span className="text-xs font-mono text-[#CBD5E1]">
+          <span className="text-xs font-mono text-[#CBD5E1] font-semibold">
             Survey Sector: Malleshwaram W-101
           </span>
         </div>
@@ -115,18 +115,18 @@ export function SurveyorDashboard() {
           {ASSIGNED_TASKS.map((task) => (
             <div
               key={task.id}
-              className="p-4 rounded-[8px] bg-[#0E1210] border border-[rgba(244,240,232,0.06)] hover:border-[rgba(244,240,232,0.14)] transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="p-4 rounded-[8px] bg-[#0E1210] border border-[rgba(244,240,232,0.08)] hover:border-[rgba(244,240,232,0.16)] transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-bold font-mono text-[#F4F0E8]">{task.parcel}</span>
                   <span className="text-xs font-mono text-[#94A3B8]">· {task.project}</span>
-                  <span className={`text-[9px] font-mono px-2 py-0.5 rounded border font-bold uppercase ${task.statusColor}`}>
+                  <span className={`text-xs font-mono px-2 py-0.5 rounded border font-bold uppercase ${task.statusColor}`}>
                     {task.status}
                   </span>
                 </div>
                 <div className="text-xs font-mono text-[#CBD5E1]">{task.objective}</div>
-                <div className="text-[11px] font-mono text-[#94A3B8]">
+                <div className="text-xs font-mono text-[#94A3B8]">
                   Datum Constraint: <span className="text-[#2EB8B0]">{task.targetElevation}</span>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export function SurveyorDashboard() {
               <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href={task.href}
-                  className="px-3.5 py-2 rounded-[5px] bg-[#176C68] hover:bg-[#1E827D] text-[#F4F0E8] text-xs font-mono font-semibold transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-[5px] bg-[#176C68] hover:bg-[#1E827D] text-[#F4F0E8] text-xs font-mono font-semibold transition-all shadow-sm flex items-center gap-1.5 min-h-[38px]"
                 >
                   <Camera className="w-3.5 h-3.5" />
                   <span>{task.actionText}</span>

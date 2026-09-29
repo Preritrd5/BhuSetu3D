@@ -278,10 +278,10 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
             <div
               className="absolute bottom-14 right-0 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] rounded-[10px] shadow-2xl p-2 min-w-[210px] flex flex-col gap-1 text-xs font-mono z-30"
             >
-              <div className="px-2.5 py-1 text-[10px] uppercase tracking-wider text-[#94A3B8] font-bold border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between">
+              <div className="px-2.5 py-1 text-xs uppercase tracking-wider text-[#94A3B8] font-bold border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between">
                 <span>Spatial Tools</span>
-                <button onClick={() => setShowMoreMenu(false)} className="text-[#6F7772] hover:text-[#F4F0E8]">
-                  <X className="w-3 h-3" />
+                <button onClick={() => setShowMoreMenu(false)} className="text-[#8C988F] hover:text-[#F4F0E8] p-1">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
@@ -340,7 +340,7 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
               )}
 
               {/* Camera Views Divider */}
-              <div className="pt-1 border-t border-[rgba(244,240,232,0.06)] px-2 text-[10px] text-[#94A3B8] uppercase font-bold">
+              <div className="pt-1.5 border-t border-[rgba(244,240,232,0.08)] px-2 text-xs text-[#94A3B8] uppercase font-bold">
                 Camera Presets
               </div>
 

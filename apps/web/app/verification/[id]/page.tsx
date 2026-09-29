@@ -236,7 +236,7 @@ export default function VerificationReviewWorkspacePage() {
         requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
         moduleName="Statutory Verification Dossier"
       >
-        <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] font-sans">
+        <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] font-sans">
           <Sidebar />
           <div className="flex-1 flex items-center justify-center p-4">
             <div className="text-center space-y-3">
@@ -255,7 +255,7 @@ export default function VerificationReviewWorkspacePage() {
         requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
         moduleName="Statutory Verification Dossier"
       >
-        <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] font-sans">
+        <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] font-sans">
           <Sidebar />
           <div className="flex-1 p-4 sm:p-6 lg:p-8">
             <Link
@@ -284,7 +284,7 @@ export default function VerificationReviewWorkspacePage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
       moduleName="Statutory Verification Dossier"
     >
-      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
+      <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">

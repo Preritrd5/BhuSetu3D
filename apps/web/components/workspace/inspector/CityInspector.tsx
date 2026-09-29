@@ -99,12 +99,12 @@ export const CityInspector: React.FC<CityInspectorProps> = ({
                       {bld.name}
                     </span>
                     {bld.has_discrepancy && (
-                      <span className="px-1.5 py-0.2 rounded-[6px] bg-rose-900/80 text-rose-300 text-[9px] font-mono font-bold shrink-0">
+                      <span className="px-2 py-0.5 rounded-[4px] bg-rose-900/80 text-rose-300 text-xs font-mono font-bold shrink-0">
                         VARIANCE
                       </span>
                     )}
                   </div>
-                  <span className="text-[11px] text-[#A2B3A8] font-mono block mt-0.5">
+                  <span className="text-xs text-[#A2B3A8] font-mono block mt-0.5">
                     {bld.building_code} • {bld.detected_floors} Floors ({bld.building_height}m)
                   </span>
                 </div>

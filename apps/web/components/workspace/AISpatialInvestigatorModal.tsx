@@ -303,8 +303,8 @@ export const AISpatialInvestigatorModal: React.FC<AISpatialInvestigatorModalProp
         </div>
 
         {/* Suggested Prompt Chips */}
-        <div className="px-5 py-2.5 border-t border-[rgba(244,240,232,0.06)] bg-[#0F1210]">
-          <div className="text-[10px] text-[#6F7772] font-mono mb-1.5 flex items-center justify-between">
+        <div className="px-5 py-2.5 border-t border-[rgba(244,240,232,0.08)] bg-[#0F1210]">
+          <div className="text-xs text-[#94A3B8] font-mono mb-1.5 flex items-center justify-between font-semibold">
             <span>Recommended Investigation Prompts:</span>
           </div>
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -312,10 +312,10 @@ export const AISpatialInvestigatorModal: React.FC<AISpatialInvestigatorModalProp
               <button
                 key={sq.id}
                 onClick={() => handleSend(sq.question)}
-                className="px-2.5 py-1 rounded-[6px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] text-[10px] text-[#D9D2C5] hover:text-[#C47B50] hover:border-[rgba(244,240,232,0.14)] whitespace-nowrap transition-colors flex items-center gap-1 font-sans cursor-pointer"
+                className="px-3 py-1.5 rounded-[6px] bg-[#121614] border border-[rgba(244,240,232,0.10)] text-xs text-[#D9D2C5] hover:text-[#C47B50] hover:border-[rgba(244,240,232,0.20)] whitespace-nowrap transition-colors flex items-center gap-1.5 font-sans cursor-pointer"
               >
                 <span>{sq.question}</span>
-                <ChevronRight className="w-3 h-3 text-[#6F7772]" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#94A3B8]" />
               </button>
             ))}
           </div>

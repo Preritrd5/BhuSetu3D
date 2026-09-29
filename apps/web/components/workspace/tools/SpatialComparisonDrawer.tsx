@@ -90,13 +90,13 @@ export const SpatialComparisonDrawer: React.FC<SpatialComparisonDrawerProps> = (
             <div className="p-3 rounded-[8px] bg-[#176C68]/10 border border-[#176C68]/30 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="px-2 py-0.5 rounded-[4px] bg-[#176C68]/20 text-[#23847D] border border-[#176C68]/30 text-[9px] font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded-[4px] bg-[#176C68]/20 text-[#23847D] border border-[#176C68]/30 text-xs font-mono font-bold">
                     OBJECT A
                   </span>
                   {entityA && onFocusEntityA && (
                     <button
                       onClick={onFocusEntityA}
-                      className="text-[10px] text-[#23847D] hover:underline font-mono cursor-pointer"
+                      className="text-xs text-[#23847D] hover:underline font-mono cursor-pointer font-medium"
                     >
                       Focus
                     </button>
@@ -105,7 +105,7 @@ export const SpatialComparisonDrawer: React.FC<SpatialComparisonDrawerProps> = (
                 <span className="font-bold text-[#F4F0E8] block text-xs truncate" title={entityA?.title}>
                   {entityA?.title || "No selection"}
                 </span>
-                <span className="text-[10px] text-[#6F7772] font-mono block truncate">
+                <span className="text-xs text-[#94A3B8] font-mono block truncate mt-0.5">
                   {entityA?.code || entityA?.entityId || "—"}
                 </span>
               </div>
@@ -115,13 +115,13 @@ export const SpatialComparisonDrawer: React.FC<SpatialComparisonDrawerProps> = (
             <div className="p-3 rounded-[8px] bg-[#B56E48]/10 border border-[#B56E48]/30 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="px-2 py-0.5 rounded-[4px] bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/30 text-[9px] font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded-[4px] bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/30 text-xs font-mono font-bold">
                     OBJECT B
                   </span>
                   {entityB && onFocusEntityB && (
                     <button
                       onClick={onFocusEntityB}
-                      className="text-[10px] text-[#C47B50] hover:underline font-mono cursor-pointer"
+                      className="text-xs text-[#C47B50] hover:underline font-mono cursor-pointer font-medium"
                     >
                       Focus
                     </button>
@@ -132,7 +132,7 @@ export const SpatialComparisonDrawer: React.FC<SpatialComparisonDrawerProps> = (
                     <span className="text-[#C47B50]/80 animate-pulse">Pick object in 3D...</span>
                   )}
                 </span>
-                <span className="text-[10px] text-[#6F7772] font-mono block truncate">
+                <span className="text-xs text-[#94A3B8] font-mono block truncate mt-0.5">
                   {entityB?.code || entityB?.entityId || "Awaiting pick"}
                 </span>
               </div>

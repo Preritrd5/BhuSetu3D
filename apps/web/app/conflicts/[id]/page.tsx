@@ -167,7 +167,7 @@ export default function ConflictDetailPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
       moduleName="Discrepancy Detail"
     >
-      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden font-sans select-none">
+      <div className="flex h-[calc(100vh-4rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden font-sans select-none">
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">

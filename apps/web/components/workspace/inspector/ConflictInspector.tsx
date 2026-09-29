@@ -80,7 +80,7 @@ export const ConflictInspector: React.FC<ConflictInspectorProps> = ({
               <span className="font-bold text-[#F4F0E8]">
                 {conflict.severity} Severity Discrepancy
               </span>
-              <span className="px-1.5 py-0.5 rounded-[3px] bg-[#B56E48]/20 text-[#C47B50] font-mono text-[9px] font-bold border border-[#B56E48]/30">
+              <span className="px-2 py-0.5 rounded-[4px] bg-[#B56E48]/20 text-[#C47B50] font-mono text-xs font-bold border border-[#B56E48]/30">
                 {conflict.status}
               </span>
             </div>
@@ -124,16 +124,16 @@ export const ConflictInspector: React.FC<ConflictInspectorProps> = ({
 
         {/* Section 2: Explanation & Grounding */}
         <InspectorSection title="Analytical Explanation" defaultOpen={true}>
-          <div className="p-3 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[8px] space-y-2 text-[11px]">
+          <div className="p-3 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[8px] space-y-2 text-xs">
             <p className="text-[#D9D2C5] leading-relaxed font-sans">{conflict.explanation}</p>
             {conflict.discrepancy_details && (
-              <div className="pt-2 border-t border-[rgba(244,240,232,0.06)] grid grid-cols-2 gap-2 font-mono text-[10px]">
+              <div className="pt-2 border-t border-[rgba(244,240,232,0.08)] grid grid-cols-2 gap-2 font-mono text-xs">
                 {Object.entries(conflict.discrepancy_details).map(([key, val]) => (
-                  <div key={key} className="bg-[#141816] p-1.5 rounded-[6px] border border-[rgba(244,240,232,0.06)]">
-                    <span className="text-[#6F7772] uppercase block text-[9px]">
+                  <div key={key} className="bg-[#141816] p-2 rounded-[6px] border border-[rgba(244,240,232,0.08)]">
+                    <span className="text-[#94A3B8] uppercase block text-xs font-semibold">
                       {key.replace(/_/g, " ")}
                     </span>
-                    <span className="font-bold text-[#F4F0E8] block truncate">{String(val)}</span>
+                    <span className="font-bold text-[#F4F0E8] block truncate mt-0.5">{String(val)}</span>
                   </div>
                 ))}
               </div>
@@ -143,23 +143,23 @@ export const ConflictInspector: React.FC<ConflictInspectorProps> = ({
 
         {/* Section 3: Evidence & Governance */}
         <InspectorSection title="Evidence & Governance" defaultOpen={true}>
-          <div className="space-y-2 text-[11px]">
-            <div className="p-2.5 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[8px] space-y-1">
-              <span className="text-[10px] text-[#6F7772] font-mono block">Primary Sensor Evidence</span>
+          <div className="space-y-2 text-xs">
+            <div className="p-2.5 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[8px] space-y-1">
+              <span className="text-xs text-[#94A3B8] font-mono block font-semibold">Primary Sensor Evidence</span>
               <span className="font-bold text-[#F4F0E8] block">
                 {conflict.evidence_reference?.primary_evidence_dataset ||
                   "2026 Drone Photogrammetry & 3D Reality Mesh"}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 font-mono text-[10px]">
-              <div className="p-2 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[6px]">
-                <span className="text-[#6F7772] uppercase text-[9px] block">Review Status</span>
-                <span className="font-bold text-[#C47B50] block">{conflict.verification_status || "UNDER_REVIEW"}</span>
+            <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+              <div className="p-2 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[6px]">
+                <span className="text-[#94A3B8] uppercase text-xs block font-semibold">Review Status</span>
+                <span className="font-bold text-[#C47B50] block mt-0.5">{conflict.verification_status || "UNDER_REVIEW"}</span>
               </div>
-              <div className="p-2 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[6px]">
-                <span className="text-[#6F7772] uppercase text-[9px] block">Assigned Officer</span>
-                <span className="font-bold text-[#F4F0E8] block truncate">
+              <div className="p-2 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[6px]">
+                <span className="text-[#94A3B8] uppercase text-xs block font-semibold">Assigned Officer</span>
+                <span className="font-bold text-[#F4F0E8] block truncate mt-0.5">
                   {conflict.assigned_reviewer_name || "Town Planning Reviewer"}
                 </span>
               </div>

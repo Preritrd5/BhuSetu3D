@@ -34,46 +34,46 @@ export function AnalystDashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* 1. Spatial Intelligence Core Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[#B56E48]/35 bg-[#171310]">
-          <div className="text-[11px] font-mono text-[#E09F67] uppercase">Detected Spatial Anomalies</div>
-          <div className="text-2xl font-bold font-mono text-[#E09F67] mt-1">8 Conflicts</div>
-          <div className="text-xs text-[#CBD5E1] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#171310] border border-[#B56E48]/40">
+          <div className="text-xs font-mono text-[#E09F67] uppercase tracking-wider font-semibold">Detected Spatial Anomalies</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#E09F67] mt-1">8 Conflicts</div>
+          <div className="text-xs text-[#CBD5E1] font-mono mt-1.5 font-medium">
             Topological & Volumetric Overlaps
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Grounded AI Inquiries</div>
-          <div className="text-2xl font-bold font-mono text-[#2EB8B0] mt-1">42 Executed</div>
-          <div className="text-xs text-[#94A3B8] font-mono mt-1 flex items-center gap-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Grounded AI Inquiries</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#2EB8B0] mt-1">42 Executed</div>
+          <div className="text-xs text-[#94A3B8] font-mono mt-1.5 flex items-center gap-1 font-medium">
             <Cpu className="w-3.5 h-3.5 text-[#2EB8B0]" />
             Gemini PostGIS Intent Engine
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Geometric Conformance</div>
-          <div className="text-2xl font-bold font-mono text-[#F4F0E8] mt-1">94.2%</div>
-          <div className="text-xs text-[#2EB8B0] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">Geometric Conformance</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#F4F0E8] mt-1">94.2%</div>
+          <div className="text-xs text-[#2EB8B0] font-mono mt-1.5 font-medium">
             Explainable Data Quality Rating
           </div>
         </div>
 
-        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.06)]">
-          <div className="text-[11px] font-mono text-[#94A3B8] uppercase">4D Multi-Epoch Scans</div>
-          <div className="text-2xl font-bold font-mono text-[#F4F0E8] mt-1">14 Shifts</div>
-          <div className="text-xs text-[#CBD5E1] font-mono mt-1">
+        <div className="p-4 rounded-[10px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+          <div className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">4D Multi-Epoch Scans</div>
+          <div className="text-2xl sm:text-3xl font-bold font-mono text-[#F4F0E8] mt-1">14 Shifts</div>
+          <div className="text-xs text-[#CBD5E1] font-mono mt-1.5 font-medium">
             2024 vs 2026 Altimetric Deltas
           </div>
         </div>
       </div>
 
       {/* 2. AI Spatial Investigation Workbench (Analyst Flagship Tool) */}
-      <div className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.06)] space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[rgba(244,240,232,0.06)]">
+      <div className="p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[rgba(244,240,232,0.08)]">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#2EB8B0]" />
             <h2 className="text-sm font-bold font-mono text-[#F4F0E8] uppercase tracking-wide">
@@ -82,7 +82,7 @@ export function AnalystDashboard() {
           </div>
           <Link
             href="/spatial-investigator"
-            className="text-xs font-mono text-[#2EB8B0] hover:underline flex items-center gap-1"
+            className="text-xs font-mono text-[#2EB8B0] hover:underline flex items-center gap-1 font-semibold"
           >
             <span>Open Investigator</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -104,12 +104,12 @@ export function AnalystDashboard() {
                 value={queryInput}
                 onChange={(e) => setQueryInput(e.target.value)}
                 placeholder="Ask grounded spatial questions: 'Which parcels violate setback regulations in Malleshwaram?'"
-                className="w-full pl-10 pr-4 py-2.5 rounded-[6px] bg-[#0E1210] border border-[rgba(244,240,232,0.1)] focus:border-[#2EB8B0] text-xs font-mono text-[#F4F0E8] placeholder:text-[#6F7772] outline-none"
+                className="w-full pl-10 pr-4 py-2.5 rounded-[6px] bg-[#0E1210] border border-[rgba(244,240,232,0.12)] focus:border-[#2EB8B0] text-xs font-mono text-[#F4F0E8] placeholder:text-[#6F7772] outline-none"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2.5 rounded-[6px] bg-[#176C68] hover:bg-[#1E827D] text-[#F4F0E8] text-xs font-mono font-semibold transition-all shrink-0 flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-[6px] bg-[#176C68] hover:bg-[#1E827D] text-[#F4F0E8] text-xs font-mono font-semibold transition-all shrink-0 flex items-center gap-1.5 min-h-[38px]"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Query AI</span>
@@ -117,13 +117,13 @@ export function AnalystDashboard() {
           </form>
 
           <div className="space-y-1.5 pt-2">
-            <div className="text-[11px] font-mono text-[#94A3B8] uppercase">Pre-Seeded Spatial Investigation Queries:</div>
+            <div className="text-xs font-mono text-[#94A3B8] uppercase font-semibold">Pre-Seeded Spatial Investigation Queries:</div>
             <div className="flex flex-wrap gap-2">
               {SAMPLE_QUERIES.map((q) => (
                 <button
                   key={q}
                   onClick={() => handleRunQuery(q)}
-                  className="px-2.5 py-1.5 rounded-[4px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] hover:border-[#2EB8B0]/50 hover:bg-[#1A221E] text-left text-xs font-mono text-[#CBD5E1] transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-[4px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] hover:border-[#2EB8B0]/50 hover:bg-[#1A221E] text-left text-xs font-mono text-[#CBD5E1] transition-all cursor-pointer"
                 >
                   "{q}"
                 </button>

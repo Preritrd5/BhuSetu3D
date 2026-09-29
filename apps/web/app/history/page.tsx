@@ -527,7 +527,7 @@ export default function HistoryPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
       moduleName="4D History Scrubber"
     >
-      <div className="flex h-[calc(100vh-3.5rem)] w-full overflow-hidden bg-[#0F1210] text-[#F4F0E8]">
+      <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-[#0F1210] text-[#F4F0E8]">
         <Sidebar />
 
         <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">

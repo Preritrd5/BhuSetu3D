@@ -48,33 +48,33 @@ export const BottomTemporalTimeline: React.FC<BottomTemporalTimelineProps> = ({
       <div className="pointer-events-auto w-full max-w-2xl bg-[#0F1210]/95 backdrop-blur-sm border border-[rgba(244,240,232,0.10)] p-3.5 rounded-[10px] shadow-lg font-mono text-xs space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[#C47B50] font-bold">
+          <div className="flex items-center gap-2.5 text-[#C47B50] font-bold">
             <History className="w-4 h-4" />
-            <span className="text-[11px] uppercase tracking-widest text-[#F4F0E8]">
+            <span className="text-xs uppercase tracking-widest text-[#F4F0E8]">
               4D Temporal Evolution
             </span>
-            <span className="text-[9px] font-mono text-[#6F7772] uppercase tracking-wider">
-              Multi-Epoch Change Detection
+            <span className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider font-semibold">
+              Multi-Epoch Detection
             </span>
           </div>
           <button
             onClick={onClose}
             aria-label="Close 4D Timeline"
-            className="p-1.5 rounded-[5px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors cursor-pointer"
+            className="p-1.5 rounded-[5px] hover:bg-[#1A201D] text-[#8C988F] hover:text-[#F4F0E8] transition-colors cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Epoch Selector Buttons */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2.5">
           {EPOCHS.map((epoch) => {
             const isSelected = selectedYear === epoch.year;
             return (
               <button
                 key={epoch.year}
                 onClick={() => onSelectYear(epoch.year)}
-                className={`p-2.5 rounded-[8px] border text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-[8px] border text-left transition-all cursor-pointer ${
                   isSelected
                     ? "bg-[#1A201D] border-[#B56E48]/50 shadow-sm"
                     : "bg-[#141816] border-[rgba(244,240,232,0.08)] hover:border-[rgba(244,240,232,0.18)] hover:bg-[#1A201D]"
@@ -82,17 +82,17 @@ export const BottomTemporalTimeline: React.FC<BottomTemporalTimelineProps> = ({
               >
                 <div className="flex items-center justify-between mb-1.5">
                   <span
-                    className={`text-sm font-black ${
+                    className={`text-base font-bold ${
                       isSelected ? "text-[#C47B50]" : "text-[#D9D2C5]"
                     }`}
                   >
                     {epoch.year}
                   </span>
-                  <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-[3px] border ${epoch.badgeColor}`}>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-[4px] border ${epoch.badgeColor}`}>
                     {epoch.badge}
                   </span>
                 </div>
-                <div className="text-[10px] font-mono leading-relaxed line-clamp-2" style={{ color: isSelected ? "#D9D2C5" : "#6F7772" }}>
+                <div className="text-xs font-mono leading-relaxed line-clamp-2" style={{ color: isSelected ? "#D9D2C5" : "#8C988F" }}>
                   {epoch.desc}
                 </div>
               </button>
@@ -102,13 +102,13 @@ export const BottomTemporalTimeline: React.FC<BottomTemporalTimelineProps> = ({
 
         {/* Temporal Progress Bar */}
         <div className="relative pt-0.5 px-0.5">
-          <div className="h-1 w-full bg-[#1A201D] rounded-full overflow-hidden border border-[rgba(244,240,232,0.06)]">
+          <div className="h-1.5 w-full bg-[#1A201D] rounded-full overflow-hidden border border-[rgba(244,240,232,0.08)]">
             <div
               className="h-full bg-[#B56E48] transition-all duration-500 rounded-full"
               style={{ width: selectedEpoch.progress }}
             />
           </div>
-          <div className="flex justify-between text-[9px] font-mono text-[#6F7772] mt-1.5">
+          <div className="flex justify-between text-xs font-mono text-[#94A3B8] mt-2 font-medium">
             <span>2024 · Photogrammetry</span>
             <span>2025 · Interim Pass</span>
             <span>2026 · Drone LiDAR</span>
