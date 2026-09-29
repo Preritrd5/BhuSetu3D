@@ -33,6 +33,14 @@ interface RegionOption {
   city_id: string;
 }
 
+const FALLBACK_CITIES: CityOption[] = [
+  { id: "city-bengaluru", name: "Bengaluru", code: "BLR" },
+  { id: "city-mysuru", name: "Mysuru", code: "MYS" },
+  { id: "city-hubli", name: "Hubballi-Dharwad", code: "HBD" },
+  { id: "city-mangaluru", name: "Mangaluru", code: "MNG" },
+];
+const FALLBACK_LAND_USES = ["RESIDENTIAL", "COMMERCIAL", "INDUSTRIAL", "AGRICULTURAL", "PUBLIC", "MIXED"];
+
 export const FilterControl: React.FC<FilterControlProps> = ({
   filters,
   onChangeFilters,
@@ -46,19 +54,26 @@ export const FilterControl: React.FC<FilterControlProps> = ({
   useEffect(() => {
     async function loadOptions() {
       try {
-        const res = await fetch(`${API_BASE}/properties/filter-options`, {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+        // Skip the Authorization header for demo tokens — backend rejects them for public endpoints
+        const isDemo = !token || token.startsWith("demo_token_");
+        const headers: Record<string, string> = {};
+        if (token && !isDemo) headers["Authorization"] = `Bearer ${token}`;
+
+        const res = await fetch(`${API_BASE}/properties/filter-options`, { headers });
         if (res.ok) {
           const data = await res.json();
-          setCities(data.cities || []);
+          setCities(data.cities?.length ? data.cities : FALLBACK_CITIES);
           setRegions(data.regions || []);
-          setLandUses(data.land_uses || []);
+          setLandUses(data.land_uses?.length ? data.land_uses : FALLBACK_LAND_USES);
+        } else {
+          // API returned non-OK — use fallback data so UI is not empty
+          setCities(FALLBACK_CITIES);
+          setLandUses(FALLBACK_LAND_USES);
         }
       } catch (err) {
-        console.error("Failed to load filter options:", err);
+        console.error("Failed to load filter options, using fallbacks:", err);
+        setCities(FALLBACK_CITIES);
+        setLandUses(FALLBACK_LAND_USES);
       }
     }
     loadOptions();

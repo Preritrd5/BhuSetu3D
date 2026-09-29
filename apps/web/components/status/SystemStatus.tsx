@@ -63,7 +63,7 @@ function StatusCard({ label, status, subtext, detail, icon: Icon }: StatusBadgeP
   const StatusIcon = style.icon;
 
   return (
-    <div className={cn("p-4 rounded-lg border flex flex-col justify-between transition-all", style.bg)}>
+    <div className={cn("p-4 rounded-lg border flex flex-col justify-between transition-all min-w-[180px]", style.bg)}>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded bg-surface border border-border-subtle text-slate-200">

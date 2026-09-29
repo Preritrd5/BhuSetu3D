@@ -194,7 +194,7 @@ export default function OverviewPage() {
               <span className="w-2 h-2 rounded-full bg-[#176C68] inline-block" />
               Live Infrastructure & PostGIS Telemetry
             </h2>
-            <div className="p-4 sm:p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)]">
+            <div className="p-4 sm:p-5 rounded-[12px] bg-[#121614] border border-[rgba(244,240,232,0.08)] overflow-x-auto">
               <SystemStatus />
             </div>
           </section>
