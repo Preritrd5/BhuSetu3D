@@ -155,11 +155,20 @@ class ParcelRepository:
             filters.append(func.upper(Parcel.land_use) == land_use.upper().strip())
         if query and query.strip():
             clean_q = f"%{query.strip()}%"
+            clean_q_und = f"%{query.strip().replace(' ', '_')}%"
             filters.append(
                 or_(
                     Parcel.ulpin_2d.ilike(clean_q),
                     Parcel.survey_number.ilike(clean_q),
+                    Parcel.land_use.ilike(clean_q),
+                    Parcel.land_use.ilike(clean_q_und),
                     cast(Parcel.id, String).ilike(clean_q),
+                    Building.building_code.ilike(clean_q),
+                    Building.name.ilike(clean_q),
+                    City.name.ilike(clean_q),
+                    City.code.ilike(clean_q),
+                    Region.name.ilike(clean_q),
+                    Region.code.ilike(clean_q),
                 )
             )
         if bbox and not (query and query.strip()):
@@ -169,16 +178,30 @@ class ParcelRepository:
 
         where_clause = and_(*filters) if filters else True
 
-        count_stmt = select(func.count(Parcel.id)).where(where_clause)
+        count_stmt = (
+            select(func.count(Parcel.id.distinct()))
+            .outerjoin(Parcel.buildings)
+            .outerjoin(Parcel.city)
+            .outerjoin(Parcel.region)
+            .where(where_clause)
+        )
         total = (await db.execute(count_stmt)).scalar() or 0
 
         stmt = (
             select(Parcel)
+            .outerjoin(Parcel.buildings)
+            .outerjoin(Parcel.city)
+            .outerjoin(Parcel.region)
             .where(where_clause)
+            .distinct()
             .order_by(Parcel.created_at.desc())
             .offset(skip)
             .limit(limit)
-            .options(selectinload(Parcel.buildings))
+            .options(
+                selectinload(Parcel.buildings),
+                selectinload(Parcel.city),
+                selectinload(Parcel.region),
+            )
         )
         items = (await db.execute(stmt)).scalars().all()
         return list(items), total
@@ -190,17 +213,24 @@ class ParcelRepository:
         city_id: Optional[uuid.UUID] = None,
         region_id: Optional[uuid.UUID] = None,
         land_use: Optional[str] = None,
-        limit: int = 10
+        limit: int = 15
     ) -> List[Parcel]:
         clean_q = f"%{query.strip()}%"
+        clean_q_und = f"%{query.strip().replace(' ', '_')}%"
         from sqlalchemy import or_, and_, cast, String, func
         conds = [
             or_(
                 Parcel.ulpin_2d.ilike(clean_q),
                 Parcel.survey_number.ilike(clean_q),
+                Parcel.land_use.ilike(clean_q),
+                Parcel.land_use.ilike(clean_q_und),
                 cast(Parcel.id, String).ilike(clean_q),
                 Building.building_code.ilike(clean_q),
-                cast(Building.id, String).ilike(clean_q),
+                Building.name.ilike(clean_q),
+                City.name.ilike(clean_q),
+                City.code.ilike(clean_q),
+                Region.name.ilike(clean_q),
+                Region.code.ilike(clean_q),
             )
         ]
         if city_id:
@@ -213,6 +243,8 @@ class ParcelRepository:
         stmt = (
             select(Parcel)
             .outerjoin(Parcel.buildings)
+            .outerjoin(Parcel.city)
+            .outerjoin(Parcel.region)
             .where(and_(*conds))
             .distinct()
             .order_by(Parcel.created_at.desc())
