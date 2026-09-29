@@ -250,14 +250,6 @@ export function LandingNavbar() {
             >
               Sign In
             </Link>
-            <Link
-              href="/3d-city"
-              className="w-full text-center py-2.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.12)] text-[#D9D2C5] text-sm font-medium flex items-center justify-center gap-1.5"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span>Explore 3D City</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </div>
       )}
