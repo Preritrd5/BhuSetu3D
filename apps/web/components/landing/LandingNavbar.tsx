@@ -130,9 +130,9 @@ export function LandingNavbar() {
               <span className="font-sans text-xl sm:text-[22px] lg:text-[24px] font-bold tracking-tight text-[#F4F0E8] leading-tight">
                 BhuSetu 3D
               </span>
-              <span className="text-xs sm:text-[13px] text-[#77867C] font-mono tracking-tight block leading-tight mt-0.5">
+              {/* <span className="text-xs sm:text-[13px] text-[#77867C] font-mono tracking-tight block leading-tight mt-0.5">
                 Evidence-Backed Spatial Intelligence
-              </span>
+              </span> */}
             </div>
           </Link>
         </div>
