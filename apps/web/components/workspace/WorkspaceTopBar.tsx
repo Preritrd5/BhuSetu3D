@@ -148,11 +148,11 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   };
 
   return (
-    <header className="absolute top-3 inset-x-4 h-12 z-30 flex items-center justify-between gap-3 pointer-events-none select-none">
+    <header className="absolute top-2 sm:top-3 inset-x-2 sm:inset-x-4 h-11 sm:h-12 z-30 flex items-center justify-between gap-1.5 sm:gap-3 pointer-events-none select-none">
       {/* Brand & Workspace Identity Panel */}
-      <div className="pointer-events-auto flex items-center gap-3 bg-[#141816] border border-[rgba(244,240,232,0.08)] px-3 py-1.5 rounded-[6px] shadow-sm">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="relative w-7 h-7 rounded-[4px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
+      <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] px-2.5 sm:px-3 py-1.5 rounded-[6px] shadow-sm shrink-0">
+        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
+          <div className="relative w-6 h-6 sm:w-7 sm:h-7 rounded-[4px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
             <Image
               src="/brand/bhusetu-logo.webp"
               alt="BhuSetu 3D Official Brand Logo"
@@ -169,7 +169,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
               </span>
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#176C68]" />
             </div>
-            <span className="text-[9px] font-mono uppercase tracking-widest text-[#6F7772]">
+            <span className="hidden sm:block text-[11px] font-mono uppercase tracking-widest text-[#94A3B8]">
               Spatial Intelligence
             </span>
           </div>
@@ -177,17 +177,17 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
       </div>
 
       {/* Center Omnibar & Macro Telemetry Strip */}
-      <div className="pointer-events-auto flex items-center gap-2 max-w-2xl flex-1 justify-center">
+      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 min-w-0 max-w-2xl flex-1 justify-center">
         {/* Omnibar Search */}
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 max-w-md min-w-0">
           <div
-            className={`flex items-center gap-2 bg-[#141816] border px-3 py-1.5 rounded-[6px] shadow-sm transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border px-2.5 sm:px-3 py-1.5 rounded-[6px] shadow-sm transition-all ${
               isSearchFocused
                 ? "border-[#B56E48] ring-1 ring-[#B56E48]/30"
                 : "border-[rgba(244,240,232,0.08)] hover:border-[rgba(244,240,232,0.18)]"
             }`}
           >
-            <Search className="w-3.5 h-3.5 text-[#6F7772]" />
+            <Search className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
             <input
               type="text"
               role="combobox"
@@ -233,16 +233,16 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
                   }
                 }
               }}
-              className="bg-transparent text-xs text-[#F4F0E8] placeholder-[#6F7772] font-mono focus:outline-none w-full"
+              className="bg-transparent text-xs text-[#F4F0E8] placeholder-[#94A3B8] font-mono focus:outline-none w-full min-w-0"
             />
             <button
               onClick={onOpenAI}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] text-[10px] font-mono text-[#D9D2C5] hover:text-[#F4F0E8] hover:border-[#B56E48] transition-all flex-shrink-0"
+              className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] text-[11px] font-mono text-[#D9D2C5] hover:text-[#F4F0E8] hover:border-[#B56E48] transition-all flex-shrink-0"
               title="Ask BhuSetu Spatial Intelligence"
               aria-label="Ask BhuSetu Spatial Intelligence"
             >
               <Sparkles className="w-3 h-3 text-[#C47B50]" />
-              <span>Ask BhuSetu</span>
+              <span className="hidden sm:inline">Ask BhuSetu</span>
             </button>
           </div>
 
@@ -338,35 +338,36 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
       </div>
 
       {/* Right Actions & Persona Badge */}
-      <div className="pointer-events-auto flex items-center gap-2 bg-[#141816] border border-[rgba(244,240,232,0.08)] p-1 rounded-[6px] shadow-sm">
+      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] p-1 rounded-[6px] shadow-sm shrink-0">
         {/* 2D / 3D Switcher */}
         {onToggleMode ? (
           <button
             onClick={onToggleMode}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs font-mono font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-[4px] text-xs font-mono font-bold transition-all ${
               activeMode === "3D"
                 ? "bg-[#B56E48] text-[#F4F0E8]"
                 : "bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5]"
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
-            <span>{activeMode === "3D" ? "3D Twin" : "2D Cadastre"}</span>
+            <span className="hidden sm:inline">{activeMode === "3D" ? "3D Twin" : "2D Cadastre"}</span>
           </button>
         ) : (
           <Link
             href="/properties"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5] text-xs font-mono transition-colors"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-[4px] bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5] text-xs font-mono transition-colors"
           >
             <MapPin className="w-3.5 h-3.5" />
-            <span>2D Cadastre</span>
+            <span className="hidden sm:inline">2D Cadastre</span>
           </Link>
         )}
 
         {/* Global Modules Quick Link */}
         <Link
           href="/overview"
-          className="p-1 rounded-[4px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors"
+          className="p-1.5 rounded-[4px] hover:bg-[#1A201D] text-[#94A3B8] hover:text-[#F4F0E8] transition-colors"
           title="All System Intelligence Modules"
+          aria-label="All System Intelligence Modules"
         >
           <Layers className="w-4 h-4" />
         </Link>
@@ -375,15 +376,16 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center gap-2 px-2 py-1 rounded-[4px] bg-[#1A201D] hover:bg-[#141816] border border-[rgba(244,240,232,0.08)] text-xs font-mono text-[#D9D2C5] transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-[4px] bg-[#1A201D] hover:bg-[#141816] border border-[rgba(244,240,232,0.08)] text-xs font-mono text-[#D9D2C5] transition-colors cursor-pointer"
+            aria-label="User account and profile menu"
           >
-            <div className="w-5 h-5 rounded-[3px] bg-[#141816] border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[10px] text-[#C47B50] font-bold">
+            <div className="w-5 h-5 rounded-[3px] bg-[#141816] border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[11px] text-[#C47B50] font-bold">
               {user?.email?.charAt(0).toUpperCase() || "O"}
             </div>
             <span className="hidden sm:inline font-medium text-[#F4F0E8] max-w-[100px] truncate">
               {user?.name || user?.email?.split("@")[0] || "Officer"}
             </span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-[3px] bg-[#141816] text-[#6F7772] border border-[rgba(244,240,232,0.08)]">
+            <span className="text-[11px] px-1.5 py-0.5 rounded-[3px] bg-[#141816] text-[#A7B3AB] border border-[rgba(244,240,232,0.08)] font-semibold">
               {user?.roles?.[0] || "ADMIN"}
             </span>
             <ChevronDown className="w-3 h-3 text-[#6F7772]" />

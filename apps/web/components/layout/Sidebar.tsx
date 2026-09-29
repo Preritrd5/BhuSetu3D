@@ -24,9 +24,11 @@ import {
   Sliders,
   FileText,
   User,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigationDrawer } from "@/hooks/useNavigationDrawer";
 import { AppRole } from "@/types/auth";
 import { Permission, hasRole, hasPermission } from "@/lib/auth/permissions";
 
@@ -191,6 +193,7 @@ export function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
+  const { isOpen, closeDrawer } = useNavigationDrawer();
 
   const userRole = user?.roles?.[0] || "PUBLIC_USER";
   const isAdmin = user?.roles?.includes("ADMIN") ?? false;
@@ -207,11 +210,15 @@ export function Sidebar() {
   // Filter admin items strictly for ADMIN
   const authorizedAdminItems = isAdmin ? ADMIN_MODULES : [];
 
-  return (
-    <aside className="w-64 border-r border-[rgba(244,240,232,0.06)] bg-[#0C0F0D] flex flex-col justify-between h-[calc(100vh-3.5rem)] sticky top-14 select-none">
+  const handleNavClick = (href: string) => {
+    closeDrawer();
+    router.push(href);
+  };
+
+  const renderNavContent = () => (
+    <>
       {/* Navigation Scrollable Body */}
-      <div className="p-3 space-y-4 overflow-y-auto">
-        
+      <div className="p-3 space-y-4 overflow-y-auto flex-1">
         {/* Role Identity Card in Sidebar */}
         <div className="p-2.5 rounded-[8px] bg-[#121614] border border-[rgba(244,240,232,0.06)] flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -222,14 +229,14 @@ export function Sidebar() {
               <div className="text-xs font-semibold text-[#F4F0E8] font-mono truncate">
                 {user?.name || "Evaluator"}
               </div>
-              <div className="text-[10px] text-[#A7B3AB] font-mono truncate">
+              <div className="text-[11px] text-[#A7B3AB] font-mono truncate">
                 {user?.department || "Cadastre Unit"}
               </div>
             </div>
           </div>
           <span
             className={cn(
-              "text-[9px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase shrink-0",
+              "text-[11px] font-mono px-2 py-0.5 rounded-[4px] border font-bold uppercase shrink-0",
               isAdmin
                 ? "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40"
                 : userRole === "GOVERNMENT_OFFICER"
@@ -245,9 +252,9 @@ export function Sidebar() {
 
         {/* SECTION 1: ROLE-AUTHORIZED OPERATIONAL MODULES */}
         <div className="space-y-1">
-          <div className="px-2 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] font-semibold flex items-center justify-between">
+          <div className="px-2 py-1.5 text-[11px] font-mono uppercase tracking-widest text-[#94A3B8] font-semibold flex items-center justify-between">
             <span>AUTHORIZED WORKSPACE</span>
-            <span className="text-[9px] text-[#2EB8B0] font-bold bg-[#141816] border border-[rgba(244,240,232,0.08)] px-1.5 py-0.5 rounded-[3px]">
+            <span className="text-[11px] text-[#2EB8B0] font-bold bg-[#141816] border border-[rgba(244,240,232,0.08)] px-1.5 py-0.5 rounded-[3px]">
               {authorizedOperationalItems.length} MODULES
             </span>
           </div>
@@ -259,9 +266,9 @@ export function Sidebar() {
             return (
               <button
                 key={item.id}
-                onClick={() => router.push(item.href)}
+                onClick={() => handleNavClick(item.href)}
                 className={cn(
-                  "w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-mono transition-all group border text-left cursor-pointer",
+                  "w-full flex items-center justify-between px-3 py-2.5 rounded-[6px] text-xs font-mono transition-all group border text-left cursor-pointer min-h-[40px]",
                   isActive
                     ? "bg-[#171D1A] border-[#23847D]/50 text-[#F4F0E8] font-semibold shadow-sm"
                     : "text-[#CBD5E1] hover:text-[#F4F0E8] hover:bg-[#141816] border-transparent hover:border-[rgba(244,240,232,0.06)]"
@@ -283,7 +290,7 @@ export function Sidebar() {
                 {item.badge && (
                   <span
                     className={cn(
-                      "text-[9px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase",
+                      "text-[11px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase",
                       item.badgeColor || "bg-[#161B18] text-[#CBD5E1] border-[rgba(244,240,232,0.08)]"
                     )}
                   >
@@ -298,9 +305,9 @@ export function Sidebar() {
         {/* SECTION 2: PLATFORM ADMINISTRATION (ADMIN ONLY) */}
         {authorizedAdminItems.length > 0 && (
           <div className="space-y-1 pt-3 border-t border-[rgba(244,240,232,0.06)]">
-            <div className="px-2 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#E09F67] font-semibold flex items-center justify-between">
+            <div className="px-2 py-1.5 text-[11px] font-mono uppercase tracking-widest text-[#E09F67] font-semibold flex items-center justify-between">
               <span>ADMINISTRATION</span>
-              <span className="text-[9px] text-[#E09F67] font-bold bg-[#1C1613] border border-[#B56E48]/35 px-1.5 py-0.5 rounded-[3px]">
+              <span className="text-[11px] text-[#E09F67] font-bold bg-[#1C1613] border border-[#B56E48]/35 px-1.5 py-0.5 rounded-[3px]">
                 RESTRICTED
               </span>
             </div>
@@ -312,9 +319,9 @@ export function Sidebar() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => router.push(item.href)}
+                  onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-mono transition-all group border text-left cursor-pointer",
+                    "w-full flex items-center justify-between px-3 py-2.5 rounded-[6px] text-xs font-mono transition-all group border text-left cursor-pointer min-h-[40px]",
                     isActive
                       ? "bg-[#1C1613] border-[#B56E48]/50 text-[#F4F0E8] font-semibold shadow-sm"
                       : "text-[#CBD5E1] hover:text-[#F4F0E8] hover:bg-[#161311] border-transparent hover:border-[#B56E48]/20"
@@ -336,7 +343,7 @@ export function Sidebar() {
                   {item.badge && (
                     <span
                       className={cn(
-                        "text-[9px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase",
+                        "text-[11px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase",
                         item.badgeColor
                       )}
                     >
@@ -348,17 +355,60 @@ export function Sidebar() {
             })}
           </div>
         )}
-
       </div>
 
       {/* Bottom Footer Information */}
-      <div className="p-3 border-t border-[rgba(244,240,232,0.06)] bg-[#0A0D0B] flex items-center justify-between text-xs text-[#CBD5E1] font-mono">
+      <div className="p-3 border-t border-[rgba(244,240,232,0.06)] bg-[#0A0D0B] flex items-center justify-between text-xs text-[#CBD5E1] font-mono shrink-0">
         <span className="text-[11px] text-[#94A3B8]">RBAC Policy: Active</span>
         <span className="text-[#2EB8B0] font-semibold flex items-center gap-1.5 text-[11px]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#176C68]" />
           Level 4 Clearance
         </span>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Fixed Structural Left Navigation Rail */}
+      <aside className="hidden lg:flex w-64 border-r border-[rgba(244,240,232,0.06)] bg-[#0C0F0D] flex-col justify-between h-[calc(100vh-3.5rem)] sticky top-14 select-none shrink-0">
+        {renderNavContent()}
+      </aside>
+
+      {/* Mobile/Tablet Slide-over Drawer Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={closeDrawer}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Canvas */}
+          <aside className="relative w-72 max-w-[85vw] bg-[#0C0F0D] border-r border-[rgba(244,240,232,0.08)] flex flex-col justify-between z-10 shadow-2xl h-full animate-in slide-in-from-left duration-200">
+            {/* Drawer Header with Title and Close Trigger */}
+            <div className="h-14 px-4 border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between shrink-0 bg-[#0F1210]">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-bold text-[#F4F0E8] tracking-wider">
+                  BHUSETU 3D
+                </span>
+                <span className="text-[11px] font-mono text-[#8C988F]">MENU</span>
+              </div>
+              <button
+                onClick={closeDrawer}
+                className="p-2 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#8C988F] hover:text-[#F4F0E8] border border-[rgba(244,240,232,0.08)] cursor-pointer"
+                title="Close Navigation"
+                aria-label="Close navigation"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {renderNavContent()}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

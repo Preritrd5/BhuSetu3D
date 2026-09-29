@@ -232,42 +232,43 @@ export default function VerificationQueuePage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
       moduleName="Statutory Review Queue"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Top Header */}
-          <header className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-8 py-5 sticky top-0 z-20">
+          <header className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 sticky top-0 z-20">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2.5">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[#23847D] text-[10px] font-mono font-bold uppercase tracking-wider">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[#23847D] text-[11px] font-mono font-bold uppercase tracking-wider">
                     STATUTORY REVIEW WORKFLOW
                   </span>
-                  <h1 className="text-2xl font-bold font-mono tracking-tight text-[#F4F0E8] flex items-center gap-2">
-                    <UserCheck className="w-6 h-6 text-[#C47B50]" />
+                  <h1 className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-[#F4F0E8] flex items-center gap-2">
+                    <UserCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#C47B50]" />
                     Statutory Verification Queue
                   </h1>
                 </div>
-                <p className="text-sm text-[#6F7772] mt-1">
+                <p className="text-xs sm:text-sm text-[#8C988F] mt-1 leading-relaxed">
                   Maker-checker workflow converting algorithmic detections into legally defensible, human-verified spatial records.
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button
                   onClick={handleVerifyAuditChain}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#D9D2C5] text-xs font-mono font-medium transition shadow-sm"
+                  className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#D9D2C5] text-xs font-mono font-medium transition shadow-sm cursor-pointer"
                   title="Cryptographically verify SHA-256 hash chaining across all audit logs"
                 >
                   <Hash className="w-4 h-4 text-[#23847D]" />
-                  Verify Audit Integrity
+                  <span className="hidden sm:inline">Verify Audit Integrity</span>
+                  <span className="sm:hidden">Audit</span>
                 </button>
 
                 <button
                   onClick={() => loadData()}
-                  className="p-2 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#6F7772] transition"
+                  className="p-2 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#8C988F] transition cursor-pointer"
                   title="Refresh Queue"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin text-[#23847D]" : ""}`} />
@@ -276,7 +277,7 @@ export default function VerificationQueuePage() {
             </div>
 
             {/* Statutory Notice Banner */}
-            <div className="mt-4 px-4 py-3 rounded-[8px] bg-[#141816] border border-[#B56E48]/30 flex items-start gap-3 text-xs text-[#D9D2C5] font-sans">
+            <div className="mt-4 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-[8px] bg-[#141816] border border-[#B56E48]/30 flex items-start gap-2.5 sm:gap-3 text-xs text-[#D9D2C5] font-sans">
               <ShieldAlert className="w-4 h-4 text-[#C47B50] shrink-0 mt-0.5" />
               <div>
                 <span className="font-semibold font-mono text-[#C47B50]">Legal Governance Rule: </span>
@@ -286,7 +287,7 @@ export default function VerificationQueuePage() {
             </div>
           </header>
 
-          <main className="p-8 space-y-6 flex-1">
+          <main className="p-4 sm:p-6 lg:p-8 space-y-6 flex-1">
             {/* Telemetry Metric Cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
               <div className="bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px] p-4">

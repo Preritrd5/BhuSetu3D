@@ -55,6 +55,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { NavigationDrawerProvider } from "@/hooks/useNavigationDrawer";
+
 export default function RootLayout({
   children,
 }: {
@@ -64,8 +66,10 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="min-h-screen bg-[#141816] text-[#F4F0E8] flex flex-col antialiased">
         <AuthProvider>
-          <TopBar />
-          <div className="flex-1 flex flex-col w-full overflow-hidden">{children}</div>
+          <NavigationDrawerProvider>
+            <TopBar />
+            <div className="flex-1 flex flex-col w-full overflow-hidden">{children}</div>
+          </NavigationDrawerProvider>
         </AuthProvider>
       </body>
     </html>

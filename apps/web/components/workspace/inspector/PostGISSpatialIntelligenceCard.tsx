@@ -160,16 +160,16 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
       <div className="space-y-3">
         {/* PostGIS Geodesic Metrics Grid */}
         <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">PostGIS Footprint Area</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">PostGIS Footprint Area</span>
             <span className="text-base font-bold text-[#F4F0E8] block mt-0.5">
-              {bldIntel.footprint_area_sqm.toLocaleString()} <span className="text-xs text-[#77867C]">m²</span>
+              {bldIntel.footprint_area_sqm.toLocaleString()} <span className="text-xs text-[#A7B3AB]">m²</span>
             </span>
-            <span className="text-[9px] text-[#23847D] font-sans mt-0.5 block">ST_Area (geography)</span>
+            <span className="text-[11px] text-[#23847D] font-sans mt-0.5 block">ST_Area (geography)</span>
           </div>
 
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">Boundary Containment</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">Boundary Containment</span>
             <div className="flex items-center gap-1.5 mt-1">
               {isContained ? (
                 <>
@@ -183,31 +183,31 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
                 </>
               )}
             </div>
-            <span className="text-[9px] text-[#6F7772] font-sans mt-0.5 block">ST_Within evaluated</span>
+            <span className="text-[11px] text-[#A7B3AB] font-sans mt-0.5 block">ST_Within evaluated</span>
           </div>
 
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">PostGIS Centroid</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">PostGIS Centroid</span>
             <span className="text-[11px] font-semibold text-[#F4F0E8] block mt-0.5">
               {bldIntel.centroid.longitude.toFixed(5)}°, {bldIntel.centroid.latitude.toFixed(5)}°
             </span>
-            <span className="text-[9px] text-[#6F7772] font-sans mt-0.5 block">ST_Centroid (WGS 84)</span>
+            <span className="text-[11px] text-[#A7B3AB] font-sans mt-0.5 block">ST_Centroid (WGS 84)</span>
           </div>
 
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">Setback Clearance</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">Setback Clearance</span>
             <span className="text-base font-bold text-[#F4F0E8] block mt-0.5">
-              {bldIntel.parent_parcel?.setback_distance_meters ?? 0} <span className="text-xs text-[#77867C]">m</span>
+              {bldIntel.parent_parcel?.setback_distance_meters ?? 0} <span className="text-xs text-[#A7B3AB]">m</span>
             </span>
-            <span className="text-[9px] text-[#6F7772] font-sans mt-0.5 block">ST_Distance boundary</span>
+            <span className="text-[11px] text-[#A7B3AB] font-sans mt-0.5 block">ST_Distance boundary</span>
           </div>
         </div>
 
         {/* Parent Cadastral Parcel Link */}
         {bldIntel.parent_parcel && (
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] flex items-center justify-between">
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] flex items-center justify-between">
             <div>
-              <span className="text-[10px] text-[#6F7772] block">CADASTRE PARCEL REFERENCE</span>
+              <span className="text-[11px] text-[#94A3B8] block font-medium">CADASTRE PARCEL REFERENCE</span>
               <span className="text-xs font-semibold text-[#F4F0E8] block">
                 {bldIntel.parent_parcel.survey_number} ({bldIntel.parent_parcel.ulpin})
               </span>
@@ -215,7 +215,7 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
             {onSelectProperty && (
               <button
                 onClick={() => onSelectProperty("PARCEL", bldIntel.parent_parcel!.parcel_id)}
-                className="px-2 py-1 rounded-[6px] bg-[#1A201D] hover:bg-[#243029] text-[10px] text-[#23847D] font-mono flex items-center gap-1 transition-all"
+                className="px-2 py-1 rounded-[6px] bg-[#1A201D] hover:bg-[#243029] text-[11px] text-[#23847D] font-mono flex items-center gap-1 transition-all"
               >
                 <span>Inspect</span>
                 <ExternalLink className="w-3 h-3" />
@@ -228,10 +228,10 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
         {bldIntel.nearby_buildings.length > 0 && (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-[11px] text-[#A2B3A8]">
-              <span className="font-semibold uppercase tracking-wider text-[10px]">
+              <span className="font-semibold uppercase tracking-wider text-[11px]">
                 Nearby Structures (150m Radius)
               </span>
-              <span className="text-[10px] font-mono">{bldIntel.nearby_buildings.length} found</span>
+              <span className="text-[11px] font-mono">{bldIntel.nearby_buildings.length} found</span>
             </div>
             <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
               {bldIntel.nearby_buildings.map((nb) => (
@@ -242,7 +242,7 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
                 >
                   <div className="min-w-0 pr-2">
                     <span className="font-medium text-[#F4F0E8] block truncate">{nb.name}</span>
-                    <span className="text-[10px] text-[#6F7772] font-mono block">{nb.building_code}</span>
+                    <span className="text-[11px] text-[#A7B3AB] font-mono block">{nb.building_code}</span>
                   </div>
                   <span className="text-[11px] font-mono font-semibold text-[#23847D] shrink-0">
                     {nb.distance_meters} m
@@ -254,13 +254,13 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
         )}
 
         {/* Honest Provenance Banner */}
-        <div className="p-2.5 rounded-[10px] bg-[#141816] border border-[rgba(244,240,232,0.1)] text-[10px] text-[#A6AEA8] flex items-start gap-2">
+        <div className="p-2.5 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[11px] text-[#A6AEA8] flex items-start gap-2">
           <Info className="w-3.5 h-3.5 text-[#23847D] shrink-0 mt-0.5" />
           <div className="leading-snug">
             <span className="font-semibold text-[#D9D2C5] uppercase block tracking-wider">
               SOURCE: {bldIntel.spatial_source.source_type} ({bldIntel.spatial_source.provenance_status})
             </span>
-            <span className="text-[9px] text-[#6F7772] block mt-0.5">
+            <span className="text-[11px] text-[#94A3B8] block mt-0.5">
               {bldIntel.spatial_source.disclaimer}
             </span>
           </div>
@@ -274,36 +274,36 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
       <div className="space-y-3">
         {/* PostGIS Geodesic Metrics Grid */}
         <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">PostGIS Geodesic Area</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">PostGIS Geodesic Area</span>
             <span className="text-base font-bold text-[#F4F0E8] block mt-0.5">
-              {pclIntel.computed_area_sqm.toLocaleString()} <span className="text-xs text-[#77867C]">m²</span>
+              {pclIntel.computed_area_sqm.toLocaleString()} <span className="text-xs text-[#A7B3AB]">m²</span>
             </span>
-            <span className="text-[9px] text-[#23847D] font-sans mt-0.5 block">ST_Area (geography)</span>
+            <span className="text-[11px] text-[#23847D] font-sans mt-0.5 block">ST_Area (geography)</span>
           </div>
 
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">Survey Discrepancy</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">Survey Discrepancy</span>
             <span className="text-base font-bold text-[#F4F0E8] block mt-0.5">
-              {pclIntel.area_discrepancy_sqm.toLocaleString()} <span className="text-xs text-[#77867C]">m²</span>
+              {pclIntel.area_discrepancy_sqm.toLocaleString()} <span className="text-xs text-[#A7B3AB]">m²</span>
             </span>
-            <span className="text-[9px] text-[#6F7772] font-sans mt-0.5 block">Record vs Computed</span>
+            <span className="text-[11px] text-[#A7B3AB] font-sans mt-0.5 block">Record vs Computed</span>
           </div>
 
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">PostGIS Centroid</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">PostGIS Centroid</span>
             <span className="text-[11px] font-semibold text-[#F4F0E8] block mt-0.5">
               {pclIntel.centroid.longitude.toFixed(5)}°, {pclIntel.centroid.latitude.toFixed(5)}°
             </span>
-            <span className="text-[9px] text-[#6F7772] font-sans mt-0.5 block">ST_Centroid (WGS 84)</span>
+            <span className="text-[11px] text-[#A7B3AB] font-sans mt-0.5 block">ST_Centroid (WGS 84)</span>
           </div>
 
-          <div className="p-2.5 rounded-[12px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
-            <span className="text-[10px] text-[#6F7772] block uppercase">Structures Situated</span>
+          <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)]">
+            <span className="text-[11px] text-[#94A3B8] block uppercase font-medium">Structures Situated</span>
             <span className="text-base font-bold text-[#F4F0E8] block mt-0.5">
-              {pclIntel.buildings_count} <span className="text-xs text-[#77867C]">buildings</span>
+              {pclIntel.buildings_count} <span className="text-xs text-[#A7B3AB]">buildings</span>
             </span>
-            <span className="text-[9px] text-[#6F7772] font-sans mt-0.5 block">PostGIS containment</span>
+            <span className="text-[11px] text-[#A7B3AB] font-sans mt-0.5 block">PostGIS containment</span>
           </div>
         </div>
 
@@ -311,10 +311,10 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
         {pclIntel.nearby_parcels.length > 0 && (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-[11px] text-[#A2B3A8]">
-              <span className="font-semibold uppercase tracking-wider text-[10px]">
+              <span className="font-semibold uppercase tracking-wider text-[11px]">
                 Adjacent & Nearby Parcels
               </span>
-              <span className="text-[10px] font-mono">{pclIntel.nearby_parcels.length} found</span>
+              <span className="text-[11px] font-mono">{pclIntel.nearby_parcels.length} found</span>
             </div>
             <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
               {pclIntel.nearby_parcels.map((np) => (
@@ -327,7 +327,7 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
                     <span className="font-medium text-[#F4F0E8] block truncate">
                       {np.survey_number}
                     </span>
-                    <span className="text-[10px] text-[#6F7772] font-mono block">
+                    <span className="text-[11px] text-[#A7B3AB] font-mono block">
                       {np.ulpin} · {np.land_use}
                     </span>
                   </div>
@@ -341,13 +341,13 @@ export const PostGISSpatialIntelligenceCard: React.FC<PostGISSpatialIntelligence
         )}
 
         {/* Honest Provenance Banner */}
-        <div className="p-2.5 rounded-[10px] bg-[#141816] border border-[rgba(244,240,232,0.1)] text-[10px] text-[#A6AEA8] flex items-start gap-2">
+        <div className="p-2.5 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[11px] text-[#A6AEA8] flex items-start gap-2">
           <Info className="w-3.5 h-3.5 text-[#23847D] shrink-0 mt-0.5" />
           <div className="leading-snug">
             <span className="font-semibold text-[#D9D2C5] uppercase block tracking-wider">
               SOURCE: {pclIntel.spatial_source.source_type} ({pclIntel.spatial_source.provenance_status})
             </span>
-            <span className="text-[9px] text-[#6F7772] block mt-0.5">
+            <span className="text-[11px] text-[#94A3B8] block mt-0.5">
               {pclIntel.spatial_source.disclaimer}
             </span>
           </div>

@@ -194,9 +194,12 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
   if (!parcelId) return null;
 
   return (
-    <aside className="w-80 md:w-96 bg-[#141816]/95 backdrop-blur-md border-l border-[rgba(244,240,232,0.08)] flex flex-col h-full shadow-2xl z-20 text-xs font-mono select-none">
+    <aside className="w-full md:w-96 fixed inset-x-0 bottom-0 max-h-[65vh] md:max-h-none md:relative md:inset-auto bg-[#141816]/95 backdrop-blur-md border-t md:border-t-0 md:border-l border-[rgba(244,240,232,0.08)] flex flex-col h-auto md:h-full shadow-2xl z-30 text-xs font-mono select-none">
+      {/* Mobile Drag Indicator */}
+      <div className="w-10 h-1 bg-[rgba(244,240,232,0.2)] rounded-full mx-auto mt-2 md:hidden" />
+
       {/* Header */}
-      <div className="p-4 border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between bg-[#1A201D]">
+      <div className="p-3 sm:p-4 border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between bg-[#1A201D]">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-[#C47B50]" />
           <h2 className="text-xs font-bold text-[#F4F0E8] uppercase tracking-wider">
@@ -207,7 +210,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
           {data?.geom_2d_geojson && (
             <button
               onClick={() => onZoomToProperty(data.geom_2d_geojson)}
-              className="p-1 text-[#77867C] hover:text-[#23847D] hover:bg-[#222A26] rounded-[4px] transition-colors cursor-pointer"
+              className="p-1.5 text-[#8C988F] hover:text-[#23847D] hover:bg-[#222A26] rounded-[4px] transition-colors cursor-pointer"
               title="Zoom to parcel extent"
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -215,10 +218,10 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
           )}
           <button
             onClick={onClose}
-            className="p-1 text-[#77867C] hover:text-[#F4F0E8] hover:bg-[#222A26] rounded-[4px] transition-colors cursor-pointer"
+            className="p-1.5 text-[#8C988F] hover:text-[#F4F0E8] hover:bg-[#222A26] rounded-[4px] transition-colors cursor-pointer"
             title="Close inspector"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -226,7 +229,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
       {/* Body */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {isLoading ? (
-          <div className="h-48 flex flex-col items-center justify-center gap-2 text-[#77867C]">
+          <div className="h-48 flex flex-col items-center justify-center gap-2 text-[#8C988F]">
             <Loader2 className="w-5 h-5 text-[#23847D] animate-spin" />
             <span className="text-[11px]">Loading property details...</span>
           </div>
@@ -243,17 +246,17 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             {/* ULPIN & Statutory Identifiers */}
             <div className="bg-[#1A201D] border border-[rgba(244,240,232,0.08)] rounded-[8px] p-3 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-[#77867C] uppercase tracking-wider">
+                <span className="text-[11px] text-[#8C988F] uppercase tracking-wider">
                   2D ULPIN IDENTIFIER
                 </span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-[4px] bg-[#23847D]/20 text-[#23847D] border border-[#23847D]/40 font-semibold">
+                <span className="text-[11px] px-2 py-0.5 rounded-[4px] bg-[#23847D]/20 text-[#23847D] border border-[#23847D]/40 font-semibold">
                   AUTHORITATIVE
                 </span>
               </div>
               <div className="text-sm font-bold text-[#C47B50] break-all">
                 {data.ulpin_2d}
               </div>
-              <div className="text-[11px] text-[#77867C] flex items-center justify-between pt-1 border-t border-[rgba(244,240,232,0.06)]">
+              <div className="text-[11px] text-[#8C988F] flex items-center justify-between pt-1 border-t border-[rgba(244,240,232,0.06)]">
                 <span>Survey Number:</span>
                 <span className="text-[#F4F0E8] font-semibold">{data.survey_number}</span>
               </div>
@@ -262,23 +265,23 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             {/* 3D Property Identity */}
             <div className="bg-[#1A201D] border border-[#23847D]/30 rounded-[8px] p-3 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[9px] text-[#77867C] uppercase tracking-wider font-semibold">
+                <span className="text-[11px] text-[#8C988F] uppercase tracking-wider font-semibold">
                   3D ULPIN-ORIENTED IDENTITY (PROTOTYPE)
                 </span>
-                <span className="text-[9px] px-1.5 py-0.2 rounded-[4px] bg-[#23847D]/20 text-[#23847D] border border-[#23847D]/40 font-bold">
+                <span className="text-[11px] px-2 py-0.5 rounded-[4px] bg-[#23847D]/20 text-[#23847D] border border-[#23847D]/40 font-bold">
                   PROTOTYPE
                 </span>
               </div>
               <div className="text-xs font-bold text-[#23847D] break-all font-mono">
                 {`BHU-3D-P-${data.ulpin_2d}`}
               </div>
-              <p className="text-[9px] text-[#6F7772] italic">
+              <p className="text-[11px] text-[#8C988F] italic">
                 * Technical spatial identifier linking parcel to vertical building levels. Does not claim official ULPIN issuance.
               </p>
             </div>
 
             {/* Vertical Model Completeness */}
-            <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] grid grid-cols-3 gap-1 text-center text-[10px]">
+            <div className="p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] grid grid-cols-3 gap-1.5 text-center text-[11px]">
               <div className="p-1 rounded-[4px] bg-[#141816] border border-[#23847D]/20 text-[#23847D] font-semibold">
                 Parcel ✓
               </div>
@@ -292,18 +295,18 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
 
             {/* Spatial Metrics */}
             <div className="space-y-1.5">
-              <span className="text-[10px] uppercase text-[#77867C] tracking-wider">
+              <span className="text-[11px] uppercase text-[#8C988F] tracking-wider">
                 SPATIAL METRICS
               </span>
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-2.5 rounded-[8px] bg-[#1A201D] border border-[rgba(244,240,232,0.06)]">
-                  <div className="text-[10px] text-[#77867C]">RECORDED AREA</div>
+                  <div className="text-[11px] text-[#8C988F]">RECORDED AREA</div>
                   <div className="text-xs font-bold text-[#F4F0E8] mt-0.5">
                     {data.recorded_area_sqm.toLocaleString()} m²
                   </div>
                 </div>
                 <div className="p-2.5 rounded-[8px] bg-[#1A201D] border border-[rgba(244,240,232,0.06)]">
-                  <div className="text-[10px] text-[#77867C]">COMPUTED AREA</div>
+                  <div className="text-[11px] text-[#8C988F]">COMPUTED AREA</div>
                   <div className="text-xs font-bold text-[#F4F0E8] mt-0.5">
                     {data.computed_area_sqm.toLocaleString()} m²
                   </div>
@@ -314,13 +317,13 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
             {/* Land Use & Base Elevation */}
             <div className="p-3 rounded-[8px] bg-[#1A201D] border border-[rgba(244,240,232,0.06)] space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#77867C]">Land Use:</span>
-                <span className="px-2 py-0.5 rounded-[4px] bg-[#0F1210] text-[#F4F0E8] border border-[rgba(244,240,232,0.06)] text-[10px] font-semibold">
+                <span className="text-[11px] text-[#8C988F]">Land Use:</span>
+                <span className="px-2 py-0.5 rounded-[4px] bg-[#0F1210] text-[#F4F0E8] border border-[rgba(244,240,232,0.06)] text-[11px] font-semibold">
                   {data.land_use}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[#77867C]">Base Elevation:</span>
+                <span className="text-[11px] text-[#8C988F]">Base Elevation:</span>
                 <span className="text-[#F4F0E8] font-semibold">{data.elevation_base} m AMSL</span>
               </div>
             </div>

@@ -307,7 +307,7 @@ export const FloorInspector: React.FC<FloorInspectorProps> = ({
                     <span className="font-semibold text-[#F4F0E8] block truncate group-hover:text-[#C47B50]">
                       {unit.unit_label || `Unit ${unit.unit_number}`}
                     </span>
-                    <span className="text-[10px] text-[#77867C] font-mono block">
+                    <span className="text-[11px] text-[#A7B3AB] font-mono block">
                       {unit.ulpin_3d} • {unit.unit_type} ({unit.carpet_area_sqm}m²)
                     </span>
                   </div>

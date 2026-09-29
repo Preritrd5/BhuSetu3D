@@ -173,64 +173,79 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
   ];
 
   return (
-    <div
-      role="region"
-      aria-label="Spatial Layers and Hierarchy Control Panel"
-      className={`absolute top-[68px] left-4 z-20 transition-all duration-300 ease-in-out select-none max-sm:left-2 ${
-        isCollapsed ? "w-12" : "w-80 max-sm:w-[calc(100vw-1rem)]"
-      }`}
-    >
-      <div className="bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.10)] rounded-[12px] shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-6.5rem)] font-sans">
-        {/* Header Tabs (Expanded) / Icon Rail (Collapsed) */}
-        {!isCollapsed ? (
-          <div className="p-3 border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between bg-[#141816]">
-            <div className="flex items-center gap-1.5 p-1 rounded-[6px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] w-full mr-2">
+    <>
+      {/* Mobile Drawer Backdrop when open */}
+      {!isCollapsed && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30 transition-opacity"
+          onClick={() => setIsCollapsed(true)}
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        role="region"
+        aria-label="Spatial Layers and Hierarchy Control Panel"
+        className={`transition-all duration-300 ease-in-out select-none
+          /* Desktop & Tablet: floating left panel */
+          md:absolute md:top-[66px] md:left-4 md:z-20
+          ${isCollapsed ? "md:w-12 max-md:hidden" : "md:w-80"}
+          /* Mobile: slide-in drawer */
+          max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:w-80 max-md:max-w-[85vw]
+        `}
+      >
+        <div className="bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] md:rounded-[12px] max-md:h-full max-md:rounded-r-[14px] shadow-2xl overflow-hidden flex flex-col md:max-h-[calc(100vh-6rem)] font-sans">
+          {/* Header Tabs (Expanded) / Icon Rail (Collapsed) */}
+          {!isCollapsed ? (
+            <div className="p-3 border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between bg-[#141816]">
+              <div className="flex items-center gap-1.5 p-1 rounded-[6px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] w-full mr-2">
+                <button
+                  onClick={() => setActiveTab("LAYERS")}
+                  className={`flex-1 py-1.5 px-2.5 rounded-[4px] text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    activeTab === "LAYERS"
+                      ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
+                      : "text-[#6F7772] hover:text-[#D9D2C5]"
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Layers</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("OUTLINER")}
+                  className={`flex-1 py-1.5 px-2.5 rounded-[4px] text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    activeTab === "OUTLINER"
+                      ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
+                      : "text-[#6F7772] hover:text-[#D9D2C5]"
+                  }`}
+                >
+                  <ListTree className="w-3.5 h-3.5" />
+                  <span>Outliner</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("TOOLS")}
+                  className={`flex-1 py-1.5 px-2.5 rounded-[4px] text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    activeTab === "TOOLS"
+                      ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
+                      : "text-[#6F7772] hover:text-[#D9D2C5]"
+                  }`}
+                >
+                  <Wrench className="w-3.5 h-3.5" />
+                  <span>Tools</span>
+                </button>
+              </div>
+
               <button
-                onClick={() => setActiveTab("LAYERS")}
-                className={`flex-1 py-1.5 px-2.5 rounded-[4px] text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  activeTab === "LAYERS"
-                    ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
-                    : "text-[#6F7772] hover:text-[#D9D2C5]"
-                }`}
+                onClick={() => setIsCollapsed(true)}
+                className="p-1.5 rounded-[4px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors flex-shrink-0 cursor-pointer"
+                title="Close / Collapse Panel"
+                aria-label="Close / Collapse Panel"
               >
-                <Layers className="w-3.5 h-3.5" />
-                <span>Layers</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("OUTLINER")}
-                className={`flex-1 py-1.5 px-2.5 rounded-[4px] text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  activeTab === "OUTLINER"
-                    ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
-                    : "text-[#6F7772] hover:text-[#D9D2C5]"
-                }`}
-              >
-                <ListTree className="w-3.5 h-3.5" />
-                <span>Outliner</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("TOOLS")}
-                className={`flex-1 py-1.5 px-2.5 rounded-[4px] text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  activeTab === "TOOLS"
-                    ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
-                    : "text-[#6F7772] hover:text-[#D9D2C5]"
-                }`}
-              >
-                <Wrench className="w-3.5 h-3.5" />
-                <span>Tools</span>
+                <Minimize2 className="w-3.5 h-3.5" />
               </button>
             </div>
-
-            <button
-              onClick={() => setIsCollapsed(true)}
-              className="p-1.5 rounded-[4px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors flex-shrink-0 cursor-pointer"
-              title="Collapse Panel"
-            >
-              <Minimize2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ) : (
-          /* Collapsed Icon Rail */
-          <div className="py-2.5 flex flex-col items-center gap-2">
+          ) : (
+            /* Collapsed Icon Rail (Desktop/Tablet only) */
+            <div className="py-2.5 flex flex-col items-center gap-2">
             <button
               onClick={() => {
                 setActiveTab("LAYERS");
@@ -290,7 +305,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
             {/* TAB 1: LAYERS */}
             {activeTab === "LAYERS" && (
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-[#6F7772] font-mono font-bold px-0.5">
+                <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono font-bold px-0.5">
                   <span>Geospatial Layers</span>
                   <span className="text-[#23847D] font-mono">Live PostGIS</span>
                 </div>
@@ -308,7 +323,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
 
                   return (
                     <div key={cat.id} className="space-y-1">
-                      <div className="text-[9px] uppercase tracking-wider text-[#6F7772] font-mono font-semibold px-0.5">
+                      <div className="text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono font-semibold px-0.5">
                         {cat.label} ({catLayers.filter((l) => layers[l.key]).length}/{catLayers.length})
                       </div>
 
@@ -329,7 +344,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                 <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isVisible ? layer.color : "bg-[#6F7772]/40"}`} />
                                 <div className="truncate">
                                   <div className="text-xs truncate font-semibold text-[#F4F0E8]">{layer.label}</div>
-                                  <div className="text-[11px] text-[#77867C] truncate font-sans mt-0.5">{layer.sublabel}</div>
+                                  <div className="text-[11px] text-[#A7B3AB] truncate font-sans mt-0.5">{layer.sublabel}</div>
                                 </div>
                               </div>
 
@@ -353,7 +368,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                 <div className="pt-2 border-t border-[rgba(244,240,232,0.08)]">
                   <button
                     onClick={() => setIsLegendOpen(!isLegendOpen)}
-                    className="w-full flex items-center justify-between p-2 rounded-[4px] bg-[#1A201D] hover:bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[10px] font-mono text-[#D9D2C5] transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between p-2 rounded-[4px] bg-[#1A201D] hover:bg-[#141816] border border-[rgba(244,240,232,0.08)] text-[11px] font-mono text-[#D9D2C5] transition-colors cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider">
                       <Compass className="w-3.5 h-3.5 text-[#23847D]" />
@@ -367,7 +382,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                   </button>
 
                   {isLegendOpen && (
-                    <div className="mt-1.5 p-2 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] space-y-1.5 text-[10px] font-mono">
+                    <div className="mt-1.5 p-2 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] space-y-1.5 text-[11px] font-mono">
                       <div className="flex items-center gap-2">
                         <span className="w-3 h-1.5 rounded-sm bg-[#23847D] flex-shrink-0" />
                         <span className="text-[#D9D2C5]">Selected / Active Envelope</span>
@@ -433,7 +448,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                           <Globe2 className="w-3 h-3 text-[#23847D] flex-shrink-0" />
                           <span className="truncate font-semibold">{treeData?.city?.name || "Bengaluru Metro"}</span>
                         </div>
-                        <span className="text-[9px] text-[#6F7772] font-mono">CITY</span>
+                        <span className="text-[11px] text-[#6F7772] font-mono">CITY</span>
                       </button>
 
                       {/* Parcels under City */}
@@ -472,7 +487,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                     <MapPin className="w-3 h-3 text-[#23847D] flex-shrink-0" />
                                     <span className="truncate">{parcel.survey_number}</span>
                                   </div>
-                                  <span className="text-[8px] text-[#6F7772] font-mono">
+                                  <span className="text-[11px] text-[#6F7772] font-mono">
                                     {parcel.recorded_area_sqm}m²
                                   </span>
                                 </button>
@@ -490,7 +505,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                       return (
                                         <div
                                           key={building.id}
-                                          className={`rounded-[3px] border ${
+                                          className={`rounded-[4px] border ${
                                             isBldgActive
                                               ? "border-[#B56E48] bg-[#1A201D]"
                                               : "border-[rgba(244,240,232,0.04)] bg-[#141816]"
@@ -519,7 +534,7 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                               <span className="truncate">{building.name}</span>
                                             </div>
                                             {building.has_discrepancy && (
-                                              <span className="text-[7px] px-1 py-0.2 rounded bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/40">
+                                              <span className="text-[11px] px-1.5 py-0.5 rounded font-mono font-semibold bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/40">
                                                 Review
                                               </span>
                                             )}
@@ -545,13 +560,13 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
               <div className="space-y-3">
                 <div className="p-3 rounded-[6px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#F4F0E8] flex items-center gap-1.5">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#F4F0E8] flex items-center gap-1.5">
                       <Ruler className="w-3.5 h-3.5 text-[#C47B50]" />
                       3D Measurement
                     </span>
                     <button
                       onClick={onToggleMeasurement}
-                      className={`px-2 py-0.5 rounded-[4px] text-[10px] font-mono font-bold uppercase transition-all cursor-pointer ${
+                      className={`px-2.5 py-1 rounded-[4px] text-[11px] font-mono font-bold uppercase transition-all cursor-pointer ${
                         measurementActive
                           ? "bg-[#B56E48] text-[#F4F0E8]"
                           : "bg-[#141816] text-[#D9D2C5] border border-[rgba(244,240,232,0.12)] hover:border-[#B56E48]"
@@ -560,19 +575,19 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                       {measurementActive ? "Stop" : "Measure"}
                     </button>
                   </div>
-                  <p className="text-[10px] text-[#6F7772] leading-relaxed font-sans">
+                  <p className="text-[11px] text-[#A7B3AB] leading-relaxed font-sans">
                     Click two 3D vertices in the scene to calculate Euclidean distance, vertical height delta, and span.
                   </p>
                   {measurementResult && (
-                    <div className="mt-2 p-2 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] grid grid-cols-2 gap-2 text-[10px] font-mono">
+                    <div className="mt-2 p-2 rounded-[4px] bg-[#141816] border border-[rgba(244,240,232,0.08)] grid grid-cols-2 gap-2 text-[11px] font-mono">
                       <div>
-                        <span className="text-[#6F7772] block">3D Distance:</span>
+                        <span className="text-[#94A3B8] block">3D Distance:</span>
                         <span className="text-[#23847D] font-bold">
                           {measurementResult.distance.toFixed(2)} m
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#6F7772] block">Height Delta:</span>
+                        <span className="text-[#94A3B8] block">Height Delta:</span>
                         <span className="text-[#C47B50] font-bold">
                           {measurementResult.heightDelta.toFixed(2)} m
                         </span>
@@ -583,38 +598,38 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
 
                 {/* Camera Presets */}
                 <div className="p-3 rounded-[6px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] space-y-2">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#F4F0E8] flex items-center gap-1.5">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#F4F0E8] flex items-center gap-1.5">
                     <Compass className="w-3.5 h-3.5 text-[#23847D]" />
                     Spatial Camera Presets
                   </span>
                   <div className="grid grid-cols-2 gap-1.5">
                     <button
                       onClick={() => onSetCameraPreset("CITY")}
-                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-[10px] text-[#D9D2C5] transition-all text-left cursor-pointer"
+                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-xs text-[#D9D2C5] transition-all text-left cursor-pointer"
                     >
                       <span className="block font-bold text-[#F4F0E8]">City Macro</span>
-                      <span className="text-[9px] text-[#6F7772] font-mono">850m Altitude</span>
+                      <span className="text-[11px] text-[#94A3B8] font-mono">850m Altitude</span>
                     </button>
                     <button
                       onClick={() => onSetCameraPreset("BUILDING")}
-                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-[10px] text-[#D9D2C5] transition-all text-left cursor-pointer"
+                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-xs text-[#D9D2C5] transition-all text-left cursor-pointer"
                     >
                       <span className="block font-bold text-[#F4F0E8]">Building Focus</span>
-                      <span className="text-[9px] text-[#6F7772] font-mono">180m Pitch -32°</span>
+                      <span className="text-[11px] text-[#94A3B8] font-mono">180m Pitch -32°</span>
                     </button>
                     <button
                       onClick={() => onSetCameraPreset("FLOOR")}
-                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-[10px] text-[#D9D2C5] transition-all text-left cursor-pointer"
+                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-xs text-[#D9D2C5] transition-all text-left cursor-pointer"
                     >
                       <span className="block font-bold text-[#F4F0E8]">Floor Cutaway</span>
-                      <span className="text-[9px] text-[#6F7772] font-mono">70m Isometric</span>
+                      <span className="text-[11px] text-[#94A3B8] font-mono">70m Isometric</span>
                     </button>
                     <button
                       onClick={() => onSetCameraPreset("ROOM")}
-                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-[10px] text-[#D9D2C5] transition-all text-left cursor-pointer"
+                      className="p-2 rounded-[4px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-xs text-[#D9D2C5] transition-all text-left cursor-pointer"
                     >
                       <span className="block font-bold text-[#F4F0E8]">Room Interior</span>
-                      <span className="text-[9px] text-[#6F7772] font-mono">30m Section</span>
+                      <span className="text-[11px] text-[#94A3B8] font-mono">30m Section</span>
                     </button>
                   </div>
                 </div>
@@ -634,7 +649,8 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
             )}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

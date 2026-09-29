@@ -95,6 +95,23 @@ function City3DContent() {
   const [explodeFloors, setExplodeFloors] = useState<boolean>(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(urlLevel ? urlLevel !== "CITY" : false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState<boolean>(false);
+  const [isWideScreen, setIsWideScreen] = useState<boolean>(true);
+
+  // Responsive layout adaptation across desktop, tablet, and mobile
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => {
+      const wide = window.innerWidth >= 1280;
+      setIsWideScreen(wide);
+      // On tablets and mobile (< 1024px), default left panel to collapsed so 3D world is dominant
+      if (window.innerWidth < 1024) {
+        setIsLeftPanelCollapsed(true);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Layer visibility state
   const [layers, setLayers] = useState<LayerVisibilityState>({
@@ -781,9 +798,9 @@ function City3DContent() {
 
         {/* Interactive Spatial Compass (linked to Camera Heading) */}
         <div
-          className="fixed top-20 z-20 transition-all duration-300 pointer-events-auto"
+          className="fixed top-14 sm:top-20 z-20 transition-all duration-300 pointer-events-auto"
           style={{
-            right: isRightPanelOpen || comparisonState.isActive ? "440px" : "18px",
+            right: isWideScreen && (isRightPanelOpen || comparisonState.isActive) ? "420px" : "16px",
           }}
         >
           <SpatialCompass
@@ -796,7 +813,7 @@ function City3DContent() {
         </div>
 
         {/* Dynamic Metric Spatial Scale Bar */}
-        <div className="fixed bottom-10 right-4 z-20 pointer-events-none">
+        <div className="fixed bottom-16 sm:bottom-12 right-4 z-20 pointer-events-none hidden sm:block">
           <SpatialScaleBar altitude={cameraTelemetry.altitude} pitch={cameraTelemetry.pitch} />
         </div>
 

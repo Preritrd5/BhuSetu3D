@@ -152,7 +152,7 @@ export const UnitInspector: React.FC<UnitInspectorProps> = ({
                     <span className="font-semibold text-[#F4F0E8] block truncate group-hover:text-[#C47B50]">
                       {room.name}
                     </span>
-                    <span className="text-[10px] text-[#77867C] font-mono block">
+                    <span className="text-[11px] text-[#A7B3AB] font-mono block">
                       {room.type} • {room.dimensions || `${room.area_sqm}m²`} • {room.material}
                     </span>
                   </div>

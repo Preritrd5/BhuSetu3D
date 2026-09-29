@@ -232,33 +232,33 @@ export default function EvidenceVaultPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"]}
       moduleName="Cryptographic Evidence Vault"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
         <Sidebar />
 
-        <main className="flex-1 flex flex-col overflow-y-auto bg-[#0F1210]">
+        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Header */}
-          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-8 py-5 flex items-center justify-between">
+          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)] w-fit mb-1.5">
-                <FileCheck2 className="w-3 h-3 text-[#C47B50]" />
+              <div className="flex items-center gap-2 text-[11px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2.5 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)] w-fit mb-1.5">
+                <FileCheck2 className="w-3.5 h-3.5 text-[#C47B50]" />
                 <span>CRYPTOGRAPHIC EVIDENCE VAULT & PROVENANCE</span>
               </div>
-              <h1 className="text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2">
                 Evidence Vault & Lineage Graph
               </h1>
-              <p className="text-xs text-[#6F7772] mt-0.5 font-sans">
+              <p className="text-xs text-[#8C988F] mt-0.5 font-sans leading-relaxed">
                 Multi-sensor provenance tracing across Parcel → Building → Floor → Unit → Infrastructure.
               </p>
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex bg-[#141816] border border-[rgba(244,240,232,0.12)] p-1 rounded-[6px]">
+            <div className="flex bg-[#141816] border border-[rgba(244,240,232,0.12)] p-1 rounded-[6px] shrink-0 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("vault")}
-                className={`px-3 py-1.5 rounded-[4px] text-xs font-mono font-medium transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-[4px] text-xs font-mono font-medium transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === "vault"
                     ? "bg-[#B56E48] text-[#F4F0E8] font-bold shadow-sm"
-                    : "text-[#6F7772] hover:text-[#D9D2C5]"
+                    : "text-[#8C988F] hover:text-[#D9D2C5]"
                 }`}
               >
                 <Database className="w-3.5 h-3.5" />
@@ -266,10 +266,10 @@ export default function EvidenceVaultPage() {
               </button>
               <button
                 onClick={() => setActiveTab("lineage")}
-                className={`px-3 py-1.5 rounded-[4px] text-xs font-mono font-medium transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-[4px] text-xs font-mono font-medium transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeTab === "lineage"
                     ? "bg-[#B56E48] text-[#F4F0E8] font-bold shadow-sm"
-                    : "text-[#6F7772] hover:text-[#D9D2C5]"
+                    : "text-[#8C988F] hover:text-[#D9D2C5]"
                 }`}
               >
                 <GitBranch className="w-3.5 h-3.5" />
@@ -279,7 +279,7 @@ export default function EvidenceVaultPage() {
           </div>
 
           {/* Statutory Verification Rule Notice */}
-          <div className="mx-8 mt-6 p-4 bg-[#141816] border border-[#B56E48]/30 rounded-[8px] flex items-start gap-3">
+          <div className="mx-4 sm:mx-6 lg:mx-8 mt-4 sm:mt-6 p-3.5 sm:p-4 bg-[#141816] border border-[#B56E48]/30 rounded-[8px] flex items-start gap-3">
             <Info className="w-5 h-5 text-[#C47B50] flex-shrink-0 mt-0.5" />
             <div className="text-xs text-[#D9D2C5] leading-relaxed font-sans">
               <span className="font-semibold font-mono text-[#C47B50]">Mandatory Governance Rule (Confidence ≠ Verification): </span>
@@ -290,13 +290,13 @@ export default function EvidenceVaultPage() {
           </div>
 
           {/* Summary Stat Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-8 mt-6">
-            <div className="p-4 bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px]">
-              <span className="text-[10px] font-mono text-[#6F7772] uppercase tracking-wider block mb-1">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+            <div className="p-3.5 sm:p-4 bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px]">
+              <span className="text-[11px] font-mono text-[#8C988F] uppercase tracking-wider block mb-1">
                 EVIDENCE RECORDS
               </span>
-              <div className="text-2xl font-bold font-mono text-[#F4F0E8]">{totalItems}</div>
-              <div className="text-[10px] text-[#6F7772] mt-1 font-mono">Cataloged across all entities</div>
+              <div className="text-xl sm:text-2xl font-bold font-mono text-[#F4F0E8]">{totalItems}</div>
+              <div className="text-[11px] text-[#8C988F] mt-1 font-mono">Cataloged across all entities</div>
             </div>
 
             <div className="p-4 bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px]">

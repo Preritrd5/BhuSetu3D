@@ -185,12 +185,12 @@ export default function ConflictsPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
       moduleName="Discrepancy Engine"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans">
         <Sidebar />
 
-        <main className="flex-1 flex flex-col overflow-y-auto">
+        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           {/* Header */}
-          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816] px-8 py-5 flex items-center justify-between sticky top-0 z-20">
+          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20">
             <div>
               <div className="flex items-center gap-2 text-[#23847D] font-mono text-xs font-semibold uppercase tracking-wider mb-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#176C68]" />
@@ -199,22 +199,22 @@ export default function ConflictsPage() {
               <h1 className="text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5">
                 Spatial Findings & Conflicts Registry
               </h1>
-              <p className="text-xs text-[#6F7772] mt-0.5 font-sans">
+              <p className="text-xs text-[#8C988F] mt-0.5 font-sans leading-relaxed">
                 Deterministic PostGIS geometry relationship analysis, boundary setbacks, and infrastructure proximity.
               </p>
             </div>
 
             <Link
               href="/spatial-analysis"
-              className="px-4 py-2 bg-[#B56E48] hover:bg-[#C47B50] text-[#F4F0E8] font-mono font-bold rounded-[6px] text-xs flex items-center gap-2 transition-all shadow-sm"
+              className="px-3.5 sm:px-4 py-2 bg-[#B56E48] hover:bg-[#C47B50] text-[#F4F0E8] font-mono font-bold rounded-[6px] text-xs flex items-center justify-center gap-2 transition-all shadow-sm shrink-0"
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Launch Spatial Analysis Workspace</span>
+              <span>Launch Spatial Analysis</span>
             </Link>
           </div>
 
           {/* Legal Limitation Notice Banner */}
-          <div className="mx-8 mt-5 p-4 bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px] flex items-start gap-3">
+          <div className="mx-4 sm:mx-6 lg:mx-8 mt-4 sm:mt-5 p-3.5 sm:p-4 bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px] flex items-start gap-3">
             <Info className="w-4 h-4 text-[#C47B50] flex-shrink-0 mt-0.5" />
             <div className="text-xs text-[#D9D2C5] leading-relaxed font-sans">
               <span className="font-bold text-[#F4F0E8] font-mono">Mandatory Governance Notice:</span> Spatial findings are
@@ -225,44 +225,44 @@ export default function ConflictsPage() {
           </div>
 
           {/* Metrics Banner */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-8 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-8 mt-4">
             <div className="p-4 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.08)] shadow-sm">
-              <span className="text-[10px] font-mono text-[#6F7772] uppercase tracking-wider block mb-1 font-semibold">
+              <span className="text-[11px] font-mono text-[#8C988F] uppercase tracking-wider block mb-1 font-semibold">
                 TOTAL FINDINGS
               </span>
               <div className="text-[28px] font-extrabold font-mono text-[#F4F0E8] leading-tight">{totalItems}</div>
-              <div className="text-[10px] text-[#6F7772] mt-1">Durable geometric discrepancies</div>
+              <div className="text-[11px] text-[#8C988F] mt-1">Durable geometric discrepancies</div>
             </div>
 
             <div className="p-4 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.08)] shadow-sm">
-              <span className="text-[10px] font-mono text-[#6F7772] uppercase tracking-wider block mb-1 font-semibold">
+              <span className="text-[11px] font-mono text-[#8C988F] uppercase tracking-wider block mb-1 font-semibold">
                 HIGH SEVERITY
               </span>
               <div className="text-[28px] font-extrabold font-mono text-[#C47B50] leading-tight">{summary.high_count}</div>
-              <div className="text-[10px] text-[#6F7772] mt-1">Significant boundary discrepancies</div>
+              <div className="text-[11px] text-[#8C988F] mt-1">Significant boundary discrepancies</div>
             </div>
 
             <div className="p-4 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.08)] shadow-sm">
-              <span className="text-[10px] font-mono text-[#6F7772] uppercase tracking-wider block mb-1 font-semibold">
+              <span className="text-[11px] font-mono text-[#8C988F] uppercase tracking-wider block mb-1 font-semibold">
                 REVIEW REQUIRED
               </span>
               <div className="text-[28px] font-extrabold font-mono text-[#C47B50] leading-tight">{summary.open_count}</div>
-              <div className="text-[10px] text-[#6F7772] mt-1">Pending statutory assessment</div>
+              <div className="text-[11px] text-[#8C988F] mt-1">Pending statutory assessment</div>
             </div>
 
             <div className="p-4 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.08)] shadow-sm">
-              <span className="text-[10px] font-mono text-[#6F7772] uppercase tracking-wider block mb-1 font-semibold">
+              <span className="text-[11px] font-mono text-[#8C988F] uppercase tracking-wider block mb-1 font-semibold">
                 MEDIUM / LOW
               </span>
               <div className="text-[28px] font-extrabold font-mono text-[#23847D] leading-tight">
                 {summary.medium_count + summary.low_count}
               </div>
-              <div className="text-[10px] text-[#6F7772] mt-1">Minor setbacks & proximity buffers</div>
+              <div className="text-[11px] text-[#8C988F] mt-1">Minor setbacks & proximity buffers</div>
             </div>
           </div>
 
           {/* Filter Bar */}
-          <div className="p-8 space-y-4">
+          <div className="p-4 sm:p-6 lg:p-8 space-y-4">
             <div className="p-4 bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px] space-y-3">
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">

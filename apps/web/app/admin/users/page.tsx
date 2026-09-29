@@ -81,7 +81,7 @@ export default function AdminUsersPage() {
       <div className="flex-1 flex overflow-hidden select-none bg-[#0F1210]">
         <Sidebar />
 
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 bg-[#0F1210]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-[#0F1210]">
           <div className="border-b border-[rgba(244,240,232,0.06)] pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
@@ -105,14 +105,14 @@ export default function AdminUsersPage() {
               </p>
             </div>
 
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search user, email, or role..."
-                className="pl-9 pr-4 py-2 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-xs font-mono text-[#F4F0E8] placeholder:text-[#6F7772] outline-none w-64"
+                className="pl-9 pr-4 py-2 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.08)] text-xs font-mono text-[#F4F0E8] placeholder:text-[#6F7772] outline-none w-full sm:w-64"
               />
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function AdminUsersPage() {
                 <div className="space-y-2 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-base font-bold font-mono text-[#F4F0E8]">{persona.name}</h3>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold uppercase ${persona.badgeColor}`}>
+                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded border font-bold uppercase ${persona.badgeColor}`}>
                       {persona.role}
                     </span>
                     <span className="text-xs font-mono text-[#94A3B8]">

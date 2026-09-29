@@ -227,46 +227,48 @@ function SpatialInvestigatorContent() {
       requiredRole={["ADMIN", "ANALYST"]}
       moduleName="AI Spatial Investigator"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Header */}
-          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-8 py-5 sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4">
+          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)] flex items-center gap-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)] flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-[#C47B50]" />
                   GROUNDED SPATIAL INTELLIGENCE
                 </span>
-                <span className="text-xs text-[#6F7772]">•</span>
-                <span className="text-xs font-mono text-[#6F7772]">PostGIS 3.4 Conformal Engine</span>
+                <span className="text-xs text-[#8C988F]">•</span>
+                <span className="text-xs font-mono text-[#8C988F]">PostGIS 3.4 Conformal Engine</span>
               </div>
-              <h1 className="text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5 mt-1.5">
+              <h1 className="text-lg sm:text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5 mt-1.5">
                 <Compass className="w-5 h-5 text-[#C47B50]" />
                 Natural-Language Spatial Query & Investigation
               </h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <Link
                 href="/spatial-analysis"
-                className="px-3.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors"
+                className="px-3 sm:px-3.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors"
               >
                 <Layers className="w-4 h-4 text-[#23847D]" />
-                Spatial Analysis
+                <span className="hidden sm:inline">Spatial Analysis</span>
+                <span className="sm:hidden">Analysis</span>
               </Link>
               <Link
                 href="/conflicts"
-                className="px-3.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors"
+                className="px-3 sm:px-3.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors"
               >
                 <AlertTriangle className="w-4 h-4 text-[#C47B50]" />
-                Discrepancy Vault
+                <span className="hidden sm:inline">Discrepancy Vault</span>
+                <span className="sm:hidden">Vault</span>
               </Link>
             </div>
           </div>
 
-          <div className="p-8 max-w-7xl mx-auto w-full space-y-6">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
             {/* Mandatory Governance Notice */}
             <div className="bg-[#141816] border border-[#B56E48]/30 rounded-[8px] p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-[#C47B50] mt-0.5 shrink-0" />

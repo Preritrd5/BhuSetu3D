@@ -35,7 +35,7 @@ export const InspectorSection: React.FC<InspectorSectionProps> = ({
             {title}
           </span>
           {badge !== undefined && (
-            <span className="px-1.5 py-0.5 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[10px] font-mono text-[#6F7772]">
+            <span className="px-1.5 py-0.5 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[11px] font-mono font-semibold text-[#A7B3AB]">
               {badge}
             </span>
           )}

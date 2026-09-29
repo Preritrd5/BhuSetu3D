@@ -111,7 +111,7 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
             <span className="text-[11px] font-bold text-[#F4F0E8] uppercase tracking-widest block">
               Contextual Intelligence
             </span>
-            <span className="text-[10px] text-[#6F7772] font-mono block">
+            <span className="text-[11px] text-[#8C988F] font-mono block">
               {conflicts.length > 0 ? `${conflicts.length} Discrepancy Items` : "No Active Discrepancies"} •{" "}
               {evidence?.evidence_count ?? 4} Evidence Sources
             </span>
@@ -120,14 +120,14 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
 
         <div className="flex items-center gap-2">
           {conflicts.length > 0 && (
-            <span className="px-2 py-0.5 rounded-[4px] bg-[#B56E48]/20 border border-[#B56E48]/40 text-[#C47B50] text-[10px] font-mono font-bold">
+            <span className="px-2 py-0.5 rounded-[4px] bg-[#B56E48]/20 border border-[#B56E48]/40 text-[#C47B50] text-[11px] font-mono font-bold">
               {conflicts.length} REVIEW
             </span>
           )}
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-[#6F7772] group-hover:text-[#D9D2C5]" />
+            <ChevronDown className="w-4 h-4 text-[#8C988F] group-hover:text-[#D9D2C5]" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-[#6F7772] group-hover:text-[#D9D2C5]" />
+            <ChevronRight className="w-4 h-4 text-[#8C988F] group-hover:text-[#D9D2C5]" />
           )}
         </div>
       </button>
@@ -136,27 +136,27 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
       {isExpanded && (
         <div className="px-4 pb-4 space-y-3.5">
           {/* Compact Intelligence Summary Matrix (Req 7) */}
-          <div className="grid grid-cols-4 gap-1.5 p-2 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[8px] text-[10px]">
+          <div className="grid grid-cols-4 gap-1.5 p-2 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[8px] text-[11px]">
             <div className="text-center p-1 border-r border-[rgba(244,240,232,0.06)]">
-              <span className="text-[#6F7772] font-mono text-[9px] uppercase block">Data Status</span>
+              <span className="text-[#8C988F] font-mono text-[11px] uppercase block">Data Status</span>
               <span className="font-bold text-[#C47B50] block truncate mt-0.5">
                 {intelligenceSummary?.verificationStatus || "UNDER_REVIEW"}
               </span>
             </div>
             <div className="text-center p-1 border-r border-[rgba(244,240,232,0.06)]">
-              <span className="text-[#6F7772] font-mono text-[9px] uppercase block">Evidence</span>
+              <span className="text-[#8C988F] font-mono text-[11px] uppercase block">Evidence</span>
               <span className="font-bold text-[#23847D] block mt-0.5">
                 {intelligenceSummary?.evidenceCount ?? 4} Sources
               </span>
             </div>
             <div className="text-center p-1 border-r border-[rgba(244,240,232,0.06)]">
-              <span className="text-[#6F7772] font-mono text-[9px] uppercase block">Conflicts</span>
+              <span className="text-[#8C988F] font-mono text-[11px] uppercase block">Conflicts</span>
               <span className={`font-bold block mt-0.5 ${conflicts.length > 0 ? "text-rose-400" : "text-emerald-400"}`}>
                 {conflicts.length} Findings
               </span>
             </div>
             <div className="text-center p-1">
-              <span className="text-[#6F7772] font-mono text-[9px] uppercase block">Confidence</span>
+              <span className="text-[#8C988F] font-mono text-[11px] uppercase block">Confidence</span>
               <span className="font-bold text-[#C47B50] block mt-0.5">
                 {intelligenceSummary?.compositeConfidence ?? 93}%
               </span>
@@ -164,43 +164,43 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
           </div>
 
           {/* Sub-Tabs: Findings | Evidence | Lineage | Infrastructure */}
-          <div className="flex items-center gap-1 border-b border-[rgba(244,240,232,0.06)] pb-1.5 text-[10px] font-mono">
+          <div className="flex items-center gap-1 border-b border-[rgba(244,240,232,0.06)] pb-1.5 text-[11px] font-mono overflow-x-auto">
             <button
               onClick={() => setActiveTab("FINDINGS")}
-              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer shrink-0 ${
                 activeTab === "FINDINGS"
                   ? "bg-[#1A201D] text-[#C47B50] font-bold"
-                  : "text-[#6F7772] hover:text-[#F4F0E8]"
+                  : "text-[#8C988F] hover:text-[#F4F0E8]"
               }`}
             >
               Discrepancies ({conflicts.length})
             </button>
             <button
               onClick={() => setActiveTab("EVIDENCE")}
-              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer shrink-0 ${
                 activeTab === "EVIDENCE"
                   ? "bg-[#1A201D] text-[#C47B50] font-bold"
-                  : "text-[#6F7772] hover:text-[#F4F0E8]"
+                  : "text-[#8C988F] hover:text-[#F4F0E8]"
               }`}
             >
               Evidence ({evidence?.evidence_count ?? 4})
             </button>
             <button
               onClick={() => setActiveTab("PROVENANCE")}
-              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer shrink-0 ${
                 activeTab === "PROVENANCE"
                   ? "bg-[#1A201D] text-[#C47B50] font-bold"
-                  : "text-[#6F7772] hover:text-[#F4F0E8]"
+                  : "text-[#8C988F] hover:text-[#F4F0E8]"
               }`}
             >
               Lineage DAG
             </button>
             <button
               onClick={() => setActiveTab("INFRA")}
-              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-[6px] transition-colors cursor-pointer shrink-0 ${
                 activeTab === "INFRA"
                   ? "bg-[#1A201D] text-[#C47B50] font-bold"
-                  : "text-[#6F7772] hover:text-[#F4F0E8]"
+                  : "text-[#8C988F] hover:text-[#F4F0E8]"
               }`}
             >
               Infrastructure
@@ -219,10 +219,10 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                         <button
                           key={c.id}
                           onClick={() => onSelectConflict?.(c)}
-                          className={`px-2 py-1 rounded-[6px] text-[10px] font-mono border transition-all whitespace-nowrap cursor-pointer ${
+                          className={`px-2.5 py-1.5 rounded-[6px] text-[11px] font-mono border transition-all whitespace-nowrap cursor-pointer ${
                             currentConflict?.id === c.id
                               ? "bg-[#1A201D] border-[#B56E48] text-[#C47B50] font-bold"
-                              : "bg-[#0F1210] border-[rgba(244,240,232,0.06)] text-[#6F7772] hover:text-[#F4F0E8]"
+                              : "bg-[#0F1210] border-[rgba(244,240,232,0.06)] text-[#8C988F] hover:text-[#F4F0E8]"
                           }`}
                         >
                           Discrepancy #{idx + 1}: {c.rule_name || c.conflict_type}
@@ -232,17 +232,17 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                   )}
 
                   {currentConflict && (
-                    <div className="p-3 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[8px] space-y-2.5 text-[11px]">
+                    <div className="p-3 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[8px] space-y-2.5 text-xs">
                       {/* Top Bar: Rule Name & Severity */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <AlertTriangle className="w-3.5 h-3.5 text-[#C47B50]" />
-                          <span className="font-bold text-[#F4F0E8]">
+                          <AlertTriangle className="w-4 h-4 text-[#C47B50]" />
+                          <span className="font-bold text-[#F4F0E8] text-xs">
                             {currentConflict.rule_name || "Spatial Discrepancy"}
                           </span>
                         </div>
                         <span
-                          className={`px-2 py-0.5 rounded-[4px] border text-[9px] font-mono font-bold ${getSeverityBadge(
+                          className={`px-2 py-0.5 rounded-[4px] border text-[11px] font-mono font-bold ${getSeverityBadge(
                             currentConflict.severity
                           )}`}
                         >
@@ -252,19 +252,19 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
 
                       {/* 1. WHAT */}
                       <div className="bg-[#141816] p-2.5 rounded-[6px] border border-[rgba(244,240,232,0.06)] space-y-1">
-                        <div className="text-[9px] font-mono uppercase tracking-wider text-[#6F7772] font-bold">
+                        <div className="text-[11px] font-mono uppercase tracking-wider text-[#8C988F] font-bold">
                           WHAT: Condition Detected
                         </div>
-                        <p className="text-[#D9D2C5] leading-relaxed font-sans">
+                        <p className="text-[#D9D2C5] leading-relaxed font-sans text-xs">
                           {currentConflict.explanation}
                         </p>
                         {currentConflict.deviation_value !== undefined && (
-                          <div className="flex items-center gap-2 pt-1 font-mono text-[10px]">
-                            <span className="text-[#6F7772]">Deviation:</span>
+                          <div className="flex items-center gap-2 pt-1 font-mono text-[11px]">
+                            <span className="text-[#8C988F]">Deviation:</span>
                             <span className="text-rose-400 font-bold">
                               +{currentConflict.deviation_value} {currentConflict.measured_unit || "m"}
                             </span>
-                            <span className="text-[#6F7772]">
+                            <span className="text-[#8C988F]">
                               (Measured: {currentConflict.measured_value} vs Threshold: {currentConflict.threshold_value})
                             </span>
                           </div>
@@ -273,10 +273,10 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
 
                       {/* 2. WHY */}
                       <div className="bg-[#141816] p-2.5 rounded-[6px] border border-[rgba(244,240,232,0.06)] space-y-1">
-                        <div className="text-[9px] font-mono uppercase tracking-wider text-[#6F7772] font-bold">
+                        <div className="text-[11px] font-mono uppercase tracking-wider text-[#8C988F] font-bold">
                           WHY: Rule Trigger
                         </div>
-                        <p className="text-[#D9D2C5] leading-relaxed font-sans">
+                        <p className="text-[#D9D2C5] leading-relaxed font-sans text-xs">
                           {currentConflict.conflict_type === "PARCEL_BOUNDARY_OVERLAP"
                             ? "Topological intersection ST_Difference between the 3D building footprint and registered 2D cadastral polygon identified an exterior polygon of 14.20 m²."
                             : currentConflict.conflict_type === "VERTICAL_HEIGHT_EXCEEDED"
@@ -287,40 +287,40 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
 
                       {/* 3. EVIDENCE & PROVENANCE */}
                       <div className="bg-[#141816] p-2.5 rounded-[6px] border border-[rgba(244,240,232,0.06)] space-y-1">
-                        <div className="text-[9px] font-mono uppercase tracking-wider text-[#6F7772] font-bold">
+                        <div className="text-[11px] font-mono uppercase tracking-wider text-[#8C988F] font-bold">
                           EVIDENCE: Corroborating Sources
                         </div>
-                        <p className="text-[#D9D2C5] font-sans">
+                        <p className="text-[#D9D2C5] font-sans text-xs">
                           {currentConflict.evidence_reference?.primary_evidence_dataset ||
                             "2026 Drone Photogrammetry & 3D Reality Mesh (2.1 cm GSD)"}
                         </p>
-                        <div className="text-[10px] font-mono text-[#23847D]">
+                        <div className="text-[11px] font-mono text-[#23847D]">
                           Source Classification: OBSERVED (Cert. Drone RTK Survey)
                         </div>
                       </div>
 
                       {/* 4. CONFIDENCE vs 5. VERIFICATION */}
-                      <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[10px]">
+                      <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
                         <div className="p-2 bg-[#141816] border border-[rgba(244,240,232,0.06)] rounded-[6px]">
-                          <span className="text-[9px] uppercase text-[#6F7772] font-bold block">
+                          <span className="text-[11px] uppercase text-[#8C988F] font-bold block">
                             Confidence Score
                           </span>
                           <span className="text-sm font-bold text-[#C47B50]">
                             {Math.round((currentConflict.confidence_score ?? 0.94) * 100)}%
                           </span>
-                          <span className="text-[9px] text-[#6F7772] block">
-                            Algorithm / Reality Model Certainty
+                          <span className="text-[11px] text-[#8C988F] block">
+                            Model Certainty
                           </span>
                         </div>
 
                         <div className="p-2 bg-[#141816] border border-[rgba(244,240,232,0.06)] rounded-[6px]">
-                          <span className="text-[9px] uppercase text-[#6F7772] font-bold block">
+                          <span className="text-[11px] uppercase text-[#8C988F] font-bold block">
                             Statutory Status
                           </span>
                           <span className="text-xs font-bold text-[#C47B50] block truncate">
                             {currentConflict.verification_status || "UNDER_REVIEW"}
                           </span>
-                          <span className="text-[9px] text-[#6F7772] block truncate">
+                          <span className="text-[11px] text-[#8C988F] block truncate">
                             {currentConflict.assigned_reviewer_name || "Assigned Officer Review"}
                           </span>
                         </div>
@@ -331,9 +331,9 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                         {onMeasureConflict && (
                           <button
                             onClick={() => onMeasureConflict(currentConflict)}
-                            className="flex-1 py-1.5 px-2 bg-[#1A201D] hover:bg-[#243029] text-[#D9D2C5] border border-[rgba(244,240,232,0.10)] rounded-[6px] text-[10px] font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                            className="flex-1 min-h-[36px] py-1.5 px-2 bg-[#1A201D] hover:bg-[#243029] text-[#D9D2C5] border border-[rgba(244,240,232,0.10)] rounded-[6px] text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
-                            <Ruler className="w-3 h-3 text-[#C47B50]" />
+                            <Ruler className="w-3.5 h-3.5 text-[#C47B50]" />
                             Measure Deviation
                           </button>
                         )}
@@ -345,9 +345,9 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                                 `Why was ${selection.title} flagged for ${currentConflict.rule_name || currentConflict.conflict_type}?`
                               )
                             }
-                            className="flex-1 py-1.5 px-2 bg-[#176C68]/15 hover:bg-[#176C68]/25 border border-[#176C68]/30 text-[#23847D] rounded-[6px] text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                            className="flex-1 min-h-[36px] py-1.5 px-2 bg-[#176C68]/15 hover:bg-[#176C68]/25 border border-[#176C68]/30 text-[#23847D] rounded-[6px] text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
-                            <Sparkles className="w-3 h-3 text-[#23847D]" />
+                            <Sparkles className="w-3.5 h-3.5 text-[#23847D]" />
                             Investigate with AI
                           </button>
                         )}
@@ -356,10 +356,10 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                   )}
                 </>
               ) : (
-                <div className="p-4 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[8px] text-center space-y-1 text-[#6F7772] text-[11px]">
+                <div className="p-4 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded-[8px] text-center space-y-1 text-[#8C988F] text-xs">
                   <ShieldCheck className="w-6 h-6 text-emerald-400 mx-auto mb-1" />
-                  <span className="font-semibold text-[#F4F0E8] block">No Recorded Discrepancies</span>
-                  <p className="text-[10px] leading-relaxed text-[#6F7772]">
+                  <span className="font-semibold text-[#F4F0E8] block text-xs">No Recorded Discrepancies</span>
+                  <p className="text-[11px] leading-relaxed text-[#8C988F]">
                     No active geometric or cadastral discrepancies are currently flagged for this spatial object.
                   </p>
                 </div>
@@ -370,7 +370,7 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
           {/* TAB 2: EVIDENCE VAULT */}
           {activeTab === "EVIDENCE" && (
             <div className="space-y-2">
-              <div className="text-[10px] text-[#6F7772] font-mono flex items-center justify-between pb-1">
+              <div className="text-[11px] text-[#8C988F] font-mono flex items-center justify-between pb-1">
                 <span>Multi-Source Sensor Vault ({evidence?.evidence_items?.length ?? 4} captures)</span>
                 <span className="text-emerald-400 font-bold">{evidence?.coverage_percentage ?? 95}% Coverage</span>
               </div>
@@ -378,19 +378,19 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
               {(evidence?.evidence_items || CANONICAL_P102_EVIDENCE.evidence_items).map((ev) => (
                 <div
                   key={ev.id}
-                  className="p-2.5 bg-[#0F1210] hover:bg-[#141816] border border-[rgba(244,240,232,0.06)] rounded-[8px] space-y-1.5 text-[11px] transition-colors"
+                  className="p-2.5 bg-[#0F1210] hover:bg-[#141816] border border-[rgba(244,240,232,0.06)] rounded-[8px] space-y-1.5 text-xs transition-colors"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <span className="font-bold text-[#F4F0E8] block truncate">
                         {ev.dataset_name || "Cadastral Layer"}
                       </span>
-                      <span className="text-[10px] text-[#6F7772] font-mono block">
+                      <span className="text-[11px] text-[#8C988F] font-mono block">
                         Source: {ev.source_name || "Official Geodetic Agency"}
                       </span>
                     </div>
                     <span
-                      className={`px-1.5 py-0.5 rounded-[4px] border text-[9px] font-mono font-bold shrink-0 ${getClassificationBadge(
+                      className={`px-1.5 py-0.5 rounded-[4px] border text-[11px] font-mono font-bold shrink-0 ${getClassificationBadge(
                         ev.source_classification
                       )}`}
                     >
@@ -398,9 +398,9 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                     </span>
                   </div>
 
-                  {ev.notes && <p className="text-[10px] text-[#D9D2C5] leading-relaxed font-sans">{ev.notes}</p>}
+                  {ev.notes && <p className="text-[11px] text-[#D9D2C5] leading-relaxed font-sans">{ev.notes}</p>}
 
-                  <div className="flex items-center justify-between pt-1 border-t border-[rgba(244,240,232,0.06)] text-[9px] font-mono text-[#6F7772]">
+                  <div className="flex items-center justify-between pt-1 border-t border-[rgba(244,240,232,0.06)] text-[11px] font-mono text-[#8C988F]">
                     <span>Precision: {Math.round(ev.confidence_score * 100)}%</span>
                     <span>Method: {ev.processing_method || "Sensor Capture"}</span>
                   </div>
@@ -412,11 +412,11 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
           {/* TAB 3: PROVENANCE LINEAGE DAG */}
           {activeTab === "PROVENANCE" && (
             <div className="space-y-2.5">
-              <div className="text-[10px] text-[#6F7772] font-mono pb-1">
+              <div className="text-[11px] text-[#8C988F] font-mono pb-1">
                 Spatial Provenance Lineage: Ingestion → AI Model → Floor Slicing → 3D ULPIN
               </div>
 
-              <div className="relative pl-3 border-l-2 border-[#B56E48]/40 space-y-3 font-mono text-[10px]">
+              <div className="relative pl-3 border-l-2 border-[#B56E48]/40 space-y-3 font-mono text-[11px]">
                 {(provenance?.chain || CANONICAL_P102_PROVENANCE.chain).map((node, index) => (
                   <div key={node.id} className="relative group">
                     <div className="absolute -left-[19px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#B56E48] border-2 border-[#0F1210]" />
@@ -425,13 +425,13 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                         <span className="font-bold text-[#F4F0E8]">
                           Step {index + 1}: {node.operation_name}
                         </span>
-                        <span className="px-1.5 py-0.5 bg-[#1A201D] text-[#D9D2C5] rounded-[3px] text-[9px]">
+                        <span className="px-1.5 py-0.5 bg-[#1A201D] text-[#D9D2C5] rounded-[3px] text-[11px]">
                           {node.operation_type}
                         </span>
                       </div>
-                      <span className="text-[9px] text-[#6F7772] block">Performed by: {node.performed_by}</span>
+                      <span className="text-[11px] text-[#8C988F] block">Performed by: {node.performed_by}</span>
                       {node.output_reference && (
-                        <div className="text-[9px] text-[#D9D2C5] bg-[#141816] p-1.5 rounded border border-[rgba(244,240,232,0.06)]">
+                        <div className="text-[11px] text-[#D9D2C5] bg-[#141816] p-1.5 rounded border border-[rgba(244,240,232,0.06)]">
                           Output: {JSON.stringify(node.output_reference).replace(/[{}\"]/g, "")}
                         </div>
                       )}
@@ -445,25 +445,25 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
           {/* TAB 4: INFRASTRUCTURE CONTEXT */}
           {activeTab === "INFRA" && (
             <div className="space-y-2">
-              <div className="text-[10px] text-[#6F7772] font-mono pb-1">
+              <div className="text-[11px] text-[#8C988F] font-mono pb-1">
                 Nearby Infrastructure Corridors (50m Buffer Radius)
               </div>
 
               {(infrastructure?.features || CANONICAL_P102_INFRASTRUCTURE.features).map((feat) => (
                 <div
                   key={feat.id}
-                  className="p-2.5 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[8px] flex items-center justify-between text-[11px]"
+                  className="p-2.5 bg-[#0F1210] border border-[rgba(244,240,232,0.06)] rounded-[8px] flex items-center justify-between text-xs"
                 >
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-[#F4F0E8]">{feat.name}</span>
                       {feat.clearance_warning && (
-                        <span className="px-1.5 py-0.5 rounded bg-rose-950/80 border border-rose-800/60 text-rose-300 text-[9px] font-mono font-bold">
+                        <span className="px-1.5 py-0.5 rounded bg-rose-950/80 border border-rose-800/60 text-rose-300 text-[11px] font-mono font-bold">
                           CLEARANCE WARNING
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-[#6F7772] font-mono block mt-0.5">
+                    <span className="text-[11px] text-[#8C988F] font-mono block mt-0.5">
                       Type: {feat.type} • Buffer: {feat.buffer_zone_meters}m • Class: {feat.classification || "OBSERVED"}
                     </span>
                   </div>
@@ -476,7 +476,7 @@ export const ContextualIntelligenceSection: React.FC<ContextualIntelligenceSecti
                     >
                       {feat.distance_meters}m
                     </span>
-                    <span className="text-[9px] text-[#6F7772] block">Proximity</span>
+                    <span className="text-[11px] text-[#8C988F] block">Proximity</span>
                   </div>
                 </div>
               ))}

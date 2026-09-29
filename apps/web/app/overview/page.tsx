@@ -37,7 +37,7 @@ export default function OverviewPage() {
         <Sidebar />
 
         {/* Main Workspace Canvas */}
-        <main className="flex-1 overflow-y-auto p-5 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-[#0F1210]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-[#0F1210]">
           
           {/* Header Banner */}
           <div className="border-b border-[rgba(244,240,232,0.06)] pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -64,11 +64,11 @@ export default function OverviewPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.06)] text-right">
-                <div className="text-[10px] font-mono text-[#94A3B8] uppercase font-semibold">
+              <div className="p-3 rounded-[8px] bg-[#141816] border border-[rgba(244,240,232,0.06)] text-left sm:text-right">
+                <div className="text-[11px] font-mono text-[#94A3B8] uppercase font-semibold">
                   Active Mission Scope
                 </div>
-                <div className="text-xs sm:text-sm font-semibold font-mono text-[#E09F67] flex items-center gap-1.5 justify-end mt-0.5">
+                <div className="text-xs sm:text-sm font-semibold font-mono text-[#E09F67] flex items-center gap-1.5 justify-start sm:justify-end mt-0.5">
                   <ShieldCheck className="w-4 h-4 text-[#B56E48]" />
                   <span>
                     {primaryRole === "ADMIN"
@@ -93,7 +93,7 @@ export default function OverviewPage() {
                     <UserCheck className="w-4 h-4 text-[#2EB8B0]" />
                     Authenticated Evaluator Identity
                   </span>
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-[4px] bg-[#176C68]/20 text-[#2EB8B0] border border-[#176C68]/40 font-bold">
+                  <span className="text-[11px] font-mono uppercase px-2 py-0.5 rounded-[4px] bg-[#176C68]/20 text-[#2EB8B0] border border-[#176C68]/40 font-bold">
                     AUTHORITATIVE SESSION
                   </span>
                 </div>

@@ -107,36 +107,37 @@ function PropertiesExplorerContent() {
 
   return (
     <ProtectedRoute moduleName="Cadastral Properties Registry">
-      <div className="flex-1 flex overflow-hidden h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans">
+      <div className="flex-1 flex overflow-hidden h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans">
         {/* Navigation Sidebar */}
         <Sidebar />
 
         {/* 2D Geospatial Workspace */}
-        <div className="flex-1 flex flex-col overflow-hidden relative">
+        <div className="flex-1 flex flex-col overflow-hidden relative min-w-0">
           {/* Header Bar */}
-          <header className="h-14 bg-[#141816] border-b border-[rgba(244,240,232,0.08)] px-6 flex items-center justify-between z-10 select-none">
+          <header className="h-14 bg-[#141816] border-b border-[rgba(244,240,232,0.08)] px-4 sm:px-6 flex items-center justify-between z-10 select-none">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-mono px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#23847D] border border-[#176C68]/40 uppercase font-semibold">
                   2D CADASTRAL
                 </span>
-                <span className="text-sm font-bold font-mono text-[#F4F0E8] flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#C47B50]" />
-                  2D Cadastral Map & Property Explorer
+                <span className="text-sm font-bold font-mono text-[#F4F0E8] flex items-center gap-2 truncate">
+                  <MapPin className="w-4 h-4 text-[#C47B50] shrink-0" />
+                  <span className="truncate">2D Cadastral Map & Property Explorer</span>
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href={`/3d-city${selectedParcelId ? `?parcel=${selectedParcelId}` : ""}`}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-[6px] bg-[#B56E48] hover:bg-[#C47B50] text-xs font-mono font-bold text-[#F4F0E8] transition-all shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#B56E48] hover:bg-[#C47B50] text-xs font-mono font-bold text-[#F4F0E8] transition-all shadow-sm shrink-0"
               >
                 <Building2 className="w-3.5 h-3.5" />
-                <span>3D City View</span>
+                <span className="hidden sm:inline">3D City View</span>
+                <span className="sm:hidden">3D</span>
               </Link>
 
-              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[11px] font-mono text-[#6F7772]">
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[11px] font-mono text-[#8C988F]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#23847D]" />
                 <span>GEODETIC CADASTRAL ENGINE</span>
               </div>

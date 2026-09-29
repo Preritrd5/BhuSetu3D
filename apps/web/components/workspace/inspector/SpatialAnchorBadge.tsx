@@ -45,7 +45,7 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
       <div className="flex items-center gap-1.5 p-1.5 pl-3 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.08)] shadow-sm text-xs font-mono">
         <div className="flex items-center gap-2">
           {renderIcon(selection.entityType)}
-          <span className="text-[10px] font-bold text-[#6F7772] uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-[#A7B3AB] uppercase tracking-wider">
             {selection.entityType}
           </span>
           <span className="text-[#6F7772]/40">•</span>
@@ -56,7 +56,7 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
 
         <button
           onClick={onRestoreInspector}
-          className="ml-2 px-2.5 py-1 rounded-[4px] bg-[#B56E48] hover:bg-[#C47B50] text-[#F4F0E8] text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+          className="ml-2 px-2.5 py-1 rounded-[4px] bg-[#B56E48] hover:bg-[#C47B50] text-[#F4F0E8] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
           title="Open Contextual Inspector"
         >
           <Eye className="w-3 h-3" />

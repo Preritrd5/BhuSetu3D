@@ -8,13 +8,15 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Globe2, Shield, LogOut, User as UserIcon } from "lucide-react";
+import { Globe2, Shield, LogOut, User as UserIcon, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigationDrawer } from "@/hooks/useNavigationDrawer";
 import { AppRole } from "@/types/auth";
 
 export function TopBar() {
   const pathname = usePathname();
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { toggleDrawer } = useNavigationDrawer();
 
   // Hide navbar completely whenever session / auth is validating, or on dedicated full-screen views
   if (
@@ -40,63 +42,74 @@ export function TopBar() {
       case "ANALYST":
         return "bg-[#176C68]/15 text-[#23847D] border-[#176C68]/30";
       default:
-        return "bg-[#141816] text-[#6F7772] border-[rgba(244,240,232,0.08)]";
+        return "bg-[#141816] text-[#8C988F] border-[rgba(244,240,232,0.08)]";
     }
   };
 
   const primaryRole = user?.roles?.[0] || "PUBLIC_USER";
 
   return (
-    <header className="h-14 border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210]/95 backdrop-blur-md px-6 flex items-center justify-between z-30 sticky top-0 select-none">
-      {/* Brand Identity */}
-      <Link href="/" className="flex items-center gap-3 hover:opacity-95 transition-opacity group">
-        <div className="relative w-8 h-8 rounded-[6px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
-          <Image
-            src="/brand/bhusetu-logo.webp"
-            alt="BhuSetu 3D Official Brand Logo"
-            width={32}
-            height={32}
-            priority
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div className="flex flex-col text-left">
-          <div className="flex items-center gap-2">
-            <span className="font-bold tracking-wider text-sm text-[#F4F0E8] font-mono">
-              BHUSETU 3D
+    <header className="h-14 border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210]/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between z-30 sticky top-0 select-none">
+      {/* Brand Identity & Mobile Hamburger */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Mobile Navigation Drawer Toggle */}
+        <button
+          onClick={toggleDrawer}
+          className="lg:hidden p-2 rounded-[6px] border border-[rgba(244,240,232,0.08)] bg-[#141816] text-[#F4F0E8] hover:bg-[#1A201D] transition-colors cursor-pointer shrink-0"
+          title="Toggle Navigation Menu"
+          aria-label="Toggle navigation menu"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition-opacity group">
+          <div className="relative w-8 h-8 rounded-[6px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
+            <Image
+              src="/brand/bhusetu-logo.webp"
+              alt="BhuSetu 3D Official Brand Logo"
+              width={32}
+              height={32}
+              priority
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="flex flex-col text-left">
+            <div className="flex items-center gap-2">
+              <span className="font-bold tracking-wider text-sm text-[#F4F0E8] font-mono">
+                BHUSETU 3D
+              </span>
+            </div>
+            <span className="hidden md:block text-[11px] text-[#8C988F] truncate max-w-[200px] md:max-w-none font-sans">
+              Evidence-Backed 3D Property Intelligence Platform
             </span>
           </div>
-          <span className="text-[11px] text-[#6F7772] truncate max-w-[200px] md:max-w-none font-sans">
-            Evidence-Backed 3D Property Intelligence Platform
-          </span>
-        </div>
-      </Link>
-
+        </Link>
+      </div>
 
       {/* User Session & Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {isAuthenticated && user ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* User Details */}
-            <div className="flex items-center gap-2.5 px-3 py-1 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.08)]">
-              <div className="w-6 h-6 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[#C47B50] text-xs font-bold">
+            <div className="flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 py-1 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.08)]">
+              <div className="w-6 h-6 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[#C47B50] text-xs font-bold shrink-0">
                 <UserIcon className="w-3.5 h-3.5" />
               </div>
-              <div className="flex flex-col text-left">
-                <span className="text-xs font-semibold text-[#F4F0E8] leading-tight">
+              <div className="hidden sm:flex flex-col text-left min-w-0">
+                <span className="text-xs font-semibold text-[#F4F0E8] leading-tight truncate max-w-[120px]">
                   {user.name}
                 </span>
-                <span className="text-[10px] text-[#6F7772] font-mono leading-tight">
+                <span className="text-[11px] text-[#8C988F] font-mono leading-tight truncate max-w-[120px]">
                   {user.email}
                 </span>
               </div>
               {/* Dynamic Role Badge */}
               <span
-                className={`ml-1 text-[10px] font-mono uppercase px-2 py-0.5 rounded-[4px] border font-bold ${getRoleBadgeStyle(
+                className={`text-[11px] font-mono uppercase px-2 py-0.5 rounded-[4px] border font-bold shrink-0 ${getRoleBadgeStyle(
                   primaryRole
                 )}`}
               >
-                {primaryRole}
+                {primaryRole === "GOVERNMENT_OFFICER" ? "OFFICER" : primaryRole}
               </span>
             </div>
 
@@ -104,10 +117,10 @@ export function TopBar() {
             <button
               onClick={() => logout()}
               title="Sign Out of Session"
-              className="p-1.5 rounded-[6px] border border-[rgba(244,240,232,0.08)] hover:border-red-500/40 bg-[#141816] hover:bg-red-950/20 text-[#6F7772] hover:text-red-400 transition-all flex items-center gap-1.5 text-xs font-mono"
+              className="min-h-[36px] min-w-[36px] p-2 rounded-[6px] border border-[rgba(244,240,232,0.08)] hover:border-red-500/40 bg-[#141816] hover:bg-red-950/20 text-[#8C988F] hover:text-red-400 transition-all flex items-center justify-center gap-1.5 text-xs font-mono cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
+              <span className="hidden md:inline">Logout</span>
             </button>
           </div>
         ) : (

@@ -329,56 +329,57 @@ function SpatialAnalysisContent() {
       requiredRole={["ADMIN", "ANALYST"]}
       moduleName="Spatial Analysis Engine"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Header */}
-          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-8 py-5 sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4">
+          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)]">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-mono text-[#23847D] uppercase tracking-wider font-bold bg-[#141816] px-2.5 py-0.5 rounded-[4px] border border-[rgba(244,240,232,0.08)]">
                   SPATIAL TOPOLOGY ENGINE
                 </span>
-                <span className="text-xs text-[#6F7772]">•</span>
-                <span className="text-xs font-mono text-[#6F7772]">PostGIS 3.4 Conformal UTM 43N</span>
+                <span className="text-xs text-[#8C988F]">•</span>
+                <span className="text-xs font-mono text-[#8C988F]">PostGIS 3.4 Conformal UTM 43N</span>
               </div>
-              <h1 className="text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5 mt-1.5">
+              <h1 className="text-lg sm:text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5 mt-1.5">
                 <Compass className="w-5 h-5 text-[#C47B50]" />
                 Spatial Intelligence & Discrepancy Analysis
               </h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <Link
                 href="/conflicts"
-                className="px-3.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors"
+                className="px-3 sm:px-3.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors"
               >
                 <AlertTriangle className="w-4 h-4 text-[#C47B50]" />
-                All Discrepancies ({conflicts.length})
+                <span className="hidden sm:inline">All Discrepancies ({conflicts.length})</span>
+                <span className="sm:hidden">Discrepancies</span>
               </Link>
 
               <button
                 onClick={handleRunSpatialChecks}
                 disabled={isAnalyzing || !selectedParcelId}
-                className="px-4 py-1.5 rounded-[6px] bg-[#B56E48] hover:bg-[#C47B50] text-[#F4F0E8] text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-sm disabled:opacity-50"
+                className="px-3.5 sm:px-4 py-1.5 rounded-[6px] bg-[#B56E48] hover:bg-[#C47B50] text-[#F4F0E8] text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {isAnalyzing ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    Analyzing Geometries...
+                    <span>Analyzing...</span>
                   </>
                 ) : (
                   <>
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    Run Spatial Checks
+                    <span>Run Checks</span>
                   </>
                 )}
               </button>
             </div>
           </div>
 
-          <div className="p-8 max-w-7xl mx-auto w-full space-y-6">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
             {/* Mandatory Governance Notice Banner */}
             <div className="bg-[#141816] border border-[#B56E48]/30 rounded-[8px] p-4 flex items-start gap-3">
               <Info className="w-5 h-5 text-[#C47B50] mt-0.5 shrink-0" />

@@ -527,25 +527,25 @@ export default function HistoryPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
       moduleName="4D History Scrubber"
     >
-      <div className="flex h-screen w-screen overflow-hidden bg-[#0F1210] text-[#F4F0E8]">
+      <div className="flex h-[calc(100vh-3.5rem)] w-full overflow-hidden bg-[#0F1210] text-[#F4F0E8]">
         <Sidebar />
 
-        <main className="flex-1 flex flex-col h-full overflow-hidden">
+        <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
           {/* Top Bar Header */}
-          <header className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816]/90 backdrop-blur px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
+          <header className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816]/90 backdrop-blur px-4 sm:px-6 py-3.5 sm:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shrink-0">
             <div>
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#176C68]/15 border border-[#176C68]/30 text-[#23847D]">
+                <div className="p-2 rounded-lg bg-[#176C68]/15 border border-[#176C68]/30 text-[#23847D] shrink-0">
                   <History className="h-5 w-5" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    4D Property History & Infrastructure Intelligence
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#176C68]/20 text-[#23847D] border border-[#176C68]/30 font-medium">
+                  <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white flex flex-wrap items-center gap-2">
+                    <span>4D Property History & Infrastructure Intelligence</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#176C68]/20 text-[#23847D] border border-[#176C68]/30 font-medium font-mono">
                       3D + TIME
                     </span>
                   </h1>
-                  <p className="text-xs text-[#6F7772]">
+                  <p className="text-xs text-[#8C988F] leading-relaxed">
                     Discrete multi-epoch geometry evolution, PostGIS metric delta detection, and municipal utility
                     corridor proximity.
                   </p>

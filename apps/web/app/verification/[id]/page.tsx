@@ -236,12 +236,12 @@ export default function VerificationReviewWorkspacePage() {
         requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
         moduleName="Statutory Verification Dossier"
       >
-        <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] font-sans">
+        <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] font-sans">
           <Sidebar />
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-4">
             <div className="text-center space-y-3">
               <RefreshCw className="w-8 h-8 animate-spin text-[#23847D] mx-auto" />
-              <p className="text-sm text-[#6F7772]">Loading statutory verification dossier...</p>
+              <p className="text-sm text-[#8C988F]">Loading statutory verification dossier...</p>
             </div>
           </div>
         </div>
@@ -255,12 +255,12 @@ export default function VerificationReviewWorkspacePage() {
         requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
         moduleName="Statutory Verification Dossier"
       >
-        <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] font-sans">
+        <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] font-sans">
           <Sidebar />
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8">
             <Link
               href="/verification"
-              className="inline-flex items-center gap-2 text-xs text-[#6F7772] hover:text-[#F4F0E8] mb-6"
+              className="inline-flex items-center gap-2 text-xs text-[#8C988F] hover:text-[#F4F0E8] mb-6"
             >
               <ArrowLeft className="w-4 h-4" /> Back to Queue
             </Link>
@@ -284,18 +284,18 @@ export default function VerificationReviewWorkspacePage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
       moduleName="Statutory Verification Dossier"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Top Header */}
-          <header className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816]/60 backdrop-blur-md px-8 py-5 sticky top-0 z-20">
+          <header className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816]/60 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-4 sm:py-5 sticky top-0 z-20">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <Link
                     href="/verification"
-                    className="p-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#1A201D] text-[#D9D2C5] transition"
+                    className="p-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#222A26] text-[#D9D2C5] transition cursor-pointer"
                     title="Return to Verification Queue"
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -303,13 +303,13 @@ export default function VerificationReviewWorkspacePage() {
                   <span className="text-xs font-mono text-[#23847D] bg-[#23847D]/10 px-2 py-0.5 rounded border border-emerald-500/30">
                     DOSSIER #{item.id.slice(0, 8)}
                   </span>
-                  <h1 className="text-xl font-bold tracking-tight text-[#F4F0E8]">
+                  <h1 className="text-lg sm:text-xl font-bold tracking-tight text-[#F4F0E8]">
                     {item.rule_name || item.conflict_type.replace(/_/g, " ")}
                   </h1>
                   {getStatusBadge(item.verification_status)}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-[#6F7772] mt-2">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#8C988F] mt-2">
                   <span>Target: <span className="font-mono text-[#D9D2C5]">{item.entity_type} ({item.entity_id ? item.entity_id.slice(0, 8) : "—"})</span></span>
                   <span>Severity: <span className="font-semibold text-[#C47B50]">{item.severity}</span></span>
                   <span>
@@ -323,28 +323,30 @@ export default function VerificationReviewWorkspacePage() {
               </div>
 
               {/* Fast links */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href={`/spatial-investigator?conflict=${item.id}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#1A201D] text-[#F4F0E8] text-xs font-medium border border-[rgba(244,240,232,0.12)] transition"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#222A26] text-[#F4F0E8] text-xs font-medium border border-[rgba(244,240,232,0.12)] transition"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                  Ask AI Investigator
+                  <span className="hidden sm:inline">Ask AI Investigator</span>
+                  <span className="sm:hidden">AI</span>
                 </Link>
                 {item.parcel_id && (
                   <Link
                     href={`/properties?id=${item.parcel_id}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#1A201D] text-[#F4F0E8] text-xs font-medium border border-[rgba(244,240,232,0.12)] transition"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#222A26] text-[#F4F0E8] text-xs font-medium border border-[rgba(244,240,232,0.12)] transition"
                   >
                     <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-                    View Parcel
+                    <span className="hidden sm:inline">View Parcel</span>
+                    <span className="sm:hidden">Parcel</span>
                   </Link>
                 )}
               </div>
             </div>
           </header>
 
-          <main className="p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+          <main className="p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 flex-1">
             {/* Left Column (8 cols): Spatial Dossier, Evidence Inspection & Audit Trail */}
             <div className="lg:col-span-8 space-y-6">
               {/* Finding Summary Card */}

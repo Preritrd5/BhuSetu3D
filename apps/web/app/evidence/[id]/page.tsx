@@ -103,38 +103,39 @@ export default function EvidenceDetailPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"]}
       moduleName="Evidence Dossier"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
         <Sidebar />
 
-        <main className="flex-1 flex flex-col overflow-y-auto bg-[#0F1210]">
+        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0F1210]">
           {/* Header */}
-          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-8 py-5 flex items-center justify-between">
+          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#0F1210] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
                 href="/evidence"
-                className="p-1.5 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded text-[#6F7772] hover:text-[#F4F0E8] transition-colors"
+                className="p-1.5 bg-[#0F1210] border border-[rgba(244,240,232,0.08)] rounded text-[#8C988F] hover:text-[#F4F0E8] transition-colors shrink-0"
               >
                 <ArrowLeft className="w-4 h-4" />
               </Link>
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#23847D] font-bold block">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-[#23847D] font-bold block">
                   EVIDENCE VAULT RECORD
                 </span>
-                <h1 className="text-lg font-bold text-[#F4F0E8] flex items-center gap-2">
-                  Evidence Detail: <span className="font-mono text-cyan-300">{evidenceId}</span>
+                <h1 className="text-base sm:text-lg font-bold text-[#F4F0E8] flex flex-wrap items-center gap-2">
+                  <span>Evidence Detail:</span>
+                  <span className="font-mono text-cyan-300 break-all">{evidenceId}</span>
                 </h1>
               </div>
             </div>
 
             <Link
               href="/evidence"
-              className="text-xs text-[#6F7772] hover:text-[#C47B50] font-mono text-xs transition-colors"
+              className="text-xs text-[#8C988F] hover:text-[#C47B50] font-mono transition-colors shrink-0"
             >
               ← Back to Vault
             </Link>
           </div>
 
-          <div className="p-6 max-w-4xl space-y-6">
+          <div className="p-4 sm:p-6 max-w-4xl space-y-6">
             {isLoading ? (
               <div className="py-16">
                 <SpatialLoadingRoller

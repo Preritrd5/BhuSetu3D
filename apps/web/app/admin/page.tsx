@@ -25,7 +25,7 @@ export default function AdminPage() {
       <div className="flex-1 flex overflow-hidden select-none bg-[#0F1210]">
         <Sidebar />
 
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 bg-[#0F1210]">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-[#0F1210]">
           <div className="border-b border-[rgba(244,240,232,0.06)] pb-5">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="text-xs font-mono px-2.5 py-0.5 rounded-[4px] bg-[#1C1613] text-[#E09F67] border border-[#B56E48]/35 font-bold uppercase tracking-wider">
@@ -54,7 +54,7 @@ export default function AdminPage() {
                   <div className="w-10 h-10 rounded-[6px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] flex items-center justify-center text-[#2EB8B0]">
                     <Users className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
                     4 Personas
                   </span>
                 </div>
@@ -80,7 +80,7 @@ export default function AdminPage() {
                   <div className="w-10 h-10 rounded-[6px] bg-[#1C1613] border border-[#B56E48]/30 flex items-center justify-center text-[#E09F67]">
                     <Shield className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#B56E48]/20 border border-[#B56E48]/35 text-[#E09F67] font-bold uppercase">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#B56E48]/20 border border-[#B56E48]/35 text-[#E09F67] font-bold uppercase">
                     4 Roles
                   </span>
                 </div>
@@ -106,7 +106,7 @@ export default function AdminPage() {
                   <div className="w-10 h-10 rounded-[6px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] flex items-center justify-center text-[#2EB8B0]">
                     <FileText className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#176C68]/20 border border-[#176C68]/35 text-[#2EB8B0] font-bold uppercase">
                     Chained Hashes
                   </span>
                 </div>
@@ -132,7 +132,7 @@ export default function AdminPage() {
                   <div className="w-10 h-10 rounded-[6px] bg-[#1C1613] border border-[#B56E48]/30 flex items-center justify-center text-[#E09F67]">
                     <Sliders className="w-5 h-5" />
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#CBD5E1] font-bold uppercase">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.08)] text-[#CBD5E1] font-bold uppercase">
                     EPSG:32643
                   </span>
                 </div>

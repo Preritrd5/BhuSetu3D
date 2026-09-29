@@ -279,19 +279,19 @@ export default function AnalyticsPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
       moduleName="Analytics & Quality Intelligence"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] antialiased overflow-hidden font-sans">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] antialiased overflow-hidden font-sans">
         <Sidebar />
 
-        <main className="flex-1 flex flex-col h-full overflow-hidden">
+        <main className="flex-1 flex flex-col h-full overflow-hidden min-w-0">
           {/* TOP BAR / HEADER */}
-          <header className="px-6 py-4 border-b border-[rgba(244,240,232,0.08)] bg-[#141816]/40 backdrop-blur shrink-0 flex flex-wrap items-center justify-between gap-4">
+          <header className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[rgba(244,240,232,0.08)] bg-[#141816]/40 backdrop-blur shrink-0 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#B56E48]/20 to-[#176C68]/20 border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[#C47B50] shadow-inner">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#B56E48]/20 to-[#176C68]/20 border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[#C47B50] shadow-inner shrink-0">
                 <BarChart3 className="h-5 w-5" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-bold tracking-tight text-white">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">
                     Spatial Analytics & Quality Scoring
                   </h1>
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#B56E48]/15 border border-[#B56E48]/30 text-[#C47B50]">
@@ -301,7 +301,7 @@ export default function AnalyticsPage() {
                     Deterministic Engine v1
                   </span>
                 </div>
-                <p className="text-xs text-[#6F7772]">
+                <p className="text-xs text-[#8C988F]">
                   Authoritative multi-component record quality, spatial completeness & enterprise intelligence
                 </p>
               </div>

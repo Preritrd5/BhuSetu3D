@@ -100,12 +100,12 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
               <span
-                className={`px-2 py-0.5 rounded-[4px] border text-[9px] font-mono font-bold uppercase tracking-widest ${getLevelBadge()}`}
+                className={`px-2 py-0.5 rounded-[4px] border text-[11px] font-mono font-bold uppercase tracking-wider ${getLevelBadge()}`}
               >
                 {entityType}
               </span>
               {code && (
-                <span className="text-[10px] text-[#6F7772] font-mono truncate" title={code}>
+                <span className="text-[11px] text-[#A7B3AB] font-mono truncate" title={code}>
                   {code}
                 </span>
               )}
@@ -117,7 +117,7 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
               {title}
             </h3>
             {subtitle && (
-              <span className="text-[11px] text-[#77867C] block truncate mt-0.5">
+              <span className="text-[11px] text-[#A7B3AB] block truncate mt-0.5">
                 {subtitle}
               </span>
             )}

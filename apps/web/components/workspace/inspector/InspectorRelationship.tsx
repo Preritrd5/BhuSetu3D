@@ -64,7 +64,7 @@ export const InspectorRelationship: React.FC<InspectorRelationshipProps> = ({
                 <div className="shrink-0">{renderIcon(node.level)}</div>
                 <div className="min-w-0 flex-1 flex items-center justify-between gap-1">
                   <span className="text-[11px] font-mono truncate">{node.name}</span>
-                  <span className="text-[9px] font-mono text-[#6F7772] uppercase shrink-0">
+                  <span className="text-[11px] font-mono text-[#A7B3AB] uppercase font-semibold shrink-0">
                     {node.level}
                   </span>
                 </div>

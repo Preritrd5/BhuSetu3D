@@ -39,12 +39,12 @@ export const InspectorStat: React.FC<InspectorStatProps> = ({
       className={`p-2.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] hover:border-[rgba(244,240,232,0.12)] transition-all ${className}`}
     >
       <div className="flex items-center justify-between gap-1 mb-1">
-        <span className="text-[10px] text-[#6F7772] font-mono uppercase tracking-wider block truncate">
+        <span className="text-[11px] text-[#94A3B8] font-mono uppercase tracking-wider block truncate font-medium">
           {label}
         </span>
         {badge && (
           <span
-            className={`px-1.5 py-0.5 rounded-[4px] border text-[9px] font-mono shrink-0 ${getBadgeStyle()}`}
+            className={`px-1.5 py-0.5 rounded-[4px] border text-[11px] font-mono font-bold shrink-0 ${getBadgeStyle()}`}
           >
             {badge}
           </span>
@@ -55,11 +55,11 @@ export const InspectorStat: React.FC<InspectorStatProps> = ({
         <span className="text-base font-extrabold text-[#F4F0E8] font-mono tracking-tight">
           {value}
         </span>
-        {unit && <span className="text-[11px] text-[#77867C] font-mono">{unit}</span>}
+        {unit && <span className="text-[11px] text-[#A7B3AB] font-mono">{unit}</span>}
       </div>
 
       {subtext && (
-        <span className="text-[10px] text-[#6F7772] font-mono block mt-0.5 leading-snug">
+        <span className="text-[11px] text-[#94A3B8] font-mono block mt-0.5 leading-snug">
           {subtext}
         </span>
       )}

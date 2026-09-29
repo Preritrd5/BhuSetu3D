@@ -167,58 +167,59 @@ export default function ConflictDetailPage() {
       requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
       moduleName="Discrepancy Detail"
     >
-      <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden font-sans select-none">
+      <div className="flex h-[calc(100vh-3.5rem)] bg-[#0F1210] text-[#F4F0E8] overflow-hidden font-sans select-none">
         <Sidebar />
 
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           {/* Header */}
-          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816] px-8 py-5 sticky top-0 z-20 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="border-b border-[rgba(244,240,232,0.08)] bg-[#141816] px-4 sm:px-6 lg:px-8 py-4 sm:py-5 sticky top-0 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => router.push("/conflicts")}
-                className="p-2 rounded-[6px] bg-[#1A201D] hover:bg-[#141816] text-[#D9D2C5] transition-colors border border-[rgba(244,240,232,0.08)] cursor-pointer"
+                className="p-2 rounded-[6px] bg-[#1A201D] hover:bg-[#222A26] text-[#D9D2C5] transition-colors border border-[rgba(244,240,232,0.08)] cursor-pointer shrink-0"
                 title="Back to Conflicts"
               >
-                <ArrowLeft className="w-5 h-5 text-[#6F7772]" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-[#8C988F]" />
               </button>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-mono text-[#23847D] uppercase tracking-wider font-semibold">
                     Spatial Discrepancy Record · PostGIS 3.4
                   </span>
-                  <span className="text-xs text-[#6F7772]">•</span>
-                  <span className="text-xs font-mono text-[#6F7772]">{conflictId.slice(0, 8)}...</span>
+                  <span className="text-xs text-[#8C988F]">•</span>
+                  <span className="text-xs font-mono text-[#8C988F]">{conflictId.slice(0, 8)}...</span>
                 </div>
-                <h1 className="text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5 mt-0.5">
-                  <AlertTriangle className="w-5 h-5 text-[#C47B50]" />
-                  {conflict?.rule_name || "Spatial Discrepancy Finding"}
+                <h1 className="text-lg sm:text-xl font-bold font-mono text-[#F4F0E8] flex items-center gap-2.5 mt-0.5">
+                  <AlertTriangle className="w-5 h-5 text-[#C47B50] shrink-0" />
+                  <span className="truncate">{conflict?.rule_name || "Spatial Discrepancy Finding"}</span>
                 </h1>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               {conflict && (
                 <Link
                   href={`/spatial-investigator?conflict=${conflict.id}&parcel=${conflict.parcel_id || ""}&q=Explain this spatial finding`}
-                  className="px-3.5 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#141816] border border-[rgba(244,240,232,0.12)] text-[#F4F0E8] text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-sm"
+                  className="px-3 sm:px-3.5 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#222A26] border border-[rgba(244,240,232,0.12)] text-[#F4F0E8] text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-sm"
                 >
                   <Sparkles className="w-4 h-4 text-[#C47B50]" />
-                  <span>Explain with AI</span>
+                  <span className="hidden sm:inline">Explain with AI</span>
+                  <span className="sm:hidden">AI</span>
                 </Link>
               )}
 
               <button
                 onClick={fetchDetail}
                 disabled={isLoading}
-                className="px-3.5 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#141816] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors cursor-pointer"
+                className="px-3 sm:px-3.5 py-1.5 rounded-[6px] bg-[#1A201D] hover:bg-[#222A26] text-[#D9D2C5] text-xs font-mono flex items-center gap-2 border border-[rgba(244,240,232,0.08)] transition-colors cursor-pointer"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#B56E48]" : "text-[#6F7772]"}`} />
-                <span>Refresh</span>
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#B56E48]" : "text-[#8C988F]"}`} />
+                <span className="hidden sm:inline">Refresh</span>
               </button>
             </div>
           </div>
 
-          <div className="p-8 max-w-7xl mx-auto w-full space-y-6">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
             {/* Governance Disclaimer Banner */}
             <div className="bg-[#141816] border border-[rgba(244,240,232,0.08)] rounded-[8px] p-4 flex items-start gap-3">
               <Info className="w-4 h-4 text-[#C47B50] mt-0.5 shrink-0" />
