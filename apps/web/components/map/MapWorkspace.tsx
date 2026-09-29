@@ -3,7 +3,7 @@
 /**
  * BhuSetu 3D 2D Map Workspace (MapLibre GL JS)
  * Integrated with PostGIS GeoJSON endpoints, dynamic multi-attribute filters,
- * natural-language / ULPIN search, and geodetic coordinate tracking.
+ * natural-language / ULPIN search, and vibrant colorful cartography with basemap styles.
  */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
@@ -16,10 +16,11 @@ import {
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAuth } from "@/hooks/useAuth";
-import { CARTO_BASEMAP_CONFIG } from "@/lib/carto";
+import { CARTO_BASEMAP_CONFIG, BasemapStyle } from "@/lib/carto";
 import { API_BASE } from "@/lib/api/config";
 import { ActiveLayersState } from "./LayerControl";
 import { PropertyFilters } from "./FilterControl";
+import { Palette, Moon, Sun, Layers } from "lucide-react";
 
 interface MapWorkspaceProps {
   activeLayers: ActiveLayersState;
@@ -37,31 +38,41 @@ interface MapWorkspaceProps {
   zoomTargetGeom?: any;
 }
 
-// Authenticated CARTO dark style
-const MAP_STYLE: any = {
-  version: 8,
-  sources: {
-    "carto-dark": {
-      type: "raster",
-      tiles: CARTO_BASEMAP_CONFIG.getMapLibreTiles(true),
-      tileSize: 256,
-      attribution: CARTO_BASEMAP_CONFIG.attribution,
-    },
-  },
-  layers: [
-    {
-      id: "carto-dark-layer",
-      type: "raster",
-      source: "carto-dark",
-      minzoom: 0,
-      maxzoom: 19,
-    },
-  ],
-};
-
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function isUUID(str?: string): boolean {
   return !!str && UUID_RE.test(str);
+}
+
+function getStyleForBasemap(style: BasemapStyle) {
+  let tiles: string[];
+  if (style === "voyager") {
+    tiles = CARTO_BASEMAP_CONFIG.getVoyagerTiles(true);
+  } else if (style === "dark") {
+    tiles = CARTO_BASEMAP_CONFIG.getDarkTiles(true);
+  } else {
+    tiles = CARTO_BASEMAP_CONFIG.getPositronTiles(true);
+  }
+
+  return {
+    version: 8 as const,
+    sources: {
+      "carto-raster-source": {
+        type: "raster" as const,
+        tiles,
+        tileSize: 256,
+        attribution: CARTO_BASEMAP_CONFIG.attribution,
+      },
+    },
+    layers: [
+      {
+        id: "carto-raster-layer",
+        type: "raster" as const,
+        source: "carto-raster-source",
+        minzoom: 0,
+        maxzoom: 19,
+      },
+    ],
+  };
 }
 
 export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
@@ -79,6 +90,8 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
   const abortControllerRef = useRef<AbortController | null>(null);
   const hoverPopupRef = useRef<Popup | null>(null);
 
+  const [basemapStyle, setBasemapStyle] = useState<BasemapStyle>("voyager");
+  const [showLegend, setShowLegend] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [featureCount, setFeatureCount] = useState(0);
 
@@ -89,7 +102,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     // Default center: Malleshwaram Zone Cadastral Extents [77.5714, 12.9976]
     const map = new MapLibreMap({
       container: mapContainerRef.current,
-      style: MAP_STYLE,
+      style: getStyleForBasemap("voyager"),
       center: [77.5714, 12.9976],
       zoom: 14.5,
       pitchWithRotate: false,
@@ -100,7 +113,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     map.addControl(new ScaleControl({ unit: "metric" }), "bottom-left");
 
     map.on("load", () => {
-      // 1. Regions Layer
+      // 1. Regions Layer (Electric Purple Boundary)
       map.addSource("regions-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -110,13 +123,13 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         type: "line",
         source: "regions-source",
         paint: {
-          "line-color": "#c084fc",
-          "line-width": 2,
-          "line-dasharray": [3, 2],
+          "line-color": "#8b5cf6",
+          "line-width": 2.5,
+          "line-dasharray": [4, 2],
         },
       });
 
-      // 2. Infrastructure Layer
+      // 2. Infrastructure Layer (Vibrant Cyan / Emerald)
       map.addSource("infrastructure-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -126,12 +139,12 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         type: "line",
         source: "infrastructure-source",
         paint: {
-          "line-color": "#34d399",
-          "line-width": 2.5,
+          "line-color": "#06b6d4",
+          "line-width": 3,
         },
       });
 
-      // 3. Cadastral Parcels Source & Layers
+      // 3. Cadastral Parcels Source & Layers (Vibrant Land Use Palette)
       map.addSource("parcels-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -147,24 +160,28 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
             ["==", ["get", "id"], ""],
             "#f59e0b",
             ["==", ["get", "land_use"], "COMMERCIAL"],
-            "#059669",
-            ["==", ["get", "land_use"], "INDUSTRIAL"],
-            "#d97706",
-            ["==", ["get", "land_use"], "AGRICULTURAL"],
-            "#65a30d",
+            "#f59e0b", // Radiant Amber
+            ["==", ["get", "land_use"], "RESIDENTIAL"],
+            "#0284c7", // Vivid Sky Blue
             ["==", ["get", "land_use"], "INSTITUTIONAL"],
-            "#8b5cf6",
+            "#8b5cf6", // Royal Purple
             ["==", ["get", "land_use"], "MIXED_USE"],
-            "#ec4899",
+            "#ec4899", // Vibrant Hot Pink
             ["==", ["get", "land_use"], "OPEN_RESERVE"],
-            "#10b981",
-            "#0284c7", // Default Residential
+            "#10b981", // Lush Emerald Green
+            ["==", ["get", "land_use"], "INDUSTRIAL"],
+            "#f97316", // Terracotta Flame
+            ["==", ["get", "land_use"], "AGRICULTURAL"],
+            "#84cc16", // Sunny Lime
+            ["==", ["get", "land_use"], "PUBLIC"],
+            "#06b6d4", // Turquoise
+            "#3b82f6", // Default Blue
           ],
           "fill-opacity": [
             "case",
             ["==", ["get", "id"], ""],
-            0.75,
-            0.4,
+            0.85,
+            0.62,
           ],
         },
       });
@@ -177,19 +194,33 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
           "line-color": [
             "case",
             ["==", ["get", "id"], ""],
-            "#fbbf24",
-            "#38bdf8",
+            "#ffe066",
+            ["==", ["get", "land_use"], "COMMERCIAL"],
+            "#b45309",
+            ["==", ["get", "land_use"], "RESIDENTIAL"],
+            "#0369a1",
+            ["==", ["get", "land_use"], "INSTITUTIONAL"],
+            "#6d28d9",
+            ["==", ["get", "land_use"], "MIXED_USE"],
+            "#be185d",
+            ["==", ["get", "land_use"], "OPEN_RESERVE"],
+            "#047857",
+            ["==", ["get", "land_use"], "INDUSTRIAL"],
+            "#c2410c",
+            ["==", ["get", "land_use"], "AGRICULTURAL"],
+            "#4d7c0f",
+            "#1d4ed8",
           ],
           "line-width": [
             "case",
             ["==", ["get", "id"], ""],
-            3,
-            1.2,
+            4,
+            2,
           ],
         },
       });
 
-      // 4. Buildings Footprints Layer
+      // 4. Buildings Footprints Layer (Extruded Amber / Warm Gold)
       map.addSource("buildings-source", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -199,8 +230,8 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         type: "fill",
         source: "buildings-source",
         paint: {
-          "fill-color": "#f59e0b",
-          "fill-opacity": 0.65,
+          "fill-color": "#fbbf24",
+          "fill-opacity": 0.8,
         },
       });
       map.addLayer({
@@ -208,12 +239,12 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         type: "line",
         source: "buildings-source",
         paint: {
-          "line-color": "#fef08a",
-          "line-width": 1,
+          "line-color": "#d97706",
+          "line-width": 1.5,
         },
       });
 
-      // Hover Tooltip
+      // Hover Tooltip with Rich Colors
       const hoverPopup = new Popup({
         closeButton: false,
         closeOnClick: false,
@@ -231,11 +262,11 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         hoverPopup
           .setLngLat(e.lngLat)
           .setHTML(
-            `<div style="font-family: monospace; font-size: 11px; padding: 4px 6px; color: #f8fafc; background: #0f172a; border: 1px solid #334155; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-              <div style="font-weight: bold; color: #38bdf8;">${props.ulpin_2d || "PARCEL"}</div>
-              <div style="color: #94a3b8;">${props.survey_number || "N/A"}</div>
-              <div style="color: #cbd5e1;">Area: ${Number(props.recorded_area_sqm || 0).toLocaleString()} m²</div>
-              <div style="color: #f59e0b; font-size: 10px; margin-top: 2px;">${props.land_use || "N/A"}</div>
+            `<div style="font-family: monospace; font-size: 11px; padding: 6px 8px; color: #f8fafc; background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);">
+              <div style="font-weight: 800; font-size: 12px; color: #38bdf8; letter-spacing: 0.5px;">${props.ulpin_2d || "PARCEL"}</div>
+              <div style="color: #cbd5e1; margin-top: 2px;">Survey No: <span style="color: #fff; font-weight: 600;">${props.survey_number || "N/A"}</span></div>
+              <div style="color: #94a3b8;">Recorded Area: <span style="color: #34d399; font-weight: 600;">${Number(props.recorded_area_sqm || 0).toLocaleString()} m²</span></div>
+              <div style="display: inline-block; margin-top: 4px; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #1e293b; color: #f59e0b; border: 1px solid #f59e0b40;">${props.land_use || "N/A"}</div>
             </div>`
           )
           .addTo(map);
@@ -276,6 +307,27 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Switch basemap raster tiles without destroying cadastral vector overlays
+  const handleBasemapChange = (style: BasemapStyle) => {
+    setBasemapStyle(style);
+    const map = mapRef.current;
+    if (!map) return;
+
+    let tiles: string[];
+    if (style === "voyager") {
+      tiles = CARTO_BASEMAP_CONFIG.getVoyagerTiles(true);
+    } else if (style === "dark") {
+      tiles = CARTO_BASEMAP_CONFIG.getDarkTiles(true);
+    } else {
+      tiles = CARTO_BASEMAP_CONFIG.getPositronTiles(true);
+    }
+
+    const source = map.getSource("carto-raster-source") as any;
+    if (source && typeof source.setTiles === "function") {
+      source.setTiles(tiles);
+    }
+  };
+
   // Viewport and Filter Data Fetcher
   const loadViewportData = useCallback(async () => {
     const map = mapRef.current;
@@ -300,7 +352,6 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
       return;
     }
 
-    // Cancel in-flight request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -354,7 +405,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
           isLoading: false,
         });
 
-        // If a search or specific filter was executed and returned features, auto-fit view to them
+        // Auto-fit view when a query or filter is active and returns parcels
         if ((searchQuery?.trim() || filters.regionId || filters.landUse) && count > 0) {
           try {
             const fitBounds = new LngLatBounds();
@@ -431,7 +482,6 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
 
     map.on("moveend", handleMoveEnd);
 
-    // Initial load when style is ready
     if (map.isStyleLoaded()) {
       loadViewportData();
     } else {
@@ -470,7 +520,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     }
   }, [activeLayers]);
 
-  // Update Selected Parcel Highlight in Amber
+  // Update Selected Parcel Highlight in Amber Gold
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -481,38 +531,56 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
       map.setPaintProperty("parcels-fill", "fill-color", [
         "case",
         ["==", ["get", "id"], id],
-        "#f59e0b", // Amber when selected
+        "#fbbf24", // Glowing Gold when selected
         ["==", ["get", "land_use"], "COMMERCIAL"],
-        "#059669",
-        ["==", ["get", "land_use"], "INDUSTRIAL"],
-        "#d97706",
-        ["==", ["get", "land_use"], "AGRICULTURAL"],
-        "#65a30d",
+        "#f59e0b",
+        ["==", ["get", "land_use"], "RESIDENTIAL"],
+        "#0284c7",
         ["==", ["get", "land_use"], "INSTITUTIONAL"],
         "#8b5cf6",
         ["==", ["get", "land_use"], "MIXED_USE"],
         "#ec4899",
         ["==", ["get", "land_use"], "OPEN_RESERVE"],
         "#10b981",
-        "#0284c7",
+        ["==", ["get", "land_use"], "INDUSTRIAL"],
+        "#f97316",
+        ["==", ["get", "land_use"], "AGRICULTURAL"],
+        "#84cc16",
+        ["==", ["get", "land_use"], "PUBLIC"],
+        "#06b6d4",
+        "#3b82f6",
       ]);
       map.setPaintProperty("parcels-fill", "fill-opacity", [
         "case",
         ["==", ["get", "id"], id],
-        0.8,
-        0.4,
+        0.88,
+        0.62,
       ]);
       map.setPaintProperty("parcels-line", "line-color", [
         "case",
         ["==", ["get", "id"], id],
-        "#fbbf24",
-        "#38bdf8",
+        "#ffffff",
+        ["==", ["get", "land_use"], "COMMERCIAL"],
+        "#b45309",
+        ["==", ["get", "land_use"], "RESIDENTIAL"],
+        "#0369a1",
+        ["==", ["get", "land_use"], "INSTITUTIONAL"],
+        "#6d28d9",
+        ["==", ["get", "land_use"], "MIXED_USE"],
+        "#be185d",
+        ["==", ["get", "land_use"], "OPEN_RESERVE"],
+        "#047857",
+        ["==", ["get", "land_use"], "INDUSTRIAL"],
+        "#c2410c",
+        ["==", ["get", "land_use"], "AGRICULTURAL"],
+        "#4d7c0f",
+        "#1d4ed8",
       ]);
       map.setPaintProperty("parcels-line", "line-width", [
         "case",
         ["==", ["get", "id"], id],
-        3.5,
-        1.2,
+        4,
+        2,
       ]);
     }
   }, [selectedParcelId]);
@@ -550,7 +618,99 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#0A0D0B]">
+      {/* MapLibre Canvas */}
       <div ref={mapContainerRef} className="w-full h-full" />
+
+      {/* Top Right Basemap Style Switcher */}
+      <div className="absolute top-4 right-4 z-20 flex items-center bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] rounded-[8px] p-1 shadow-2xl text-xs font-mono select-none">
+        <button
+          type="button"
+          onClick={() => handleBasemapChange("voyager")}
+          className={`px-2.5 py-1 rounded-[6px] flex items-center gap-1.5 transition-all cursor-pointer ${
+            basemapStyle === "voyager"
+              ? "bg-[#23847D] text-[#F4F0E8] font-bold shadow-md"
+              : "text-[#77867C] hover:text-[#F4F0E8]"
+          }`}
+          title="Vibrant Colorful Cartography"
+        >
+          <Palette className="w-3.5 h-3.5" />
+          <span>Colorful</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleBasemapChange("dark")}
+          className={`px-2.5 py-1 rounded-[6px] flex items-center gap-1.5 transition-all cursor-pointer ${
+            basemapStyle === "dark"
+              ? "bg-[#23847D] text-[#F4F0E8] font-bold shadow-md"
+              : "text-[#77867C] hover:text-[#F4F0E8]"
+          }`}
+          title="Dark Mode Basemap"
+        >
+          <Moon className="w-3.5 h-3.5" />
+          <span>Dark</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleBasemapChange("positron")}
+          className={`px-2.5 py-1 rounded-[6px] flex items-center gap-1.5 transition-all cursor-pointer ${
+            basemapStyle === "positron"
+              ? "bg-[#23847D] text-[#F4F0E8] font-bold shadow-md"
+              : "text-[#77867C] hover:text-[#F4F0E8]"
+          }`}
+          title="Light Positron Basemap"
+        >
+          <Sun className="w-3.5 h-3.5" />
+          <span>Light</span>
+        </button>
+      </div>
+
+      {/* Bottom Right Floating Land Use Color Legend */}
+      <div className="absolute bottom-9 right-4 z-20 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] rounded-[8px] p-2.5 shadow-2xl text-xs font-mono max-w-xs select-none">
+        <div className="flex items-center justify-between pb-1.5 border-b border-[rgba(244,240,232,0.08)] mb-2">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[#A2B3A8]">
+            <Layers className="w-3 h-3 text-[#C47B50]" />
+            <span>Land Use Legend</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowLegend(!showLegend)}
+            className="text-[10px] text-[#77867C] hover:text-[#F4F0E8] cursor-pointer"
+          >
+            {showLegend ? "Hide" : "Show"}
+          </button>
+        </div>
+
+        {showLegend && (
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px]">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-[3px] bg-[#f59e0b] border border-[#b45309] shrink-0" />
+              <span className="text-[#F4F0E8] truncate">Commercial</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-[3px] bg-[#0284c7] border border-[#0369a1] shrink-0" />
+              <span className="text-[#F4F0E8] truncate">Residential</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-[3px] bg-[#8b5cf6] border border-[#6d28d9] shrink-0" />
+              <span className="text-[#F4F0E8] truncate">Institutional</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-[3px] bg-[#ec4899] border border-[#be185d] shrink-0" />
+              <span className="text-[#F4F0E8] truncate">Mixed Use</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-[3px] bg-[#10b981] border border-[#047857] shrink-0" />
+              <span className="text-[#F4F0E8] truncate">Open Reserve</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-[3px] bg-[#f97316] border border-[#c2410c] shrink-0" />
+              <span className="text-[#F4F0E8] truncate">Industrial</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
