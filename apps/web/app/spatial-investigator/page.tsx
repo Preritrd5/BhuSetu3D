@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   Sparkles,
   Search,
@@ -135,7 +136,7 @@ function SpatialInvestigatorContent() {
   useEffect(() => {
     async function loadSuggested() {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/spatial-investigator/suggested-questions");
+        const res = await fetch("${API_BASE}/spatial-investigator/suggested-questions");
         if (res.ok) {
           const data = await res.json();
           setSuggestedQuestions(data);
@@ -171,7 +172,7 @@ function SpatialInvestigatorContent() {
     setTimeout(() => setLoadingStage("Synthesizing grounded explanation..."), 1200);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/spatial-investigator/query", {
+      const res = await fetch("${API_BASE}/spatial-investigator/query", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from "react";
 import { Filter, RotateCcw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 
 export interface PropertyFilters {
   cityId?: string;
@@ -45,7 +46,7 @@ export const FilterControl: React.FC<FilterControlProps> = ({
   useEffect(() => {
     async function loadOptions() {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/properties/filter-options", {
+        const res = await fetch(`${API_BASE}/properties/filter-options`, {
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },

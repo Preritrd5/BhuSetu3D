@@ -15,6 +15,7 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAuth } from "@/hooks/useAuth";
 import { CARTO_BASEMAP_CONFIG } from "@/lib/carto";
+import { API_BASE } from "@/lib/api/config";
 import { ActiveLayersState } from "./LayerControl";
 import { PropertyFilters } from "./FilterControl";
 
@@ -299,7 +300,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
 
       const bboxStr = `${minLon.toFixed(5)},${minLat.toFixed(5)},${maxLon.toFixed(5)},${maxLat.toFixed(5)}`;
 
-      let parcelUrl = `http://localhost:8000/api/v1/properties/geojson/parcels?bbox=${bboxStr}&limit=500`;
+      let parcelUrl = `${API_BASE}/properties/geojson/parcels?bbox=${bboxStr}&limit=500`;
       if (filters.cityId) parcelUrl += `&city_id=${filters.cityId}`;
       if (filters.regionId) parcelUrl += `&region_id=${filters.regionId}`;
       if (filters.landUse) parcelUrl += `&land_use=${encodeURIComponent(filters.landUse)}`;
@@ -325,7 +326,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
 
       // Fetch buildings if layer is active
       if (activeLayers.buildings && map.getZoom() >= 13) {
-        const bldUrl = `http://localhost:8000/api/v1/properties/geojson/buildings?bbox=${bboxStr}&limit=500`;
+        const bldUrl = `${API_BASE}/properties/geojson/buildings?bbox=${bboxStr}&limit=500`;
         const bRes = await fetch(bldUrl, { headers, signal: controller.signal });
         if (bRes.ok) {
           const bData = await bRes.json();
@@ -336,7 +337,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
 
       // Fetch infrastructure if layer is active
       if (activeLayers.infrastructure) {
-        const infraUrl = `http://localhost:8000/api/v1/properties/geojson/infrastructure?bbox=${bboxStr}&limit=200`;
+        const infraUrl = `${API_BASE}/properties/geojson/infrastructure?bbox=${bboxStr}&limit=200`;
         const iRes = await fetch(infraUrl, { headers, signal: controller.signal });
         if (iRes.ok) {
           const iData = await iRes.json();

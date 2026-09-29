@@ -4,8 +4,7 @@
  * Phase 1: Project Foundation
  */
 import { HealthStatus, DatabaseHealth, SystemHealth } from "@/types";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { getApiBaseUrl } from "@/lib/api/config";
 
 export class ApiError extends Error {
   public status?: number;
@@ -20,7 +19,8 @@ export class ApiError extends Error {
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
   const defaultHeaders: HeadersInit = {
     "Content-Type": "application/json",
     Accept: "application/json",

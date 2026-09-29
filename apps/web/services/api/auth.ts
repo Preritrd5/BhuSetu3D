@@ -3,6 +3,7 @@
  * Identity verification, role authorization, and session resolution.
  */
 import { AuthUser } from "@/types/auth";
+import { getApiBaseUrl } from "@/lib/api/config";
 
 export interface LoginResponse {
   access_token: string;
@@ -12,23 +13,28 @@ export interface LoginResponse {
 
 /**
  * Returns candidate API base URLs ordered by reliability.
- * In browser: prefers 127.0.0.1:8000 and relative /api/v1 to avoid Windows IPv6 localhost delays.
+ * In production: strictly returns the authoritative Render production URL.
+ * In development: includes local dev endpoints.
  */
 function getApiCandidates(): string[] {
-  const customUrl = process.env.NEXT_PUBLIC_API_URL;
-  const candidates: string[] = [];
+  const primaryUrl = getApiBaseUrl();
 
-  if (customUrl) {
-    candidates.push(customUrl.replace(/\/+$/, ""));
+  const isProduction =
+    process.env.NODE_ENV === "production" ||
+    (typeof window !== "undefined" &&
+      (window.location.hostname.includes("vercel.app") ||
+        window.location.hostname === "bhusetu3d.com" ||
+        window.location.protocol === "https:"));
+
+  if (isProduction) {
+    return [primaryUrl];
   }
-  // Standard local endpoints
+
+  // Local development candidates
+  const candidates: string[] = [primaryUrl];
   candidates.push("http://127.0.0.1:8000/api/v1");
-  if (typeof window !== "undefined") {
-    candidates.push("/api/v1");
-  }
   candidates.push("http://localhost:8000/api/v1");
 
-  // Deduplicate candidates preserving order
   return Array.from(new Set(candidates));
 }
 

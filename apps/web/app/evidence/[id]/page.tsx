@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   FileCheck2,
   ArrowLeft,
@@ -60,7 +61,7 @@ export default function EvidenceDetailPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/evidence/${evidenceId}`, {
+        const res = await fetch(`${API_BASE}/evidence/${evidenceId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) {

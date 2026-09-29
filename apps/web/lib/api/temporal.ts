@@ -13,7 +13,9 @@ import {
   InfrastructureNearbyPropertyItem,
 } from "@/types/temporal";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { getApiBaseUrl } from "./config";
+
+const API_BASE = getApiBaseUrl();
 
 function getHeaders(token?: string | null): HeadersInit {
   const headers: HeadersInit = {

@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   Building2,
   X,
@@ -157,10 +158,10 @@ export const BuildingInspector3D: React.FC<BuildingInspector3DProps> = ({
       setError(null);
       try {
         const [bldRes, floorsRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/v1/buildings/${buildingId}/3d`, {
+          fetch(`${API_BASE}/buildings/${buildingId}/3d`, {
             headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
           }),
-          fetch(`http://localhost:8000/api/v1/properties/buildings/${buildingId}/floors`, {
+          fetch(`${API_BASE}/properties/buildings/${buildingId}/floors`, {
             headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
           }),
         ]);
@@ -178,7 +179,7 @@ export const BuildingInspector3D: React.FC<BuildingInspector3DProps> = ({
 
         if (bldJson.parcel_id) {
           try {
-            const confRes = await fetch(`http://localhost:8000/api/v1/properties/${bldJson.parcel_id}/conflicts`, {
+            const confRes = await fetch(`${API_BASE}/properties/${bldJson.parcel_id}/conflicts`, {
               headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
             });
             if (confRes.ok) {
@@ -216,7 +217,7 @@ export const BuildingInspector3D: React.FC<BuildingInspector3DProps> = ({
     if (!floorUnits[floorId]) {
       setLoadingUnitsFloorId(floorId);
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/properties/floors/${floorId}/units`, {
+        const res = await fetch(`${API_BASE}/properties/floors/${floorId}/units`, {
           headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         });
         if (res.ok) {
@@ -237,7 +238,7 @@ export const BuildingInspector3D: React.FC<BuildingInspector3DProps> = ({
     setIsValidating(true);
     setShowValidation(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/properties/buildings/${buildingId}/validate-vertical`, {
+      const res = await fetch(`${API_BASE}/properties/buildings/${buildingId}/validate-vertical`, {
         method: "POST",
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       });

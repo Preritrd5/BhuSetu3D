@@ -15,7 +15,9 @@ import {
   DiscrepancyStatus,
 } from "@/types/intelligence";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { getApiBaseUrl } from "./config";
+
+const API_BASE = getApiBaseUrl();
 
 function resolveToken(token?: string | null): string | null {
   if (token) return token;

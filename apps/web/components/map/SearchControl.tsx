@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Search, Loader2, X, MapPin, Building, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 
 export interface PropertySearchResultItem {
   id: string;
@@ -43,7 +44,7 @@ export const SearchControl: React.FC<SearchControlProps> = ({ onSelectProperty }
       setIsLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:8000/api/v1/properties/search?q=${encodeURIComponent(query.trim())}&limit=10`,
+          `${API_BASE}/properties/search?q=${encodeURIComponent(query.trim())}&limit=10`,
           {
             headers: {
               ...(token ? { Authorization: `Bearer ${token}` } : {}),

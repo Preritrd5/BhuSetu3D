@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   AlertTriangle,
   Search,
@@ -102,7 +103,7 @@ export default function ConflictsPage() {
       if (selectedStatus !== "ALL") params.append("status", selectedStatus);
       if (minConfidence > 0) params.append("min_confidence", minConfidence.toString());
 
-      const res = await fetch(`http://localhost:8000/api/v1/conflicts?${params.toString()}`, {
+      const res = await fetch(`${API_BASE}/conflicts?${params.toString()}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
@@ -129,7 +130,7 @@ export default function ConflictsPage() {
   const handleUpdateStatus = async (conflictId: string, newStatus: string) => {
     setIsUpdatingStatus(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/conflicts/${conflictId}/status`, {
+      const res = await fetch(`${API_BASE}/conflicts/${conflictId}/status`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

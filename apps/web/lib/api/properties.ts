@@ -18,7 +18,9 @@ import {
   ViewportSpatialSummary,
 } from "@/types/spatialIntelligence";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+import { getApiBaseUrl } from "./config";
+
+const API_BASE = getApiBaseUrl();
 
 // In-memory LRU TTL Cache to avoid duplicate network hammering on repeated selections
 const propertiesApiCache = new Map<string, { data: any; timestamp: number }>();

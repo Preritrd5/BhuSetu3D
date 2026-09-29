@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -78,7 +79,7 @@ export default function ConflictDetailPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/conflicts/${conflictId}`, {
+      const res = await fetch(`${API_BASE}/conflicts/${conflictId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) {
@@ -107,7 +108,7 @@ export default function ConflictDetailPage() {
     setIsUpdatingStatus(true);
     setStatusMessage(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/conflicts/${conflictId}/status`, {
+      const res = await fetch(`${API_BASE}/conflicts/${conflictId}/status`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

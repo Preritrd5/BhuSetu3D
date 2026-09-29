@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   FileCheck2,
   Search,
@@ -124,7 +125,7 @@ export default function EvidenceVaultPage() {
       if (selectedStatus !== "ALL") params.append("status", selectedStatus);
       if (minConfidence > 0) params.append("min_confidence", minConfidence.toString());
 
-      const res = await fetch(`http://localhost:8000/api/v1/evidence?${params.toString()}`, {
+      const res = await fetch(`${API_BASE}/evidence?${params.toString()}`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
@@ -156,10 +157,10 @@ export default function EvidenceVaultPage() {
     setLineageError(null);
     try {
       const [provRes, confRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/properties/${propertyId.trim()}/provenance`, {
+        fetch(`${API_BASE}/properties/${propertyId.trim()}/provenance`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
-        fetch(`http://localhost:8000/api/v1/properties/${propertyId.trim()}/confidence`, {
+        fetch(`${API_BASE}/properties/${propertyId.trim()}/confidence`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
       ]);

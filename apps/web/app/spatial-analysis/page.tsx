@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   Compass,
   AlertTriangle,
@@ -143,7 +144,7 @@ function SpatialAnalysisContent() {
     async function loadParcels() {
       setIsSearchingParcels(true);
       try {
-        const res = await fetch("http://localhost:8000/api/v1/properties/parcels?limit=25", {
+        const res = await fetch("${API_BASE}/properties/parcels?limit=25", {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (res.ok) {
@@ -174,7 +175,7 @@ function SpatialAnalysisContent() {
   useEffect(() => {
     async function loadRules() {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/spatial/rules", {
+        const res = await fetch("${API_BASE}/spatial/rules", {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (res.ok) {
@@ -204,13 +205,13 @@ function SpatialAnalysisContent() {
 
       try {
         const [confRes, relRes, infraRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/v1/properties/${selectedParcelId}/conflicts`, {
+          fetch(`${API_BASE}/properties/${selectedParcelId}/conflicts`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
-          fetch(`http://localhost:8000/api/v1/properties/${selectedParcelId}/relationships`, {
+          fetch(`${API_BASE}/properties/${selectedParcelId}/relationships`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
-          fetch(`http://localhost:8000/api/v1/properties/${selectedParcelId}/nearby-infrastructure?radius_meters=200`, {
+          fetch(`${API_BASE}/properties/${selectedParcelId}/nearby-infrastructure?radius_meters=200`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
         ]);
@@ -247,7 +248,7 @@ function SpatialAnalysisContent() {
     setError(null);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/properties/${selectedParcelId}/analyze-spatial`, {
+      const res = await fetch(`${API_BASE}/properties/${selectedParcelId}/analyze-spatial`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -264,10 +265,10 @@ function SpatialAnalysisContent() {
 
       // Refresh data
       const [confRes, relRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/properties/${selectedParcelId}/conflicts`, {
+        fetch(`${API_BASE}/properties/${selectedParcelId}/conflicts`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
-        fetch(`http://localhost:8000/api/v1/properties/${selectedParcelId}/relationships`, {
+        fetch(`${API_BASE}/properties/${selectedParcelId}/relationships`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
       ]);

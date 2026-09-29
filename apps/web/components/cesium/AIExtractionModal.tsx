@@ -5,6 +5,7 @@
  */
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 import {
   Cpu,
   X,
@@ -55,7 +56,7 @@ export const AIExtractionModal: React.FC<AIExtractionModalProps> = ({
         default_height_m: defaultHeightM,
       };
 
-      const res = await fetch("http://localhost:8000/api/v1/buildings/extraction-jobs", {
+      const res = await fetch(`${API_BASE}/buildings/extraction-jobs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

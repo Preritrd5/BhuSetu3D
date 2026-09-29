@@ -53,7 +53,12 @@ class Settings(BaseSettings):
 
     # CORS Settings
     CORS_ORIGINS: Union[List[str], str] = Field(
-        default=["http://localhost:3000", "http://127.0.0.1:3000"],
+        default=[
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://bhusetu3d.vercel.app",
+            "https://bhusetu-3d.vercel.app",
+        ],
         env="CORS_ORIGINS"
     )
 

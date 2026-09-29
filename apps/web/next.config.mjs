@@ -23,10 +23,16 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
+    const isProd = process.env.NODE_ENV === "production";
+    const envApi = process.env.NEXT_PUBLIC_API_URL;
+    const backendTarget = envApi
+      ? envApi.replace(/\/+$/, "")
+      : (isProd ? "https://bhusetu3d-backend.onrender.com/api/v1" : "http://127.0.0.1:8000/api/v1");
+
     return [
       {
         source: "/api/v1/:path*",
-        destination: "http://127.0.0.1:8000/api/v1/:path*",
+        destination: `${backendTarget}/:path*`,
       },
     ];
   },
@@ -61,8 +67,8 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://assets.cesium.com https://*.cesium.com",
-              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://*.supabase.co https://assets.cesium.com https://*.cesium.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com",
+              "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://assets.cesium.com https://*.cesium.com https://bhusetu3d-backend.onrender.com",
+              "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://bhusetu3d-backend.onrender.com https://*.supabase.co https://assets.cesium.com https://*.cesium.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com",
               "worker-src 'self' blob:",
               "font-src 'self' https://fonts.gstatic.com data:",
               "frame-ancestors 'none'",

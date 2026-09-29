@@ -25,6 +25,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE } from "@/lib/api/config";
 
 export interface BuildingDetailItem {
   id: string;
@@ -92,13 +93,13 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
   const fetchSpatialData = async (id: string) => {
     try {
       const [conflictRes, relRes, infraRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/v1/properties/${id}/conflicts`, {
+        fetch(`${API_BASE}/properties/${id}/conflicts`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
-        fetch(`http://localhost:8000/api/v1/properties/${id}/relationships`, {
+        fetch(`${API_BASE}/properties/${id}/relationships`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
-        fetch(`http://localhost:8000/api/v1/properties/${id}/nearby-infrastructure?radius_meters=100`, {
+        fetch(`${API_BASE}/properties/${id}/nearby-infrastructure?radius_meters=100`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         }),
       ]);
@@ -126,7 +127,7 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
     setIsAnalyzingSpatial(true);
     setSpatialActionMsg(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/properties/${parcelId}/analyze-spatial`, {
+      const res = await fetch(`${API_BASE}/properties/${parcelId}/analyze-spatial`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -157,10 +158,10 @@ export const PropertyInspector: React.FC<PropertyInspectorProps> = ({
       setError(null);
       try {
         const [parcelRes, confRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/v1/properties/parcels/${parcelId}`, {
+          fetch(`${API_BASE}/properties/parcels/${parcelId}`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
-          fetch(`http://localhost:8000/api/v1/properties/${parcelId}/confidence`, {
+          fetch(`${API_BASE}/properties/${parcelId}/confidence`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }),
         ]);
