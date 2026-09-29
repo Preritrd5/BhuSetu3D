@@ -175,13 +175,13 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
       <div className="overflow-y-auto flex-1 p-0 divide-y divide-[rgba(244,240,232,0.06)]">
         {/* Discrepancy Alert Banner if vertical limit is exceeded */}
         {hasDiscrepancy && (
-          <div className="p-3.5 bg-rose-950/40 border-b border-rose-800/50 flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-            <div className="text-[11px] leading-relaxed">
-              <span className="font-bold text-rose-200 block">
+          <div className="p-3.5 sm:p-4 bg-rose-950/40 border-b border-rose-800/50 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <div className="text-xs leading-relaxed">
+              <span className="font-bold text-rose-200 block text-sm">
                 Spatial Variance Detected (+3.00m on FL-03)
               </span>
-              <span className="text-rose-300/80 block mt-0.5">
+              <span className="text-rose-300/90 block mt-1">
                 Observed structure height (28.0m) exceeds sanctioned limit (20.0m). Floor 03 represents an
                 unsanctioned surveyed addition with vertical variance.
               </span>
@@ -191,7 +191,7 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
 
         {/* Section 1: Structural & Volumetric Metrics */}
         <InspectorSection title="Volumetric Structure" defaultOpen={true}>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <InspectorStat
               label="Observed Height"
               value={meta.observed_height ?? 28.0}
@@ -243,29 +243,29 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
           defaultOpen={true}
         >
           {floors.length > 0 ? (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {floors.map((floor) => (
                 <button
                   key={floor.id}
                   onClick={() => onSelectLevel("FLOOR", floor.floor_code)}
-                  className={`w-full p-2.5 rounded-[8px] border flex items-center justify-between text-left transition-all group ${
+                  className={`w-full p-3 rounded-[8px] border flex items-center justify-between text-left transition-all group ${
                     floor.is_unsanctioned
-                      ? "bg-rose-950/20 hover:bg-rose-950/30 border-rose-800/40 text-rose-200"
+                      ? "bg-rose-950/25 hover:bg-rose-950/40 border-rose-800/50 text-rose-200"
                       : "bg-[#0F1210] hover:bg-[#1A201D] border-[rgba(244,240,232,0.08)] text-[#F4F0E8]"
                   }`}
                 >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-xs truncate group-hover:text-[#C47B50]">
+                  <div className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-xs sm:text-sm group-hover:text-[#C47B50] text-[#F4F0E8] leading-tight">
                         {floor.floor_label || `Floor ${floor.floor_code}`}
                       </span>
                       {floor.is_unsanctioned && (
-                        <span className="px-2 py-0.5 rounded-[4px] bg-rose-900/80 text-rose-300 text-xs font-mono font-bold shrink-0">
+                        <span className="px-2 py-0.5 rounded-[4px] bg-rose-900/80 text-rose-200 text-xs font-mono font-bold shrink-0">
                           UNSANCTIONED
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-[#94A3B8] font-mono block mt-0.5">
+                    <span className="text-xs text-[#94A3B8] font-mono block mt-1">
                       {floor.floor_code} • {floor.base_elevation}m – {floor.ceiling_elevation}m MSL
                       ({floor.floor_area_sqm}m²)
                     </span>
@@ -275,7 +275,7 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
               ))}
             </div>
           ) : (
-            <div className="p-3 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.06)] text-[11px] text-[#77867C] font-mono">
+            <div className="p-3.5 rounded-[8px] bg-[#0F1210] border border-[rgba(244,240,232,0.08)] text-xs text-[#77867C] font-mono">
               Floor slabs not yet extracted for this building.
             </div>
           )}

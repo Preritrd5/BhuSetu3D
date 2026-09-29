@@ -27,6 +27,8 @@ interface BottomSpatialToolStripProps {
   onSetCameraPreset?: (preset: CameraViewPreset) => void;
   onNavigate2D?: () => void;
   onTakeSnapshot?: () => void;
+  heading?: number;
+  onResetNorth?: () => void;
 }
 
 export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
@@ -38,6 +40,8 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
   onSetCameraPreset,
   onNavigate2D,
   onTakeSnapshot,
+  heading,
+  onResetNorth,
 }) => {
   const [showCameraMenu, setShowCameraMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -108,8 +112,8 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
           <span className="hidden xs:inline">Measure</span>
         </button>
 
-        {/* Desktop-Only Tools (Shown in toolbar for lg+ screens, hidden in compact mode) */}
-        <div className="hidden lg:flex items-center gap-1.5">
+        {/* Desktop-Only Tools (Shown in toolbar for xl+ screens, hidden in compact mode) */}
+        <div className="hidden xl:flex items-center gap-1.5">
           {/* 3D Spatial Comparison Tool */}
           <button
             onClick={() => onSelectTool("COMPARE")}
@@ -215,30 +219,26 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
             )}
           </div>
 
-          {/* 2D Cadastre Switcher */}
-          {onNavigate2D && (
-            <button
-              onClick={onNavigate2D}
-              role="button"
-              aria-label="Switch to 2D Cadastral Map"
-              className="flex items-center justify-center gap-2 px-3 py-2 rounded-[6px] text-xs font-mono text-[#D9D2C5] hover:text-[#23847D] hover:bg-[#1A201D] transition-all cursor-pointer"
-              title="Switch to 2D Cadastral Map [2]"
-            >
-              <Map className="w-4 h-4 text-[#23847D] flex-shrink-0" />
-              <span>2D Cadastre</span>
-            </button>
-          )}
-
-          {/* Grounded AI Spatial Investigator */}
+          {/* Integrated Spatial Compass (Orient North) */}
           <button
-            onClick={onOpenAI}
+            onClick={onResetNorth || (() => onSetCameraPreset?.("NORTH"))}
             role="button"
-            aria-label="Ask BhuSetu Spatial Intelligence"
-            className="flex items-center justify-center gap-2 px-3 py-2 rounded-[6px] text-xs font-mono font-bold bg-[#1A201D] border border-[rgba(244,240,232,0.12)] text-[#F4F0E8] hover:border-[#B56E48] transition-all cursor-pointer"
-            title="Ask BhuSetu Spatial Intelligence"
+            aria-label="Orient camera to True North"
+            className="group relative flex items-center justify-center w-8 h-8 rounded-[6px] text-[#D9D2C5] hover:text-[#F4F0E8] hover:bg-[#1A201D] transition-all cursor-pointer"
+            title="Orient camera to True North (Click to reset) [N]"
           >
-            <Sparkles className="w-4 h-4 text-[#C47B50] flex-shrink-0" />
-            <span>Ask BhuSetu</span>
+            <div
+              className="transition-transform duration-100 ease-out flex items-center justify-center"
+              style={{ transform: `rotate(${-(heading ?? 0)}deg)` }}
+            >
+              <div className="relative w-4 h-4 flex flex-col items-center justify-center">
+                <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[7px] border-b-rose-500 mb-[1px]" />
+                <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[7px] border-t-slate-400" />
+              </div>
+            </div>
+            <span className="absolute -top-0.5 right-0.5 font-mono text-[8px] font-bold text-rose-500 select-none">
+              N
+            </span>
           </button>
 
           {/* Reset Camera (Home) */}
@@ -254,7 +254,7 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
         </div>
 
         {/* Mobile & Tablet "More" Overflow Trigger */}
-        <div className="lg:hidden relative">
+        <div className="xl:hidden relative">
           <button
             onClick={() => setShowMoreMenu((prev) => !prev)}
             role="button"
@@ -312,32 +312,6 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
                 <History className="w-4 h-4 text-[#C47B50]" />
                 <span>4D Timeline [T]</span>
               </button>
-
-              {/* AI Spatial Investigator */}
-              <button
-                onClick={() => {
-                  onOpenAI();
-                  setShowMoreMenu(false);
-                }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-left text-[#D9D2C5] hover:bg-[#1A201D] transition-colors cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-[#C47B50]" />
-                <span>Ask BhuSetu AI</span>
-              </button>
-
-              {/* 2D Cadastre */}
-              {onNavigate2D && (
-                <button
-                  onClick={() => {
-                    onNavigate2D();
-                    setShowMoreMenu(false);
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-left text-[#D9D2C5] hover:bg-[#1A201D] transition-colors cursor-pointer"
-                >
-                  <Map className="w-4 h-4 text-[#23847D]" />
-                  <span>2D Cadastre Map</span>
-                </button>
-              )}
 
               {/* Camera Views Divider */}
               <div className="pt-1.5 border-t border-[rgba(244,240,232,0.08)] px-2 text-xs text-[#94A3B8] uppercase font-bold">

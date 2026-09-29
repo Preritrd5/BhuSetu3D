@@ -284,7 +284,7 @@ export function renderParcels(
       ? Cesium.Color.fromCssColorString("#F97316")
       : p.isUndeveloped
       ? Cesium.Color.fromCssColorString("#10B981").withAlpha(0.75)
-      : Cesium.Color.fromCssColorString("#2DD4BF").withAlpha(0.70);
+      : Cesium.Color.fromCssColorString("#14B8A6").withAlpha(0.50);
 
     const entity = viewer.entities.add({
       name: `${p.surveyNumber} (${p.ulpin})`,
@@ -433,7 +433,7 @@ export function renderBuildings(
                 ? Cesium.Color.fromCssColorString("#C47B50")
                 : fd.id === "FL-03"
                 ? Cesium.Color.fromCssColorString("#F97316").withAlpha(outlineAlpha)
-                : Cesium.Color.fromCssColorString("#00F0FF").withAlpha(outlineAlpha),
+                : Cesium.Color.fromCssColorString("#334155").withAlpha(outlineAlpha),
               outlineWidth: outlineW,
             },
           });
@@ -471,7 +471,7 @@ export function renderBuildings(
             extrudedHeight: roofBase + ROOF_H,
             material: Cesium.Color.fromCssColorString("#1E293B").withAlpha(0.90),
             outline: true,
-            outlineColor: Cesium.Color.fromCssColorString("#38BDF8"),
+            outlineColor: Cesium.Color.fromCssColorString("#475569"),
             outlineWidth: 1.5,
           },
         });
@@ -488,7 +488,7 @@ export function renderBuildings(
               ],
               width: 1.5,
               material: new Cesium.PolylineDashMaterialProperty({
-                color: Cesium.Color.fromCssColorString("#00F0FF").withAlpha(0.85),
+                color: Cesium.Color.fromCssColorString("#475569").withAlpha(0.85),
                 dashLength: 12.0,
               }),
             },
@@ -580,8 +580,8 @@ export function renderBuildings(
                   ctx.isolateFloor ? 0.05 : 0.92
                 ),
                 outline: true,
-                outlineColor: Cesium.Color.fromCssColorString("#38BDF8").withAlpha(
-                  ctx.isolateFloor ? 0.20 : 0.90
+                outlineColor: Cesium.Color.fromCssColorString("#475569").withAlpha(
+                  ctx.isolateFloor ? 0.20 : 0.85
                 ),
                 outlineWidth: 1.5,
               },
@@ -618,12 +618,12 @@ export function renderBuildings(
                 : Cesium.Color.fromCssColorString("#152332").withAlpha(0.92),
               outline: true,
               outlineColor: isAiHighlighted
-                ? Cesium.Color.fromCssColorString("#00F0FF")
+                ? Cesium.Color.fromCssColorString("#38BDF8")
                 : isComparisonB
                 ? Cesium.Color.fromCssColorString("#F59E0B")
                 : isConflict
                 ? Cesium.Color.fromCssColorString("#F97316")
-                : Cesium.Color.fromCssColorString("#334960"),
+                : Cesium.Color.fromCssColorString("#334155"),
               outlineWidth: isAiHighlighted || isComparisonB ? 3.0 : 1.5,
             },
           });
@@ -650,9 +650,9 @@ export function renderBuildings(
             ]),
             height: 0.0,
             extrudedHeight: 4.2,
-            material: Cesium.Color.fromCssColorString("#38BDF8").withAlpha(0.35),
+            material: Cesium.Color.fromCssColorString("#0284C7").withAlpha(0.20),
             outline: true,
-            outlineColor: Cesium.Color.fromCssColorString("#00F0FF"),
+            outlineColor: Cesium.Color.fromCssColorString("#38BDF8").withAlpha(0.60),
             outlineWidth: 1.5,
           },
         });
@@ -829,7 +829,7 @@ export function renderBuildings(
               bottomRadius: 0.5,
               material: Cesium.Color.fromCssColorString("#0F172A"),
               outline: true,
-              outlineColor: Cesium.Color.fromCssColorString("#00F0FF"),
+              outlineColor: Cesium.Color.fromCssColorString("#475569"),
             },
           });
           collections.roofEquipment.push(fan);
@@ -858,7 +858,7 @@ export function renderBuildings(
           outline: true,
           outlineColor: isCitySubdued
             ? Cesium.Color.fromCssColorString("#2D3F55").withAlpha(0.45)
-            : Cesium.Color.fromCssColorString("#38BDF8").withAlpha(0.60),
+            : Cesium.Color.fromCssColorString("#334155").withAlpha(0.50),
           outlineWidth: 1.0,
         },
       });
@@ -880,13 +880,13 @@ export function renderBuildings(
             : Cesium.Color.fromCssColorString(b.primaryColor).withAlpha(0.92),
           outline: true,
           outlineColor: isAiHighlighted
-            ? Cesium.Color.fromCssColorString("#00F0FF")
+            ? Cesium.Color.fromCssColorString("#38BDF8")
             : isComparisonB
             ? Cesium.Color.fromCssColorString("#F59E0B")
             : isCitySubdued
             ? Cesium.Color.fromCssColorString("#2E4158").withAlpha(0.45)
-            : Cesium.Color.fromCssColorString(b.outlineColor).withAlpha(0.70),
-          outlineWidth: isAiHighlighted ? 3.5 : isComparisonB ? 3.0 : 1.0,
+            : Cesium.Color.fromCssColorString(b.outlineColor).withAlpha(0.65),
+          outlineWidth: isAiHighlighted ? 3.0 : isComparisonB ? 3.0 : 1.0,
         },
       });
       (tower as any)._bhuBuildingId = b.legacyId || b.buildingId;
@@ -986,9 +986,9 @@ export function renderBuildings(
           hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
           height: 0.0,
           extrudedHeight: Math.min(4.5, b.height * 0.4),
-          material: Cesium.Color.fromCssColorString("#0284C7").withAlpha(isCitySubdued ? 0.15 : 0.25),
+          material: Cesium.Color.fromCssColorString("#0284C7").withAlpha(isCitySubdued ? 0.15 : 0.20),
           outline: true,
-          outlineColor: Cesium.Color.fromCssColorString("#38BDF8").withAlpha(isCitySubdued ? 0.35 : 0.70),
+          outlineColor: Cesium.Color.fromCssColorString("#334155").withAlpha(isCitySubdued ? 0.35 : 0.55),
           outlineWidth: 1.0,
         },
       });

@@ -796,24 +796,13 @@ function City3DContent() {
           onToggleCollapse={() => setIsLeftPanelCollapsed((p) => !p)}
         />
 
-        {/* Interactive Spatial Compass (linked to Camera Heading) */}
+        {/* Dynamic Metric Spatial Scale Bar (shifts left when right inspector is open) */}
         <div
-          className="fixed top-14 sm:top-20 z-20 transition-all duration-300 pointer-events-auto"
+          className="fixed bottom-16 sm:bottom-12 z-20 pointer-events-none hidden sm:block transition-all duration-300"
           style={{
-            right: isWideScreen && (isRightPanelOpen || comparisonState.isActive) ? "420px" : "16px",
+            right: isWideScreen && (isRightPanelOpen || comparisonState.isActive) ? "460px" : "16px",
           }}
         >
-          <SpatialCompass
-            heading={cameraTelemetry.heading}
-            onResetNorth={() => {
-              setCameraPreset("NORTH");
-              setTimeout(() => setCameraPreset(null), 100);
-            }}
-          />
-        </div>
-
-        {/* Dynamic Metric Spatial Scale Bar */}
-        <div className="fixed bottom-16 sm:bottom-12 right-4 z-20 pointer-events-none hidden sm:block">
           <SpatialScaleBar altitude={cameraTelemetry.altitude} pitch={cameraTelemetry.pitch} />
         </div>
 
@@ -918,6 +907,11 @@ function City3DContent() {
           }}
           onNavigate2D={() => {
             router.push(`/properties?parcel=${selectedParcelId || "66666666-6666-4000-8000-000000000102"}`);
+          }}
+          heading={cameraTelemetry.heading}
+          onResetNorth={() => {
+            setCameraPreset("NORTH");
+            setTimeout(() => setCameraPreset(null), 100);
           }}
         />
 

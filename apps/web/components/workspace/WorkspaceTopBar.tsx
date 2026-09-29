@@ -148,46 +148,46 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   };
 
   return (
-    <header className="absolute top-3 sm:top-4 inset-x-3 sm:inset-x-6 h-12 sm:h-14 z-30 flex items-center justify-between gap-2 sm:gap-3 pointer-events-none select-none">
-      {/* Brand & Workspace Identity Panel */}
-      <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] px-3 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm shrink-0">
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-          <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-[4px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
-            <Image
-              src="/brand/bhusetu-logo.webp"
-              alt="BhuSetu 3D Official Brand Logo"
-              width={32}
-              height={32}
-              priority
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs sm:text-sm font-bold tracking-wider text-[#F4F0E8] font-mono leading-none">
-                BHUSETU 3D
-              </span>
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#176C68]" />
+    <header className="absolute top-3 sm:top-4 inset-x-3 sm:inset-x-6 h-13 sm:h-14 z-30 flex items-center justify-between gap-3 pointer-events-none select-none">
+      {/* Zone 1: Left - Brand & Omnibar Search */}
+      <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3 shrink-0">
+        {/* Brand & Workspace Identity */}
+        <div className="flex items-center gap-2.5 sm:gap-3 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] px-3 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+            <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-[4px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
+              <Image
+                src="/brand/bhusetu-logo.webp"
+                alt="BhuSetu 3D Official Brand Logo"
+                width={32}
+                height={32}
+                priority
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="hidden sm:block text-xs font-mono uppercase tracking-widest text-[#94A3B8] mt-0.5">
-              Spatial Intelligence
-            </span>
-          </div>
-        </Link>
-      </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs sm:text-sm font-bold tracking-wider text-[#F4F0E8] font-mono leading-none">
+                  BHUSETU 3D
+                </span>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#176C68]" />
+              </div>
+              <span className="hidden sm:block text-xs font-mono uppercase tracking-widest text-[#94A3B8] mt-0.5">
+                Spatial Intelligence
+              </span>
+            </div>
+          </Link>
+        </div>
 
-      {/* Center Omnibar & Macro Telemetry Strip */}
-      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 min-w-0 max-w-2xl flex-1 justify-center">
         {/* Omnibar Search */}
-        <div className="relative flex-1 max-w-md min-w-0">
+        <div className="relative w-48 sm:w-60 md:w-72 lg:w-80">
           <div
             className={`flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border px-2.5 sm:px-3 py-1.5 rounded-[6px] shadow-sm transition-all ${
               isSearchFocused
                 ? "border-[#B56E48] ring-1 ring-[#B56E48]/30"
-                : "border-[rgba(244,240,232,0.08)] hover:border-[rgba(244,240,232,0.18)]"
+                : "border-[rgba(244,240,232,0.12)] hover:border-[rgba(244,240,232,0.22)]"
             }`}
           >
-            <Search className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+            <Search className="w-4 h-4 text-[#94A3B8] shrink-0" />
             <input
               type="text"
               role="combobox"
@@ -233,16 +233,16 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
                   }
                 }
               }}
-              className="bg-transparent text-xs text-[#F4F0E8] placeholder-[#94A3B8] font-mono focus:outline-none w-full min-w-0"
+              className="bg-transparent text-xs sm:text-[13px] text-[#F4F0E8] placeholder-[#94A3B8] font-mono focus:outline-none w-full min-w-0"
             />
             <button
               onClick={onOpenAI}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.15)] text-xs font-mono text-[#D9D2C5] hover:text-[#F4F0E8] hover:border-[#B56E48] transition-all flex-shrink-0"
+              className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.15)] text-xs font-mono text-[#D9D2C5] hover:text-[#F4F0E8] hover:border-[#B56E48] transition-all shrink-0 cursor-pointer"
               title="Ask BhuSetu Spatial Intelligence"
               aria-label="Ask BhuSetu Spatial Intelligence"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#C47B50]" />
-              <span className="hidden sm:inline font-semibold">Ask BhuSetu</span>
+              <span className="hidden sm:inline font-semibold">Ask</span>
             </button>
           </div>
 
@@ -252,9 +252,9 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
               id="workspace-search-listbox"
               role="listbox"
               aria-label="Search suggestions"
-              className="absolute top-full left-0 right-0 mt-1.5 bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[6px] shadow-lg overflow-hidden py-1 z-40"
+              className="absolute top-full left-0 right-0 mt-1.5 bg-[#141816] border border-[rgba(244,240,232,0.14)] rounded-[8px] shadow-2xl overflow-hidden py-1 z-40"
             >
-              <div className="px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider text-[#94A3B8] border-b border-[rgba(244,240,232,0.08)] font-semibold">
+              <div className="px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider text-[#94A3B8] border-b border-[rgba(244,240,232,0.08)] font-bold">
                 Authoritative PostGIS Digital Twin Entities
               </div>
               <div className="max-h-60 overflow-y-auto">
@@ -300,53 +300,54 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
             </div>
           )}
         </div>
+      </div>
 
+      {/* Zone 2: Center - Target Context & Macro Telemetry */}
+      <div className="pointer-events-auto hidden md:flex items-center gap-2 min-w-0 justify-center">
         {/* Flagship Demonstration Quick-Focus Chip */}
         <button
           onClick={() => onSelectEntity?.("77777777-7777-4000-8000-000000000102", "BUILDING")}
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[#141816] hover:bg-[#1A201D] border border-[rgba(244,240,232,0.08)] hover:border-[#B56E48] text-[11px] font-mono text-[#D9D2C5] transition-all flex-shrink-0 group cursor-pointer"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-[#141816]/95 hover:bg-[#1A201D] border border-[rgba(244,240,232,0.12)] hover:border-[#B56E48] text-xs font-mono text-[#D9D2C5] transition-all cursor-pointer group shadow-sm shrink-0"
           title="Instant 1-Click Flagship Demo: Inspect Aura Horizon Discrepancy (BLD-KA-BLR-102)"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#B56E48]" />
-          <span className="text-[#6F7772]">Demo:</span>
-          <span className="text-[#F4F0E8] font-bold truncate max-w-[130px]">Aura Horizon</span>
+          <span className="w-2 h-2 rounded-full bg-[#B56E48] group-hover:scale-110 transition-transform" />
+          <span className="text-[#94A3B8]">Target:</span>
+          <span className="text-[#F4F0E8] font-bold truncate max-w-[150px] lg:max-w-[200px]">
+            Aura Horizon Commercial
+          </span>
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-rose-950/40 border border-rose-800/50 text-rose-300 text-[11px] font-bold">
+            <AlertTriangle className="w-3 h-3 text-rose-400" />
+            <span>+3.0m Discrepancy</span>
+          </span>
         </button>
 
-        {/* Macro KPI Strip */}
-        <div className="hidden xl:flex items-center gap-1.5 bg-[#141816] border border-[rgba(244,240,232,0.08)] px-2.5 py-1 rounded-[6px] text-[11px] font-mono">
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
-            <span className="text-[#6F7772]">Parcels:</span>
+        {/* Macro KPI Strip (Visible on 2xl screens) */}
+        <div className="hidden 2xl:flex items-center gap-1.5 bg-[#141816]/95 border border-[rgba(244,240,232,0.12)] px-2.5 py-1 rounded-[6px] text-xs font-mono">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
+            <span className="text-[#94A3B8]">Parcels:</span>
             <span className="text-[#23847D] font-bold">{stats.parcels}</span>
           </div>
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
-            <span className="text-[#6F7772]">Twins:</span>
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
+            <span className="text-[#94A3B8]">Twins:</span>
             <span className="text-[#23847D] font-bold">{stats.buildings}</span>
           </div>
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
-            <span className="text-[#6F7772]">Quality:</span>
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
+            <span className="text-[#94A3B8]">Quality:</span>
             <span className="text-[#F4F0E8] font-bold">{stats.qualityIndex}%</span>
           </div>
-          <button
-            onClick={() => onSelectEntity?.("77777777-7777-4000-8000-000000000102", "BUILDING")}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-[#B56E48]/15 hover:bg-[#B56E48]/25 border border-[#B56E48]/40 text-[#C47B50] transition-colors cursor-pointer"
-            title="Inspect 3D Twin with Detected Height Discrepancy"
-          >
-            <AlertTriangle className="w-3 h-3 text-[#B56E48]" />
-            <span className="font-bold">{stats.conflicts} Discrepancies</span>
-          </button>
         </div>
       </div>
 
-      {/* Right Actions & Persona Badge */}
-      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] p-1 rounded-[6px] shadow-sm shrink-0">
+      {/* Zone 3: Right - Mode Switcher, Modules, and User Profile */}
+      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] p-1 rounded-[6px] shadow-sm shrink-0">
         {/* 2D / 3D Switcher */}
         {onToggleMode ? (
           <button
             onClick={onToggleMode}
-            className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-[4px] text-xs font-mono font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[4px] text-xs font-mono font-bold transition-all cursor-pointer ${
               activeMode === "3D"
-                ? "bg-[#B56E48] text-[#F4F0E8]"
-                : "bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5]"
+                ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
+                : "bg-[#1A201D] text-[#94A3B8] hover:text-[#F4F0E8]"
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
@@ -355,7 +356,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
         ) : (
           <Link
             href="/properties"
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-[4px] bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5] text-xs font-mono transition-colors"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[4px] bg-[#1A201D] text-[#94A3B8] hover:text-[#F4F0E8] text-xs font-mono transition-colors"
           >
             <MapPin className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">2D Cadastre</span>

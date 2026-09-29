@@ -91,33 +91,33 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
   };
 
   return (
-    <div className="p-3.5 border-b border-[rgba(244,240,232,0.08)] bg-[#141816] flex flex-col gap-2.5">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-start gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-[6px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] flex items-center justify-center shrink-0 mt-0.5">
+    <div className="p-3.5 sm:p-4 border-b border-[rgba(244,240,232,0.10)] bg-[#141816] flex flex-col gap-2.5">
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-[6px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] flex items-center justify-center shrink-0 mt-0.5">
             {renderIcon()}
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span
-                className={`px-2 py-0.5 rounded-[4px] border text-[11px] font-mono font-bold uppercase tracking-wider ${getLevelBadge()}`}
+                className={`px-2 py-0.5 rounded-[4px] border text-xs font-mono font-bold uppercase tracking-wider ${getLevelBadge()}`}
               >
                 {entityType}
               </span>
               {code && (
-                <span className="text-[11px] text-[#A7B3AB] font-mono truncate" title={code}>
+                <span className="text-xs text-[#A7B3AB] font-mono" title={code}>
                   {code}
                 </span>
               )}
             </div>
             <h3
-              className="font-bold text-[#F4F0E8] text-sm tracking-tight truncate leading-tight"
+              className="font-bold text-[#F4F0E8] text-base tracking-tight leading-snug break-words"
               title={title}
             >
               {title}
             </h3>
             {subtitle && (
-              <span className="text-[11px] text-[#A7B3AB] block truncate mt-0.5">
+              <span className="text-xs text-[#A7B3AB] block leading-relaxed mt-0.5">
                 {subtitle}
               </span>
             )}
@@ -125,20 +125,20 @@ export const InspectorHeader: React.FC<InspectorHeaderProps> = ({
         </div>
 
         {/* Action Controls: Minimize & Close */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
           {onMinimize && (
             <button
               onClick={onMinimize}
-              className="p-1.5 rounded-[5px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-[5px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors cursor-pointer"
               title="Minimize Inspector"
               aria-label="Minimize Inspector"
             >
-              <Minimize2 className="w-3.5 h-3.5" />
+              <Minimize2 className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-[5px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-[5px] hover:bg-[#1A201D] text-[#6F7772] hover:text-[#F4F0E8] transition-colors cursor-pointer"
             title="Close Inspector"
             aria-label="Close Inspector"
           >
