@@ -3,7 +3,7 @@ BhuSetu 3D Core Configuration
 Team: TANTRAKATHA | SIH 2026 (SIH26011)
 Phase 2: Authentication, Authorization & Application Shell
 """
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic_settings import BaseSettings
 from pydantic import Field, field_validator
 import json
@@ -61,18 +61,39 @@ class Settings(BaseSettings):
         ],
         env="CORS_ORIGINS"
     )
+    CORS_ORIGIN_REGEX: Optional[str] = Field(
+        default=r"^https:\/\/([a-zA-Z0-9_-]+\.)*vercel\.app$",
+        env="CORS_ORIGIN_REGEX"
+    )
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        origins: List[str] = []
         if isinstance(v, str):
-            if v.startswith("["):
+            v_str = v.strip()
+            if v_str.startswith("[") and v_str.endswith("]"):
                 try:
-                    return json.loads(v)
+                    loaded = json.loads(v_str)
+                    if isinstance(loaded, list):
+                        origins = [str(i).strip().rstrip("/") for i in loaded if str(i).strip()]
                 except Exception:
                     pass
-            return [i.strip() for i in v.split(",") if i.strip()]
-        return v
+            if not origins:
+                origins = [i.strip().strip('"').strip("'").rstrip("/") for i in v_str.strip("[]").split(",") if i.strip()]
+        elif isinstance(v, (list, tuple, set)):
+            origins = [str(i).strip().rstrip("/") for i in v if str(i).strip()]
+
+        # Mandatory trusted production origins that must always be allowed across all deployments
+        trusted_production_origins = [
+            "https://bhusetu3d.vercel.app",
+            "https://bhusetu-3d.vercel.app",
+        ]
+        for trusted in trusted_production_origins:
+            if trusted not in origins:
+                origins.append(trusted)
+
+        return origins
 
     class Config:
         env_file = ".env"

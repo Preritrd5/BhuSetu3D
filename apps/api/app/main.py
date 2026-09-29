@@ -20,6 +20,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION} [{settings.ENVIRONMENT}]")
     logger.info(f"Configured API prefix: {settings.API_V1_PREFIX}")
     logger.info(f"Allowed CORS origins: {settings.CORS_ORIGINS}")
+    logger.info(f"Allowed CORS origin regex: {settings.CORS_ORIGIN_REGEX}")
 
     # Validate production configuration before serving traffic
     validate_production_config(settings)
@@ -46,9 +47,12 @@ app.add_middleware(SecurityAndObservabilityMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=settings.CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=86400,
 )
 
 

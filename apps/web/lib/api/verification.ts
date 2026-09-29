@@ -26,6 +26,56 @@ function getHeaders(token?: string | null): HeadersInit {
   return headers;
 }
 
+async function parseApiResponse<T>(res: Response, fallbackMessage: string): Promise<T> {
+  if (!res.ok) {
+    let detail = "";
+    try {
+      const data = await res.json();
+      detail = data.detail || data.message || data.error;
+    } catch {
+      // response body is not json
+    }
+
+    if (detail) {
+      throw new Error(detail);
+    }
+
+    if (res.status === 401) {
+      throw new Error("Authentication required. Your session may have expired. Please log in.");
+    }
+    if (res.status === 403) {
+      throw new Error("Access forbidden. Your account does not have sufficient role permissions.");
+    }
+    if (res.status === 404) {
+      throw new Error("Requested verification record not found.");
+    }
+    if (res.status === 422) {
+      throw new Error("Validation error. Please verify input query parameters.");
+    }
+    if (res.status === 429) {
+      throw new Error("Rate limit exceeded. Please wait before retrying.");
+    }
+    if (res.status >= 500) {
+      throw new Error(`BhuSetu backend service error (HTTP ${res.status}). Please retry in a few moments.`);
+    }
+
+    throw new Error(`${fallbackMessage} (HTTP ${res.status}: ${res.statusText})`);
+  }
+  return res.json();
+}
+
+function handleFetchError(err: unknown, fallbackMessage: string): never {
+  if (err instanceof TypeError && err.message.toLowerCase().includes("failed to fetch")) {
+    throw new Error(
+      "Unable to communicate with BhuSetu API service (https://bhusetu3d-backend.onrender.com). Please verify server health or check network connectivity."
+    );
+  }
+  if (err instanceof Error) {
+    throw err;
+  }
+  throw new Error(fallbackMessage);
+}
+
 export async function getVerificationQueue(
   params: {
     status?: string[];
@@ -51,54 +101,54 @@ export async function getVerificationQueue(
   query.append("page", String(params.page || 1));
   query.append("page_size", String(params.pageSize || 20));
 
-  const res = await fetch(`${API_BASE}/verification/queue?${query.toString()}`, {
-    headers: getHeaders(token),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `Failed to fetch verification queue: ${res.statusText}`);
+  try {
+    const res = await fetch(`${API_BASE}/verification/queue?${query.toString()}`, {
+      headers: getHeaders(token),
+    });
+    return await parseApiResponse<VerificationQueueResponse>(res, "Failed to fetch verification queue");
+  } catch (err) {
+    handleFetchError(err, "Failed to load verification queue");
   }
-  return res.json();
 }
 
 export async function getVerificationSummary(
   token?: string | null
 ): Promise<VerificationQueueSummary> {
-  const res = await fetch(`${API_BASE}/verification/queue/summary`, {
-    headers: getHeaders(token),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to fetch queue summary");
+  try {
+    const res = await fetch(`${API_BASE}/verification/queue/summary`, {
+      headers: getHeaders(token),
+    });
+    return await parseApiResponse<VerificationQueueSummary>(res, "Failed to fetch queue summary");
+  } catch (err) {
+    handleFetchError(err, "Failed to fetch queue summary");
   }
-  return res.json();
 }
 
 export async function getEligibleReviewers(
   token?: string | null
 ): Promise<ReviewerInfo[]> {
-  const res = await fetch(`${API_BASE}/verification/reviewers`, {
-    headers: getHeaders(token),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to fetch reviewers");
+  try {
+    const res = await fetch(`${API_BASE}/verification/reviewers`, {
+      headers: getHeaders(token),
+    });
+    return await parseApiResponse<ReviewerInfo[]>(res, "Failed to fetch reviewers");
+  } catch (err) {
+    handleFetchError(err, "Failed to fetch reviewers");
   }
-  return res.json();
 }
 
 export async function getVerificationDetail(
   conflictId: string,
   token?: string | null
 ): Promise<VerificationDetailResponse> {
-  const res = await fetch(`${API_BASE}/verification/${conflictId}`, {
-    headers: getHeaders(token),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to fetch verification detail");
+  try {
+    const res = await fetch(`${API_BASE}/verification/${conflictId}`, {
+      headers: getHeaders(token),
+    });
+    return await parseApiResponse<VerificationDetailResponse>(res, "Failed to fetch verification detail");
+  } catch (err) {
+    handleFetchError(err, "Failed to fetch verification detail");
   }
-  return res.json();
 }
 
 export async function assignReviewer(
@@ -107,16 +157,16 @@ export async function assignReviewer(
   notes?: string,
   token?: string | null
 ): Promise<VerificationDetailResponse> {
-  const res = await fetch(`${API_BASE}/verification/${conflictId}/assign`, {
-    method: "POST",
-    headers: getHeaders(token),
-    body: JSON.stringify({ reviewer_id: reviewerId, notes }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to assign reviewer");
+  try {
+    const res = await fetch(`${API_BASE}/verification/${conflictId}/assign`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ reviewer_id: reviewerId, notes }),
+    });
+    return await parseApiResponse<VerificationDetailResponse>(res, "Failed to assign reviewer");
+  } catch (err) {
+    handleFetchError(err, "Failed to assign reviewer");
   }
-  return res.json();
 }
 
 export async function startReview(
@@ -124,16 +174,16 @@ export async function startReview(
   notes?: string,
   token?: string | null
 ): Promise<VerificationDetailResponse> {
-  const res = await fetch(`${API_BASE}/verification/${conflictId}/start`, {
-    method: "POST",
-    headers: getHeaders(token),
-    body: JSON.stringify({ notes }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to start review");
+  try {
+    const res = await fetch(`${API_BASE}/verification/${conflictId}/start`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ notes }),
+    });
+    return await parseApiResponse<VerificationDetailResponse>(res, "Failed to start review");
+  } catch (err) {
+    handleFetchError(err, "Failed to start review");
   }
-  return res.json();
 }
 
 export async function submitVerificationDecision(
@@ -147,22 +197,22 @@ export async function submitVerificationDecision(
   },
   token?: string | null
 ): Promise<VerificationDetailResponse> {
-  const res = await fetch(`${API_BASE}/verification/${conflictId}/decision`, {
-    method: "POST",
-    headers: getHeaders(token),
-    body: JSON.stringify({
-      decision: data.decision,
-      justification: data.justification,
-      evidence_references: data.evidenceReferences || [],
-      notes: data.notes,
-      expected_previous_status: data.expectedPreviousStatus,
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to submit verification decision");
+  try {
+    const res = await fetch(`${API_BASE}/verification/${conflictId}/decision`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({
+        decision: data.decision,
+        justification: data.justification,
+        evidence_references: data.evidenceReferences || [],
+        notes: data.notes,
+        expected_previous_status: data.expectedPreviousStatus,
+      }),
+    });
+    return await parseApiResponse<VerificationDetailResponse>(res, "Failed to submit verification decision");
+  } catch (err) {
+    handleFetchError(err, "Failed to submit verification decision");
   }
-  return res.json();
 }
 
 export async function reopenVerification(
@@ -171,42 +221,42 @@ export async function reopenVerification(
   notes?: string,
   token?: string | null
 ): Promise<VerificationDetailResponse> {
-  const res = await fetch(`${API_BASE}/verification/${conflictId}/reopen`, {
-    method: "POST",
-    headers: getHeaders(token),
-    body: JSON.stringify({ justification, notes }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to reopen verification");
+  try {
+    const res = await fetch(`${API_BASE}/verification/${conflictId}/reopen`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ justification, notes }),
+    });
+    return await parseApiResponse<VerificationDetailResponse>(res, "Failed to reopen verification");
+  } catch (err) {
+    handleFetchError(err, "Failed to reopen verification");
   }
-  return res.json();
 }
 
 export async function getFindingAuditTrail(
   conflictId: string,
   token?: string | null
 ): Promise<AuditLogItem[]> {
-  const res = await fetch(`${API_BASE}/verification/${conflictId}/audit`, {
-    headers: getHeaders(token),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to fetch audit trail");
+  try {
+    const res = await fetch(`${API_BASE}/verification/${conflictId}/audit`, {
+      headers: getHeaders(token),
+    });
+    return await parseApiResponse<AuditLogItem[]>(res, "Failed to fetch audit trail");
+  } catch (err) {
+    handleFetchError(err, "Failed to fetch audit trail");
   }
-  return res.json();
 }
 
 export async function verifyAuditChain(
   token?: string | null
 ): Promise<AuditChainVerificationResponse> {
-  const res = await fetch(`${API_BASE}/verification/audit/verify-chain`, {
-    method: "POST",
-    headers: getHeaders(token),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to verify audit chain");
+  try {
+    const res = await fetch(`${API_BASE}/verification/audit/verify-chain`, {
+      method: "POST",
+      headers: getHeaders(token),
+    });
+    return await parseApiResponse<AuditChainVerificationResponse>(res, "Failed to verify audit chain");
+  } catch (err) {
+    handleFetchError(err, "Failed to verify audit chain");
   }
-  return res.json();
 }

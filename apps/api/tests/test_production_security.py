@@ -252,3 +252,62 @@ async def test_job_worker_aborts_on_permanent_failure():
         )
     assert "Invalid GeoJSON geometry topology" in str(exc_info.value)
     assert attempts == 1  # Should not retry permanent error
+
+
+# =============================================================================
+# 7. PRODUCTION CORS PREFLIGHT & ORIGIN ENFORCEMENT TESTS
+# =============================================================================
+
+def test_cors_preflight_production_vercel_origin(client):
+    """OPTIONS preflight from production Vercel frontend must succeed with required CORS headers."""
+    response = client.options(
+        "/api/v1/verification/queue?page=1&page_size=15",
+        headers={
+            "Origin": "https://bhusetu3d.vercel.app",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "authorization,content-type",
+        }
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "https://bhusetu3d.vercel.app"
+    assert response.headers.get("access-control-allow-credentials") == "true"
+    allow_methods = response.headers.get("access-control-allow-methods", "")
+    assert "GET" in allow_methods
+    assert "OPTIONS" in allow_methods
+
+
+def test_cors_preflight_vercel_preview_origin(client):
+    """OPTIONS preflight from Vercel preview deployment matches regex and succeeds."""
+    response = client.options(
+        "/api/v1/verification/queue",
+        headers={
+            "Origin": "https://bhusetu3d-git-main-preritrd5.vercel.app",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "authorization",
+        }
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") == "https://bhusetu3d-git-main-preritrd5.vercel.app"
+    assert response.headers.get("access-control-allow-credentials") == "true"
+
+
+def test_cors_disallows_untrusted_third_party_origin(client):
+    """OPTIONS preflight from untrusted origin is rejected."""
+    response = client.options(
+        "/api/v1/verification/queue",
+        headers={
+            "Origin": "https://malicious-attacker-site.com",
+            "Access-Control-Request-Method": "GET",
+        }
+    )
+    assert response.status_code == 400
+    assert "access-control-allow-origin" not in response.headers
+
+
+def test_assemble_cors_origins_preserves_mandatory_vercel():
+    """assemble_cors_origins ensures production Vercel frontends are always included even if overridden."""
+    cfg = Settings(CORS_ORIGINS=["http://localhost:3000"])
+    assert "https://bhusetu3d.vercel.app" in cfg.CORS_ORIGINS
+    assert "https://bhusetu-3d.vercel.app" in cfg.CORS_ORIGINS
+    assert "http://localhost:3000" in cfg.CORS_ORIGINS
+
