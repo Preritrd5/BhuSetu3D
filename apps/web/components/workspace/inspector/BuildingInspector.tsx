@@ -80,14 +80,54 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
   onOpenAIWithQuery,
 }) => {
   const meta = selection.metadata || {};
-  // Canonical default floors for Aura Horizon when API tree not yet loaded
+  // Canonical default floors for Aura Horizon when API tree not yet loaded (7 Floors)
   const DEFAULT_AURA_FLOORS = [
+    {
+      id: "fl-7",
+      floor_code: "FL-07",
+      floor_label: "Floor 07 (Sky Lounge & Executive Boardroom)",
+      base_elevation: 944.5,
+      ceiling_elevation: 948.5,
+      floor_area_sqm: 240.0,
+      is_unsanctioned: false,
+      units: [],
+    },
+    {
+      id: "fl-6",
+      floor_code: "FL-06",
+      floor_label: "Floor 06 (Innovation & R&D Hub)",
+      base_elevation: 940.5,
+      ceiling_elevation: 944.5,
+      floor_area_sqm: 240.0,
+      is_unsanctioned: false,
+      units: [],
+    },
+    {
+      id: "fl-5",
+      floor_code: "FL-05",
+      floor_label: "Floor 05 (Corporate Legal & Advisory)",
+      base_elevation: 936.5,
+      ceiling_elevation: 940.5,
+      floor_area_sqm: 240.0,
+      is_unsanctioned: false,
+      units: [],
+    },
+    {
+      id: "fl-4",
+      floor_code: "FL-04",
+      floor_label: "Floor 04 (Tech Workstations & Open Office)",
+      base_elevation: 932.5,
+      ceiling_elevation: 936.5,
+      floor_area_sqm: 240.0,
+      is_unsanctioned: false,
+      units: [],
+    },
     {
       id: "fl-3",
       floor_code: "FL-03",
-      floor_label: "Floor 03 (Executive Suite)",
-      base_elevation: 934.5,
-      ceiling_elevation: 941.5,
+      floor_label: "Floor 03 (Executive Suite · Cadastral Discrepancy)",
+      base_elevation: 928.5,
+      ceiling_elevation: 932.5,
       floor_area_sqm: 240.0,
       is_unsanctioned: true,
       units: [],
@@ -95,9 +135,9 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
     {
       id: "fl-2",
       floor_code: "FL-02",
-      floor_label: "Floor 02 (First Floor)",
-      base_elevation: 927.5,
-      ceiling_elevation: 934.5,
+      floor_label: "Floor 02 (Commercial Banking & Advisory)",
+      base_elevation: 924.5,
+      ceiling_elevation: 928.5,
       floor_area_sqm: 240.0,
       is_unsanctioned: false,
       units: [],
@@ -105,9 +145,9 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
     {
       id: "fl-1",
       floor_code: "FL-01",
-      floor_label: "Floor 01 (Ground Floor)",
+      floor_label: "Floor 01 (Ground Lobby & Retail Arcade)",
       base_elevation: 920.5,
-      ceiling_elevation: 927.5,
+      ceiling_elevation: 924.5,
       floor_area_sqm: 240.0,
       is_unsanctioned: false,
       units: [],
@@ -139,11 +179,11 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <div className="text-[11px] leading-relaxed">
               <span className="font-bold text-rose-200 block">
-                Spatial Variance Detected (+3.00m)
+                Spatial Variance Detected (+3.00m on FL-03)
               </span>
               <span className="text-rose-300/80 block mt-0.5">
-                Observed height (14.5m) exceeds sanctioned limit (11.5m). Floor 03 represents an
-                unsanctioned vertical addition.
+                Observed structure height (28.0m) exceeds sanctioned limit (20.0m). Floor 03 represents an
+                unsanctioned surveyed addition with vertical variance.
               </span>
             </div>
           </div>
@@ -154,18 +194,18 @@ export const BuildingInspector: React.FC<BuildingInspectorProps> = ({
           <div className="grid grid-cols-2 gap-2">
             <InspectorStat
               label="Observed Height"
-              value={meta.observed_height ?? 14.5}
+              value={meta.observed_height ?? 28.0}
               unit="m"
               badge="LOD2"
               badgeType={hasDiscrepancy ? "warning" : "computed"}
-              subtext={`Sanctioned: ${meta.sanctioned_height ?? 11.5}m`}
+              subtext={`Sanctioned: ${meta.sanctioned_height ?? 20.0}m`}
             />
             <InspectorStat
               label="Floor Stack"
-              value={`${meta.detected_floors ?? 4} Floors`}
-              badge={hasDiscrepancy ? "+1 FLOOR" : "MATCH"}
+              value={`${meta.detected_floors ?? 7} Floors`}
+              badge={hasDiscrepancy ? "+2 FLOORS" : "MATCH"}
               badgeType={hasDiscrepancy ? "warning" : "authoritative"}
-              subtext={`Sanctioned: ${meta.sanctioned_floors ?? 3} Floors`}
+              subtext={`Sanctioned: ${meta.sanctioned_floors ?? 5} Floors`}
             />
             <InspectorStat
               label="Ground Elevation"

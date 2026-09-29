@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LayoutGrid, DoorOpen, ArrowUpRight, Compass } from "lucide-react";
+import { LayoutGrid, DoorOpen, ArrowUpRight, Compass, Info } from "lucide-react";
 import { ActiveSpatialSelection } from "@/types/selection";
 import { SpatialLevel } from "@/components/workspace/WorkspaceBreadcrumb";
 import { InspectorHeader } from "./InspectorHeader";
@@ -34,49 +34,79 @@ export const RoomInspector: React.FC<RoomInspectorProps> = ({
   const roomId = selection.entityId || "room-302";
 
   const getFallbackElements = (rId: string) => {
-    if (rId.includes("302")) {
+    if (rId.includes("101")) {
       return [
-        {
-          id: "door-302",
-          name: "Door D-302-A (Egress Access)",
-          type: "DOOR",
-          dimensions: "1.0m × 2.1m",
-          material: "Solid Hardwood / Fire-Rated 60min",
-        },
-        {
-          id: "window-302",
-          name: "Window W-302-A (Curtain Glazing)",
-          type: "WINDOW",
-          dimensions: "2.4m × 1.8m",
-          material: "Double-Glazed Low-E Architectural Glass",
-        },
+        { id: "door-101", name: "Main Double Glass Entrance Doors", type: "DOOR", dimensions: "2.4m × 3.0m", material: "Toughened Frameless Glass" },
+        { id: "window-101", name: "Storefront Facade Glazing", type: "WINDOW", dimensions: "6.0m × 3.5m", material: "Low-E Double Glazing" },
+      ];
+    } else if (rId.includes("102")) {
+      return [
+        { id: "door-102", name: "Retail Concourse Door", type: "DOOR", dimensions: "1.2m × 2.4m", material: "Anodized Aluminum" },
+        { id: "window-102", name: "Retail Display Window", type: "WINDOW", dimensions: "4.0m × 2.4m", material: "Clear Laminated Glass" },
+      ];
+    } else if (rId.includes("201")) {
+      return [
+        { id: "door-201", name: "Banking Hall Access Door", type: "DOOR", dimensions: "1.2m × 2.4m", material: "Reinforced Security Door" },
+        { id: "window-201", name: "Perimeter Ribbon Glazing", type: "WINDOW", dimensions: "3.5m × 1.8m", material: "Double Glazed Tinted" },
+      ];
+    } else if (rId.includes("202")) {
+      return [
+        { id: "door-202", name: "Advisory Chamber Door", type: "DOOR", dimensions: "1.0m × 2.4m", material: "Solid Teak Door" },
+        { id: "window-202", name: "East Facade Window", type: "WINDOW", dimensions: "2.5m × 1.8m", material: "Acoustic Glazing" },
       ];
     } else if (rId.includes("301")) {
       return [
-        {
-          id: "door-301",
-          name: "Door D-301-A (Conference Entry)",
-          type: "DOOR",
-          dimensions: "1.8m × 2.4m",
-          material: "Frameless Toughened Glass Double-Leaf",
-        },
-        {
-          id: "window-301",
-          name: "Window W-301-A (Ribbon Facade Window)",
-          type: "WINDOW",
-          dimensions: "4.0m × 1.5m",
-          material: "Acoustic Double Glazing / Bronze Tint",
-        },
+        { id: "door-301", name: "Door D-301-A (Conference Entry)", type: "DOOR", dimensions: "1.8m × 2.4m", material: "Frameless Toughened Glass Double-Leaf" },
+        { id: "window-301", name: "Window W-301-A (Ribbon Facade Window)", type: "WINDOW", dimensions: "4.0m × 1.5m", material: "Acoustic Double Glazing / Bronze Tint" },
+      ];
+    } else if (rId.includes("302")) {
+      return [
+        { id: "door-302", name: "Door D-302-A (Egress Access)", type: "DOOR", dimensions: "1.0m × 2.1m", material: "Solid Hardwood / Fire-Rated 60min" },
+        { id: "window-302", name: "Window W-302-A (Curtain Glazing)", type: "WINDOW", dimensions: "2.4m × 1.8m", material: "Double-Glazed Low-E Architectural Glass" },
+      ];
+    } else if (rId.includes("401")) {
+      return [
+        { id: "door-401", name: "Access Keycard Door", type: "DOOR", dimensions: "1.1m × 2.4m", material: "Steel Frame Glass" },
+        { id: "window-401", name: "West Ribbon Window", type: "WINDOW", dimensions: "5.0m × 1.8m", material: "Double Glazed" },
+      ];
+    } else if (rId.includes("402")) {
+      return [
+        { id: "door-402", name: "Acoustic Sliding Door", type: "DOOR", dimensions: "1.0m × 2.4m", material: "Laminated Acoustic Glass" },
+        { id: "window-402", name: "East Facing Window", type: "WINDOW", dimensions: "3.0m × 1.8m", material: "Low-E Glazed" },
+      ];
+    } else if (rId.includes("501")) {
+      return [
+        { id: "door-501", name: "Chambers Entry Door", type: "DOOR", dimensions: "1.0m × 2.4m", material: "Solid Walnut" },
+        { id: "window-501", name: "West Glazing Unit", type: "WINDOW", dimensions: "3.5m × 1.8m", material: "Tinted Double Glazed" },
+      ];
+    } else if (rId.includes("502")) {
+      return [
+        { id: "door-502", name: "Partner Suite Door", type: "DOOR", dimensions: "1.0m × 2.4m", material: "Solid Walnut with Brass Fittings" },
+        { id: "window-502", name: "East Skyline Window", type: "WINDOW", dimensions: "3.5m × 1.8m", material: "Low-E Glazing" },
+      ];
+    } else if (rId.includes("601")) {
+      return [
+        { id: "door-601", name: "Air-Lock Sealed Door", type: "DOOR", dimensions: "1.2m × 2.4m", material: "Hermetically Sealed Steel" },
+        { id: "window-601", name: "Observation Window", type: "WINDOW", dimensions: "3.0m × 1.8m", material: "Safety Laminated" },
+      ];
+    } else if (rId.includes("602")) {
+      return [
+        { id: "door-602", name: "Double Studio Door", type: "DOOR", dimensions: "1.8m × 2.4m", material: "Aluminum Frame" },
+        { id: "window-602", name: "North Glazing", type: "WINDOW", dimensions: "4.0m × 1.8m", material: "Clear Insulated" },
+      ];
+    } else if (rId.includes("701")) {
+      return [
+        { id: "door-701", name: "Sky Terrace Sliding Door", type: "DOOR", dimensions: "2.4m × 2.8m", material: "Double Sliding Glass" },
+        { id: "window-701", name: "Floor-to-Ceiling Panoramic Window", type: "WINDOW", dimensions: "6.0m × 2.8m", material: "Solar Control Triple Glazing" },
+      ];
+    } else if (rId.includes("702")) {
+      return [
+        { id: "door-702", name: "Boardroom Double Door", type: "DOOR", dimensions: "1.8m × 2.8m", material: "Smoked Glass with Bronze Trim" },
+        { id: "window-702", name: "Bengaluru Skyline Panoramic Window", type: "WINDOW", dimensions: "6.0m × 2.8m", material: "Acoustic Low-E Triple Glazing" },
       ];
     } else {
       return [
-        {
-          id: `door-${rId.replace("room-", "")}`,
-          name: `Door D-${rId.replace("room-", "")}`,
-          type: "DOOR",
-          dimensions: "1.0m × 2.1m",
-          material: "Flush Timber Door",
-        },
+        { id: `door-${rId.replace("room-", "")}`, name: `Door D-${rId.replace("room-", "")}`, type: "DOOR", dimensions: "1.0m × 2.1m", material: "Flush Timber Door" },
       ];
     }
   };
@@ -84,6 +114,7 @@ export const RoomInspector: React.FC<RoomInspectorProps> = ({
   const childElements = (roomNode?.elements && roomNode.elements.length > 0)
     ? roomNode.elements
     : getFallbackElements(roomId);
+  const isIllustrative = selection.source === "ILLUSTRATIVE";
 
   return (
     <>
@@ -100,6 +131,20 @@ export const RoomInspector: React.FC<RoomInspectorProps> = ({
       />
 
       <div className="overflow-y-auto flex-1 p-0 divide-y divide-[rgba(244,240,232,0.06)]">
+        {/* Illustrative Notice */}
+        {isIllustrative && (
+          <div className="p-3 bg-[#1A201D] border-b border-[#23847D]/30 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-[#2EB8B0] shrink-0 mt-0.5" />
+            <div className="text-[11px] leading-relaxed">
+              <span className="font-bold text-[#E5F2EC] block">
+                Demonstration Interior Elements
+              </span>
+              <span className="text-[#8FA89B] block mt-0.5">
+                Doors, windows, and partition envelopes are modeled with illustrative BIM architectural components.
+              </span>
+            </div>
+          </div>
+        )}
         {/* Section 1: Room Dimensions */}
         <InspectorSection title="Room Spatial Metrics" defaultOpen={true}>
           <div className="grid grid-cols-2 gap-2">

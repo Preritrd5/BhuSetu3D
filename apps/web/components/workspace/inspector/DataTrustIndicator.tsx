@@ -50,6 +50,16 @@ export const DataTrustIndicator: React.FC<DataTrustIndicatorProps> = ({
             <span>AI-DERIVED</span>
           </span>
         );
+      case "ILLUSTRATIVE":
+        return (
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/35 text-[10px] font-mono font-medium"
+            title="Demonstration 3D Spatial Geometry (Illustrative — Not Authoritative Cadastral Data)"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C47B50]" />
+            <span>ILLUSTRATIVE (DEMO)</span>
+          </span>
+        );
       case "INFERRED":
         return (
           <span

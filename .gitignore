@@ -58,4 +58,7 @@ Thumbs.db
 
 # Database & Local Run Data
 scratch/
+storage/uploads/
+apps/api/storage/uploads/
+*.tsbuildinfo
 *.log

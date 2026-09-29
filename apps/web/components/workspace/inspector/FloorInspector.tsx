@@ -8,6 +8,8 @@ import {
   AlertTriangle,
   ArrowUpRight,
   Compass,
+  Info,
+  ShieldCheck,
 } from "lucide-react";
 import { ActiveSpatialSelection } from "@/types/selection";
 import { SpatialLevel } from "@/components/workspace/WorkspaceBreadcrumb";
@@ -48,72 +50,157 @@ export const FloorInspector: React.FC<FloorInspectorProps> = ({
   const meta = selection.metadata || {};
   const floorCode = meta.floor_code || selection.entityId || "FL-03";
 
-  // Canonical fallback units per floor
+  // Canonical fallback units per floor (FL-01 to FL-07)
   const getFallbackUnits = (code: string) => {
-    if (code === "FL-01") {
-      return [
-        {
-          id: "unit-101",
-          unit_number: "unit-101",
-          unit_label: "Unit 101 · Reception & Lobby",
-          unit_type: "COMMERCIAL",
-          carpet_area_sqm: 110.0,
-          ulpin_3d: "KA-BLR-2026-P102-U101",
-          rooms: [],
-        },
-        {
-          id: "unit-102",
-          unit_number: "unit-102",
-          unit_label: "Unit 102 · Retail Arcade",
-          unit_type: "COMMERCIAL",
-          carpet_area_sqm: 85.0,
-          ulpin_3d: "KA-BLR-2026-P102-U102",
-          rooms: [],
-        },
-      ];
-    } else if (code === "FL-02") {
-      return [
-        {
-          id: "unit-201",
-          unit_number: "unit-201",
-          unit_label: "Unit 201 · Collaborative Work",
-          unit_type: "COMMERCIAL",
-          carpet_area_sqm: 115.0,
-          ulpin_3d: "KA-BLR-2026-P102-U201",
-          rooms: [],
-        },
-        {
-          id: "unit-202",
-          unit_number: "unit-202",
-          unit_label: "Unit 202 · Innovation Lab",
-          unit_type: "COMMERCIAL",
-          carpet_area_sqm: 90.0,
-          ulpin_3d: "KA-BLR-2026-P102-U202",
-          rooms: [],
-        },
-      ];
-    } else {
-      // Default: FL-03
-      return [
-        {
-          id: "unit-301",
-          unit_number: "unit-301",
-          unit_label: "Unit 301 · Conference Hall",
-          unit_type: "COMMERCIAL",
-          carpet_area_sqm: 118.0,
-          ulpin_3d: "KA-BLR-2026-P102-U301",
-          rooms: [],
-        },
-        {
-          id: "unit-302",
-          unit_number: "unit-302",
-          unit_label: "Unit 302 · Executive Suite",
-          unit_type: "COMMERCIAL",
-          carpet_area_sqm: 88.0,
-          ulpin_3d: "KA-BLR-2026-P102-U302",
-          rooms: [],
-        },
-      ];
+    switch (code) {
+      case "FL-01":
+        return [
+          {
+            id: "unit-101",
+            unit_number: "unit-101",
+            unit_label: "Unit 101 · Grand Entrance Lobby & Reception",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 110.0,
+            ulpin_3d: "KA-BLR-2026-P102-U101",
+            rooms: [],
+          },
+          {
+            id: "unit-102",
+            unit_number: "unit-102",
+            unit_label: "Unit 102 · Retail Arcade & Cafe Concourse",
+            unit_type: "RETAIL",
+            carpet_area_sqm: 85.0,
+            ulpin_3d: "KA-BLR-2026-P102-U102",
+            rooms: [],
+          },
+        ];
+      case "FL-02":
+        return [
+          {
+            id: "unit-201",
+            unit_number: "unit-201",
+            unit_label: "Unit 201 · Commercial Banking Operations",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 115.0,
+            ulpin_3d: "KA-BLR-2026-P102-U201",
+            rooms: [],
+          },
+          {
+            id: "unit-202",
+            unit_number: "unit-202",
+            unit_label: "Unit 202 · Private Wealth Client Suites",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 90.0,
+            ulpin_3d: "KA-BLR-2026-P102-U202",
+            rooms: [],
+          },
+        ];
+      case "FL-04":
+        return [
+          {
+            id: "unit-401",
+            unit_number: "unit-401",
+            unit_label: "Unit 401 · Open Tech Collaboration Studio",
+            unit_type: "OFFICE",
+            carpet_area_sqm: 120.0,
+            ulpin_3d: "KA-BLR-2026-P102-U401",
+            rooms: [],
+          },
+          {
+            id: "unit-402",
+            unit_number: "unit-402",
+            unit_label: "Unit 402 · Scrum & Meeting Pods",
+            unit_type: "OFFICE",
+            carpet_area_sqm: 85.0,
+            ulpin_3d: "KA-BLR-2026-P102-U402",
+            rooms: [],
+          },
+        ];
+      case "FL-05":
+        return [
+          {
+            id: "unit-501",
+            unit_number: "unit-501",
+            unit_label: "Unit 501 · Corporate Legal Advisory",
+            unit_type: "OFFICE",
+            carpet_area_sqm: 110.0,
+            ulpin_3d: "KA-BLR-2026-P102-U501",
+            rooms: [],
+          },
+          {
+            id: "unit-502",
+            unit_number: "unit-502",
+            unit_label: "Unit 502 · Senior Partner Chambers",
+            unit_type: "OFFICE",
+            carpet_area_sqm: 95.0,
+            ulpin_3d: "KA-BLR-2026-P102-U502",
+            rooms: [],
+          },
+        ];
+      case "FL-06":
+        return [
+          {
+            id: "unit-601",
+            unit_number: "unit-601",
+            unit_label: "Unit 601 · Advanced R&D Laboratory",
+            unit_type: "LABORATORY",
+            carpet_area_sqm: 115.0,
+            ulpin_3d: "KA-BLR-2026-P102-U601",
+            rooms: [],
+          },
+          {
+            id: "unit-602",
+            unit_number: "unit-602",
+            unit_label: "Unit 602 · Prototyping & Design Studio",
+            unit_type: "STUDIO",
+            carpet_area_sqm: 90.0,
+            ulpin_3d: "KA-BLR-2026-P102-U602",
+            rooms: [],
+          },
+        ];
+      case "FL-07":
+        return [
+          {
+            id: "unit-701",
+            unit_number: "unit-701",
+            unit_label: "Unit 701 · Sky Lounge & Reception Atrium",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 105.0,
+            ulpin_3d: "KA-BLR-2026-P102-U701",
+            rooms: [],
+          },
+          {
+            id: "unit-702",
+            unit_number: "unit-702",
+            unit_label: "Unit 702 · Panoramic Boardroom & CEO Chamber",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 100.0,
+            ulpin_3d: "KA-BLR-2026-P102-U702",
+            rooms: [],
+          },
+        ];
+      case "FL-03":
+      default:
+        return [
+          {
+            id: "unit-301",
+            unit_number: "unit-301",
+            unit_label: "Unit 301 · Board Conference Hall",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 118.0,
+            ulpin_3d: "KA-BLR-2026-P102-U301",
+            rooms: [],
+          },
+          {
+            id: "unit-302",
+            unit_number: "unit-302",
+            unit_label: "Unit 302 · Executive Office Suite",
+            unit_type: "COMMERCIAL",
+            carpet_area_sqm: 88.0,
+            ulpin_3d: "KA-BLR-2026-P102-U302",
+            rooms: [],
+          },
+        ];
     }
   };
 
@@ -121,6 +208,7 @@ export const FloorInspector: React.FC<FloorInspectorProps> = ({
     ? floorNode.units
     : getFallbackUnits(floorCode);
   const isUnsanctioned = meta.is_unsanctioned || floorCode === "FL-03";
+  const isIllustrative = !isUnsanctioned && (selection.source === "ILLUSTRATIVE" || floorCode !== "FL-03");
 
   return (
     <>
@@ -137,17 +225,32 @@ export const FloorInspector: React.FC<FloorInspectorProps> = ({
       />
 
       <div className="overflow-y-auto flex-1 p-0 divide-y divide-[rgba(244,240,232,0.06)]">
-        {/* Unsanctioned Floor Notice */}
+        {/* Unsanctioned Floor Notice (Floor 03 Discrepancy) */}
         {isUnsanctioned && (
           <div className="p-3.5 bg-rose-950/40 border-b border-rose-800/50 flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
             <div className="text-[11px] leading-relaxed">
               <span className="font-bold text-rose-200 block">
-                Unsanctioned Vertical Floor (+4.0m Slab)
+                Unsanctioned Surveyed Floor (+4.0m Slab)
               </span>
               <span className="text-rose-300/80 block mt-0.5">
-                Floor constructed above sanctioned ceiling elevation. Not listed in approved
-                municipal plan sanction #BBMP/WZ/2022/4102.
+                Floor slab surveyed above sanctioned height envelope. Discrepancy confirmed against
+                municipal sanction plan BBMP/WZ/2022/4102.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Illustrative Demonstration Geometry Notice */}
+        {isIllustrative && (
+          <div className="p-3 bg-[#1A201D] border-b border-[#23847D]/30 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-[#2EB8B0] shrink-0 mt-0.5" />
+            <div className="text-[11px] leading-relaxed">
+              <span className="font-bold text-[#E5F2EC] block">
+                Demonstration Digital Twin Level
+              </span>
+              <span className="text-[#8FA89B] block mt-0.5">
+                Volumetric structure and interior units are rendered using illustrative architectural BIM geometry for spatial workflow and navigation demonstration.
               </span>
             </div>
           </div>

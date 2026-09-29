@@ -1186,54 +1186,147 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
 
     if (!isCutawayLevel || !selectedBuildingId) return;
 
-    // Determine floor elevation band based on selectedFloorId
-    // FL-01: 0.0 - 7.0m | FL-02: 7.0 - 14.0m | FL-03: 14.0 - 21.0m
-    const FL_HEIGHT = 7.0;
-    const FL_GAP = 3.5;
+    // Determine floor elevation band based on selectedFloorId (7 Floors, 4.0m per floor)
+    const FL_HEIGHT = 4.0;
+    const FL_GAP = 2.0;
 
-    let floorBaseM = 14.0; // Default FL-03
-    let floorLabel = "Floor 03";
-    let floorCode = "FL-03";
-    let unitAId = "unit-301";
-    let unitALabel = "Unit 301 · Conference Hall";
-    let unitBId = "unit-302";
-    let unitBLabel = "Unit 302 · Executive Suite";
-    let doorId = "door-302";
-    let doorLabel = "Door D-302-A (Egress Door)";
+    const SEVEN_FLOOR_CONFIGS: Record<string, {
+      index: number;
+      label: string;
+      code: string;
+      unitAId: string;
+      unitALabel: string;
+      unitBId: string;
+      unitBLabel: string;
+      doorAId: string;
+      doorBId: string;
+      doorBLabel: string;
+      windowAId: string;
+      windowBId: string;
+      isAuthoritative?: boolean;
+    }> = {
+      "FL-01": {
+        index: 0,
+        label: "Floor 01 (Ground Lobby & Retail Concourse)",
+        code: "FL-01",
+        unitAId: "unit-101",
+        unitALabel: "Unit 101 · Grand Entrance Lobby & Reception",
+        unitBId: "unit-102",
+        unitBLabel: "Unit 102 · Retail Arcade & Cafe Concourse",
+        doorAId: "door-101",
+        doorBId: "door-102",
+        doorBLabel: "Door D-102 (Retail Concourse Entry)",
+        windowAId: "window-101",
+        windowBId: "window-102",
+        isAuthoritative: false,
+      },
+      "FL-02": {
+        index: 1,
+        label: "Floor 02 (Commercial Banking & Advisory)",
+        code: "FL-02",
+        unitAId: "unit-201",
+        unitALabel: "Unit 201 · Commercial Banking Operations",
+        unitBId: "unit-202",
+        unitBLabel: "Unit 202 · Private Wealth Client Suites",
+        doorAId: "door-201",
+        doorBId: "door-202",
+        doorBLabel: "Door D-202 (Advisory Access)",
+        windowAId: "window-201",
+        windowBId: "window-202",
+        isAuthoritative: false,
+      },
+      "FL-03": {
+        index: 2,
+        label: "Floor 03 (Executive Suite · Cadastral Discrepancy)",
+        code: "FL-03",
+        unitAId: "unit-301",
+        unitALabel: "Unit 301 · Board Conference Hall",
+        unitBId: "unit-302",
+        unitBLabel: "Unit 302 · Executive Office Suite",
+        doorAId: "door-301",
+        doorBId: "door-302",
+        doorBLabel: "Door D-302-A (Egress Door)",
+        windowAId: "window-301",
+        windowBId: "window-302",
+        isAuthoritative: true, // Surveyed cadastral floor with conflict
+      },
+      "FL-04": {
+        index: 3,
+        label: "Floor 04 (Tech Workstations & Open Office)",
+        code: "FL-04",
+        unitAId: "unit-401",
+        unitALabel: "Unit 401 · Open Tech Collaboration Studio",
+        unitBId: "unit-402",
+        unitBLabel: "Unit 402 · Scrum & Meeting Pods",
+        doorAId: "door-401",
+        doorBId: "door-402",
+        doorBLabel: "Door D-402 (Studio Entry)",
+        windowAId: "window-401",
+        windowBId: "window-402",
+        isAuthoritative: false,
+      },
+      "FL-05": {
+        index: 4,
+        label: "Floor 05 (Corporate Legal & Advisory)",
+        code: "FL-05",
+        unitAId: "unit-501",
+        unitALabel: "Unit 501 · Corporate Legal Advisory",
+        unitBId: "unit-502",
+        unitBLabel: "Unit 502 · Senior Partner Chambers",
+        doorAId: "door-501",
+        doorBId: "door-502",
+        doorBLabel: "Door D-502 (Chambers Entry)",
+        windowAId: "window-501",
+        windowBId: "window-502",
+        isAuthoritative: false,
+      },
+      "FL-06": {
+        index: 5,
+        label: "Floor 06 (Innovation & R&D Hub)",
+        code: "FL-06",
+        unitAId: "unit-601",
+        unitALabel: "Unit 601 · Advanced R&D Laboratory",
+        unitBId: "unit-602",
+        unitBLabel: "Unit 602 · Prototyping & Design Studio",
+        doorAId: "door-601",
+        doorBId: "door-602",
+        doorBLabel: "Door D-602 (Lab Security Door)",
+        windowAId: "window-601",
+        windowBId: "window-602",
+        isAuthoritative: false,
+      },
+      "FL-07": {
+        index: 6,
+        label: "Floor 07 (Sky Lounge & Executive Boardroom)",
+        code: "FL-07",
+        unitAId: "unit-701",
+        unitALabel: "Unit 701 · Sky Lounge & Reception Atrium",
+        unitBId: "unit-702",
+        unitBLabel: "Unit 702 · Panoramic Boardroom & CEO Chamber",
+        doorAId: "door-701",
+        doorBId: "door-702",
+        doorBLabel: "Door D-702 (Boardroom Glass Double Door)",
+        windowAId: "window-701",
+        windowBId: "window-702",
+        isAuthoritative: false,
+      },
+    };
 
-    if (selectedFloorId === "FL-01") {
-      floorBaseM = explodeFloors ? 0.0 : 0.0;
-      floorLabel = "Floor 01 (Ground Floor)";
-      floorCode = "FL-01";
-      unitAId = "unit-101";
-      unitALabel = "Unit 101 · Reception & Lobby";
-      unitBId = "unit-102";
-      unitBLabel = "Unit 102 · Commercial Retail";
-      doorId = "door-102";
-      doorLabel = "Door D-102-A (Entrance Door)";
-    } else if (selectedFloorId === "FL-02") {
-      floorBaseM = explodeFloors ? FL_HEIGHT + FL_GAP : FL_HEIGHT;
-      floorLabel = "Floor 02 (First Floor)";
-      floorCode = "FL-02";
-      unitAId = "unit-201";
-      unitALabel = "Unit 201 · Collaborative Work";
-      unitBId = "unit-202";
-      unitBLabel = "Unit 202 · Innovation Lab";
-      doorId = "door-202";
-      doorLabel = "Door D-202-A (Access Door)";
-    } else {
-      // Default: FL-03
-      floorBaseM = explodeFloors ? (FL_HEIGHT + FL_GAP) * 2 : FL_HEIGHT * 2;
-      floorLabel = "Floor 03 (Executive Suite)";
-      floorCode = "FL-03";
-    }
+    const cfg = (selectedFloorId && SEVEN_FLOOR_CONFIGS[selectedFloorId])
+      ? SEVEN_FLOOR_CONFIGS[selectedFloorId]
+      : SEVEN_FLOOR_CONFIGS["FL-03"]; // Default to FL-03
+
+    const floorIndex = cfg.index;
+    const floorBaseM = explodeFloors
+      ? floorIndex * (FL_HEIGHT + FL_GAP)
+      : floorIndex * FL_HEIGHT;
 
     const zBase = floorBaseM;
     const zCeil = floorBaseM + FL_HEIGHT;
 
-    // A. Concrete Floor Slab Deck (Light Slate Gray)
+    // A. Concrete Floor Slab Deck (Light Slate Gray with perimeter outline)
     const floorSlabEntity = viewer.entities.add({
-      name: `${floorLabel} Concrete Slab Deck`,
+      name: `${cfg.label} Concrete Slab Deck`,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57206, 12.99835,
@@ -1250,17 +1343,82 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: 1.5,
       },
     });
-    (floorSlabEntity as any)._bhuFloorId = floorCode;
+    (floorSlabEntity as any)._bhuFloorId = cfg.code;
     interiorEntitiesRef.current.push(floorSlabEntity);
 
-    // B. Unit B / Room B (East Suite)
+    // B. Central Vertical Circulation Core: Dual Elevators + Fire Staircase
+    // Dual Elevator Shafts Enclosure (Concrete core)
+    const elevatorShaft = viewer.entities.add({
+      name: `${cfg.code} Elevator Shaft Core (2 Cabs)`,
+      polygon: {
+        hierarchy: Cesium.Cartesian3.fromDegreesArray([
+          77.57217, 12.99912,
+          77.57225, 12.99912,
+          77.57225, 12.99926,
+          77.57217, 12.99926,
+          77.57217, 12.99912,
+        ]),
+        height: zBase + 0.35,
+        extrudedHeight: zCeil,
+        material: Cesium.Color.fromCssColorString("#334155").withAlpha(0.95),
+        outline: true,
+        outlineColor: Cesium.Color.fromCssColorString("#64748B"),
+        outlineWidth: 1.5,
+      },
+    });
+    (elevatorShaft as any)._bhuElementId = "elevator-core";
+    interiorEntitiesRef.current.push(elevatorShaft);
+
+    // Elevator Doors (facing corridor)
+    const elevatorDoors = viewer.entities.add({
+      name: `${cfg.code} Stainless Steel Elevator Landing Doors`,
+      corridor: {
+        positions: Cesium.Cartesian3.fromDegreesArray([
+          77.57218, 12.99926,
+          77.57224, 12.99926,
+        ]),
+        width: 0.18,
+        height: zBase + 0.35,
+        extrudedHeight: zBase + 2.30,
+        material: Cesium.Color.fromCssColorString("#38BDF8").withAlpha(0.85),
+        outline: true,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 1.5,
+      },
+    });
+    (elevatorDoors as any)._bhuElementId = "elevator-doors";
+    interiorEntitiesRef.current.push(elevatorDoors);
+
+    // Fire Egress Staircase Shaft Enclosure
+    const stairwellShaft = viewer.entities.add({
+      name: `${cfg.code} Fire Egress Stairwell Shaft`,
+      polygon: {
+        hierarchy: Cesium.Cartesian3.fromDegreesArray([
+          77.57211, 12.99912,
+          77.57216, 12.99912,
+          77.57216, 12.99926,
+          77.57211, 12.99926,
+          77.57211, 12.99912,
+        ]),
+        height: zBase + 0.35,
+        extrudedHeight: zCeil,
+        material: Cesium.Color.fromCssColorString("#1E293B").withAlpha(0.92),
+        outline: true,
+        outlineColor: Cesium.Color.fromCssColorString("#475569"),
+        outlineWidth: 1.2,
+      },
+    });
+    (stairwellShaft as any)._bhuElementId = "stairwell-core";
+    interiorEntitiesRef.current.push(stairwellShaft);
+
+    // C. Unit B / Room B (East Suite)
     const isUnitBActive =
       currentLevel === "UNIT"
-        ? (selectedUnitId === unitBId || selectedRoomId === unitBId || selectedRoomId === `room-${unitBId.replace("unit-", "")}`)
-        : (selectedRoomId === `room-${unitBId.replace("unit-", "")}` || selectedElementId === doorId);
+        ? (selectedUnitId === cfg.unitBId || selectedRoomId === cfg.unitBId || selectedRoomId === `room-${cfg.unitBId.replace("unit-", "")}`)
+        : (selectedRoomId === `room-${cfg.unitBId.replace("unit-", "")}` || selectedElementId === cfg.doorBId || selectedElementId === cfg.windowBId);
 
     const roomBWalls = viewer.entities.add({
-      name: `${unitBLabel} Partition Walls`,
+      name: `${cfg.unitBLabel} Partition Walls`,
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray([
           77.57222, 12.9984,
@@ -1282,13 +1440,13 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: 1.5,
       },
     });
-    (roomBWalls as any)._bhuRoomId = `room-${unitBId.replace("unit-", "")}`;
-    (roomBWalls as any)._bhuUnitId = unitBId;
+    (roomBWalls as any)._bhuRoomId = `room-${cfg.unitBId.replace("unit-", "")}`;
+    (roomBWalls as any)._bhuUnitId = cfg.unitBId;
     interiorEntitiesRef.current.push(roomBWalls);
 
     // Unit B Carpet surface
     const roomBCarpet = viewer.entities.add({
-      name: unitBLabel,
+      name: cfg.unitBLabel,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57222, 12.9984,
@@ -1313,18 +1471,18 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: isUnitBActive ? 2.5 : 1.0,
       },
     });
-    (roomBCarpet as any)._bhuRoomId = `room-${unitBId.replace("unit-", "")}`;
-    (roomBCarpet as any)._bhuUnitId = unitBId;
+    (roomBCarpet as any)._bhuRoomId = `room-${cfg.unitBId.replace("unit-", "")}`;
+    (roomBCarpet as any)._bhuUnitId = cfg.unitBId;
     interiorEntitiesRef.current.push(roomBCarpet);
 
-    // C. Unit A / Room A (West Suite)
+    // D. Unit A / Room A (West Suite)
     const isUnitAActive =
       currentLevel === "UNIT"
-        ? (selectedUnitId === unitAId || selectedRoomId === unitAId || selectedRoomId === `room-${unitAId.replace("unit-", "")}`)
-        : (selectedRoomId === `room-${unitAId.replace("unit-", "")}`);
+        ? (selectedUnitId === cfg.unitAId || selectedRoomId === cfg.unitAId || selectedRoomId === `room-${cfg.unitAId.replace("unit-", "")}`)
+        : (selectedRoomId === `room-${cfg.unitAId.replace("unit-", "")}` || selectedElementId === cfg.doorAId || selectedElementId === cfg.windowAId);
 
     const roomAWalls = viewer.entities.add({
-      name: `${unitALabel} Partition Walls`,
+      name: `${cfg.unitALabel} Partition Walls`,
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray([
           77.57207, 12.9984,
@@ -1346,13 +1504,13 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: 1.5,
       },
     });
-    (roomAWalls as any)._bhuRoomId = `room-${unitAId.replace("unit-", "")}`;
-    (roomAWalls as any)._bhuUnitId = unitAId;
+    (roomAWalls as any)._bhuRoomId = `room-${cfg.unitAId.replace("unit-", "")}`;
+    (roomAWalls as any)._bhuUnitId = cfg.unitAId;
     interiorEntitiesRef.current.push(roomAWalls);
 
     // Unit A Carpet
     const roomACarpet = viewer.entities.add({
-      name: unitALabel,
+      name: cfg.unitALabel,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57207, 12.9984,
@@ -1377,14 +1535,14 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: isUnitAActive ? 2.5 : 1.0,
       },
     });
-    (roomACarpet as any)._bhuRoomId = `room-${unitAId.replace("unit-", "")}`;
-    (roomACarpet as any)._bhuUnitId = unitAId;
+    (roomACarpet as any)._bhuRoomId = `room-${cfg.unitAId.replace("unit-", "")}`;
+    (roomACarpet as any)._bhuUnitId = cfg.unitAId;
     interiorEntitiesRef.current.push(roomACarpet);
 
-    // D. Central Egress Corridor / Hall
+    // E. Central Egress Corridor / Hall
     const isCorridorSelected = currentLevel === "CORRIDOR";
     const corridorEntity = viewer.entities.add({
-      name: `${floorLabel} Egress Corridor`,
+      name: `${cfg.label} Egress Corridor`,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57207, 12.9991,
@@ -1405,13 +1563,13 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: 1.5,
       },
     });
-    (corridorEntity as any)._bhuCorridorId = `corridor-${floorCode.toLowerCase()}`;
+    (corridorEntity as any)._bhuCorridorId = `corridor-${cfg.code.toLowerCase()}`;
     interiorEntitiesRef.current.push(corridorEntity);
 
-    // E. Door Opening Frame
-    const isDoorSelected = selectedElementId === doorId;
-    const doorEntity = viewer.entities.add({
-      name: doorLabel,
+    // F. Door Elements: Door B (e.g. door-302) and Door A
+    const isDoorBSelected = selectedElementId === cfg.doorBId;
+    const doorBEntity = viewer.entities.add({
+      name: cfg.doorBLabel,
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray([
           77.57222, 12.9990,
@@ -1420,7 +1578,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         width: 0.18,
         height: zBase + 0.35,
         extrudedHeight: zBase + 2.40,
-        material: isDoorSelected
+        material: isDoorBSelected
           ? Cesium.Color.fromCssColorString("#C47B50").withAlpha(0.95)
           : Cesium.Color.fromCssColorString("#C47B50").withAlpha(0.70),
         outline: true,
@@ -1428,10 +1586,33 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: 2.0,
       },
     });
-    (doorEntity as any)._bhuElementId = doorId;
-    interiorEntitiesRef.current.push(doorEntity);
+    (doorBEntity as any)._bhuElementId = cfg.doorBId;
+    interiorEntitiesRef.current.push(doorBEntity);
 
-    // F. Structural Columns (C-1, C-2)
+    // G. Windows: Facade Glazing Window (e.g. window-302)
+    const isWindowBSelected = selectedElementId === cfg.windowBId;
+    const windowBEntity = viewer.entities.add({
+      name: `${cfg.code} Facade Window Unit East`,
+      corridor: {
+        positions: Cesium.Cartesian3.fromDegreesArray([
+          77.57235, 12.99850,
+          77.57235, 12.99890,
+        ]),
+        width: 0.12,
+        height: zBase + 0.90,
+        extrudedHeight: zBase + 2.50,
+        material: isWindowBSelected
+          ? Cesium.Color.fromCssColorString("#38BDF8").withAlpha(0.95)
+          : Cesium.Color.fromCssColorString("#0284C7").withAlpha(0.55),
+        outline: true,
+        outlineColor: isWindowBSelected ? Cesium.Color.WHITE : Cesium.Color.fromCssColorString("#38BDF8"),
+        outlineWidth: 2.0,
+      },
+    });
+    (windowBEntity as any)._bhuElementId = cfg.windowBId;
+    interiorEntitiesRef.current.push(windowBEntity);
+
+    // H. Structural Columns (C-1, C-2)
     [
       [77.57214, 12.9990],
       [77.57228, 12.9990],
@@ -1451,15 +1632,15 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       interiorEntitiesRef.current.push(colEntity);
     });
 
-    // G. Unit Centroid 3D Point Markers
+    // I. Unit Centroid 3D Point Markers
     [
-      { id: unitAId, no: unitALabel.split(" · ")[0], lng: 77.572135, lat: 12.9987 },
-      { id: unitBId, no: unitBLabel.split(" · ")[0], lng: 77.572285, lat: 12.9987 },
+      { id: cfg.unitAId, no: cfg.unitALabel.split(" · ")[0], lng: 77.572135, lat: 12.9987 },
+      { id: cfg.unitBId, no: cfg.unitBLabel.split(" · ")[0], lng: 77.572285, lat: 12.9987 },
     ].forEach((u) => {
       const isThisUnitActive =
         currentLevel === "UNIT"
           ? (selectedUnitId === u.id || selectedRoomId === u.id)
-          : (selectedRoomId === (u.id === unitAId ? `room-${unitAId.replace("unit-", "")}` : `room-${unitBId.replace("unit-", "")}`));
+          : (selectedRoomId === (u.id === cfg.unitAId ? `room-${cfg.unitAId.replace("unit-", "")}` : `room-${cfg.unitBId.replace("unit-", "")}`));
 
       const unitEntity = viewer.entities.add({
         name: u.no,
@@ -1467,7 +1648,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         point: {
           pixelSize: isThisUnitActive ? 13 : 9,
           color: isThisUnitActive
-            ? Cesium.Color.fromCssColorString(u.id === unitAId ? "#23847D" : "#C47B50")
+            ? Cesium.Color.fromCssColorString(u.id === cfg.unitAId ? "#23847D" : "#C47B50")
             : Cesium.Color.fromCssColorString("#64748B"),
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
@@ -1643,14 +1824,20 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
           duration: 1.5,
         });
       } else if (cameraPreset === "FLOOR") {
+        const floorNum = selectedFloorId
+          ? parseInt(selectedFloorId.replace("FL-0", "").replace("FL-", "")) || 3
+          : 3;
+        const floorIndex = Math.max(0, Math.min(6, floorNum - 1));
+        const floorMidZ = floorIndex * 4.0 + 2.0;
+        const camZ = explodeFloors ? floorIndex * 6.0 + 14.0 : floorMidZ + 14.0;
         viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, 18.0),
+          destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, camZ),
           orientation: {
             heading: Cesium.Math.toRadians(38.0),
-            pitch: Cesium.Math.toRadians(-30.0),
+            pitch: Cesium.Math.toRadians(-28.0),
             roll: 0.0,
           },
-          duration: 1.5,
+          duration: 1.4,
         });
       } else if (cameraPreset === "ROOM") {
         viewer.camera.flyTo({
@@ -1789,19 +1976,18 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         duration: 1.4,
       });
     } else if (currentLevel === "FLOOR") {
-      // Camera shows the specific floor clearly: altitude = 1 floor height × 3
-      // selectedFloorId determines vertical focus within the building
-      const floorHeightM = 7.0; // per floor
-      const floorIndex = selectedFloorId
-        ? (selectedFloorId === "FL-01" ? 0 : selectedFloorId === "FL-02" ? 1 : 2)
-        : 2; // default FL-03
-      const floorMidZ = floorIndex * floorHeightM + floorHeightM / 2;
-      const camZ = explodeFloors ? 26.0 : 18.0;
+      // Camera dynamically targets the specific floor (FL-01 to FL-07)
+      const floorNum = selectedFloorId
+        ? parseInt(selectedFloorId.replace("FL-0", "").replace("FL-", "")) || 3
+        : 3;
+      const floorIndex = Math.max(0, Math.min(6, floorNum - 1));
+      const floorMidZ = floorIndex * 4.0 + 2.0;
+      const camZ = explodeFloors ? floorIndex * 6.0 + 14.0 : floorMidZ + 14.0;
       viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, camZ),
         orientation: {
           heading: Cesium.Math.toRadians(38.0),
-          pitch: Cesium.Math.toRadians(-30.0),
+          pitch: Cesium.Math.toRadians(-28.0),
           roll: 0.0,
         },
         duration: 1.4,
@@ -2015,29 +2201,60 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             <span className="text-[10px] font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">
               FLOORS
             </span>
-            <span className="text-[9px] font-mono text-[#6F7772]">3 LEVELS</span>
+            <span className="text-[9px] font-mono text-[#C47B50] font-bold">7 LEVELS</span>
           </div>
 
-          {/* Floor Items (Rendered top to bottom: FL-03, FL-02, FL-01) */}
-          <div className="flex flex-col p-1 gap-1">
+          {/* Floor Items (Rendered top to bottom: FL-07 down to FL-01) */}
+          <div className="flex flex-col p-1 gap-0.5 max-h-[340px] overflow-y-auto">
             {[
+              {
+                id: "FL-07",
+                label: "Floor 07",
+                sublabel: "Sky Lounge",
+                badge: "DEMO",
+                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+              },
+              {
+                id: "FL-06",
+                label: "Floor 06",
+                sublabel: "R&D Studios",
+                badge: "DEMO",
+                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+              },
+              {
+                id: "FL-05",
+                label: "Floor 05",
+                sublabel: "Corporate Advisory",
+                badge: "DEMO",
+                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+              },
+              {
+                id: "FL-04",
+                label: "Floor 04",
+                sublabel: "Tech Workstations",
+                badge: "DEMO",
+                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+              },
               {
                 id: "FL-03",
                 label: "Floor 03",
-                sublabel: "Executive",
-                isUnsanctioned: true,
+                sublabel: "Executive Suite",
+                badge: "+3m AUTH",
+                badgeColor: "bg-rose-900/70 text-rose-200 font-bold",
               },
               {
                 id: "FL-02",
                 label: "Floor 02",
-                sublabel: "First Floor",
-                isUnsanctioned: false,
+                sublabel: "Commercial Banking",
+                badge: "DEMO",
+                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
               },
               {
                 id: "FL-01",
                 label: "Floor 01",
-                sublabel: "Ground Floor",
-                isUnsanctioned: false,
+                sublabel: "Ground Lobby",
+                badge: "DEMO",
+                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
               },
             ].map((fl) => {
               const isSelected = selectedFloorId === fl.id;
@@ -2045,7 +2262,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
                 <button
                   key={fl.id}
                   onClick={() => onSelectLevel("FLOOR", fl.id)}
-                  className={`px-2 py-1.5 rounded-[6px] text-left transition-all flex items-center justify-between group ${
+                  className={`px-2 py-1 rounded-[5px] text-left transition-all flex items-center justify-between group ${
                     isSelected
                       ? "bg-[#C47B50] text-[#F4F0E8] shadow-md font-bold"
                       : "hover:bg-[#1A201D] text-[#D9D2C5]"
@@ -2053,22 +2270,15 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1">
-                      <span className="text-[11px] font-mono font-semibold">{fl.label}</span>
-                      {fl.isUnsanctioned && (
-                        <span
-                          className={`text-[8px] font-mono px-1 rounded ${
-                            isSelected
-                              ? "bg-black/30 text-white"
-                              : "bg-rose-900/60 text-rose-300"
-                          }`}
-                          title="Unsanctioned Floor (+3.0m)"
-                        >
-                          +3m
-                        </span>
-                      )}
+                      <span className="text-[10px] font-mono font-semibold">{fl.label}</span>
+                      <span
+                        className={`text-[8px] font-mono px-1 rounded ${fl.badgeColor}`}
+                      >
+                        {fl.badge}
+                      </span>
                     </div>
                     <span
-                      className={`text-[9px] block truncate ${
+                      className={`text-[8.5px] block truncate ${
                         isSelected ? "text-[#F4F0E8]/80" : "text-[#77867C]"
                       }`}
                     >
@@ -2076,10 +2286,10 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
                     </span>
                   </div>
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       isSelected
                         ? "bg-white"
-                        : fl.isUnsanctioned
+                        : fl.id === "FL-03"
                         ? "bg-rose-400"
                         : "bg-[#23847D]"
                     }`}

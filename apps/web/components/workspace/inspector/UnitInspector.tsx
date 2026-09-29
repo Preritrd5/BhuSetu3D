@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LayoutGrid, DoorOpen, ArrowUpRight, Compass, ShieldCheck } from "lucide-react";
+import { LayoutGrid, DoorOpen, ArrowUpRight, Compass, ShieldCheck, Info } from "lucide-react";
 import { ActiveSpatialSelection } from "@/types/selection";
 import { SpatialLevel } from "@/components/workspace/WorkspaceBreadcrumb";
 import { InspectorHeader } from "./InspectorHeader";
@@ -34,47 +34,43 @@ export const UnitInspector: React.FC<UnitInspectorProps> = ({
   const unitNum = meta.unit_number || selection.entityId || "unit-302";
 
   const getFallbackRooms = (uNum: string) => {
-    const is302 = uNum.includes("302");
-    const is301 = uNum.includes("301");
-    if (is302) {
-      return [
-        {
-          id: "room-302",
-          name: "Executive Suite Primary Chamber",
-          type: "OFFICE",
-          area_sqm: 24.8,
-          dimensions: "6.2m × 4.0m",
-          material: "Granite Tile / Glass Partitions",
-        },
-      ];
-    } else if (is301) {
-      return [
-        {
-          id: "room-301",
-          name: "Board Conference Chamber",
-          type: "CONFERENCE",
-          area_sqm: 32.5,
-          dimensions: "6.5m × 5.0m",
-          material: "Acoustic Panel / Engineered Timber",
-        },
-      ];
+    if (uNum.includes("101")) {
+      return [{ id: "room-101", name: "Grand Entrance Lobby", type: "LOBBY", area_sqm: 110.0, dimensions: "11m × 10m", material: "Italian Marble / Glass Curtain" }];
+    } else if (uNum.includes("102")) {
+      return [{ id: "room-102", name: "Retail Arcade & Cafe", type: "RETAIL", area_sqm: 85.0, dimensions: "8.5m × 10m", material: "Granite Floor" }];
+    } else if (uNum.includes("201")) {
+      return [{ id: "room-201", name: "Banking Operations Chamber", type: "OFFICE", area_sqm: 115.0, dimensions: "11.5m × 10m", material: "Vitrified Tile" }];
+    } else if (uNum.includes("202")) {
+      return [{ id: "room-202", name: "Wealth Advisory Suites", type: "OFFICE", area_sqm: 90.0, dimensions: "9m × 10m", material: "Carpet Tile / Timber Panel" }];
+    } else if (uNum.includes("301")) {
+      return [{ id: "room-301", name: "Board Conference Chamber", type: "CONFERENCE", area_sqm: 32.5, dimensions: "6.5m × 5.0m", material: "Acoustic Slats / Timber" }];
+    } else if (uNum.includes("302")) {
+      return [{ id: "room-302", name: "Executive Suite Primary Chamber", type: "OFFICE", area_sqm: 24.8, dimensions: "6.2m × 4.0m", material: "Granite Tile / Glass Partitions" }];
+    } else if (uNum.includes("401")) {
+      return [{ id: "room-401", name: "Tech Open Collaboration Studio", type: "OFFICE", area_sqm: 120.0, dimensions: "12m × 10m", material: "Polished Concrete" }];
+    } else if (uNum.includes("402")) {
+      return [{ id: "room-402", name: "Scrum & Meeting Pods", type: "MEETING", area_sqm: 85.0, dimensions: "8.5m × 10m", material: "Acoustic Felt / Glass" }];
+    } else if (uNum.includes("501")) {
+      return [{ id: "room-501", name: "Legal Advisory Chamber", type: "OFFICE", area_sqm: 110.0, dimensions: "11m × 10m", material: "Hardwood Floor" }];
+    } else if (uNum.includes("502")) {
+      return [{ id: "room-502", name: "Partner Private Chambers", type: "OFFICE", area_sqm: 95.0, dimensions: "9.5m × 10m", material: "Plush Carpet" }];
+    } else if (uNum.includes("601")) {
+      return [{ id: "room-601", name: "Advanced R&D Clean Lab", type: "LABORATORY", area_sqm: 115.0, dimensions: "11.5m × 10m", material: "Epoxy Flooring" }];
+    } else if (uNum.includes("602")) {
+      return [{ id: "room-602", name: "Rapid Prototyping Studio", type: "STUDIO", area_sqm: 90.0, dimensions: "9m × 10m", material: "Industrial Resin" }];
+    } else if (uNum.includes("701")) {
+      return [{ id: "room-701", name: "Sky Lounge Reception Atrium", type: "LOUNGE", area_sqm: 105.0, dimensions: "10.5m × 10m", material: "Honed Quartzite / Glass Railings" }];
+    } else if (uNum.includes("702")) {
+      return [{ id: "room-702", name: "Executive Boardroom Chamber", type: "BOARDROOM", area_sqm: 100.0, dimensions: "10m × 10m", material: "Chevron Oak / Acoustic Suede" }];
     } else {
-      return [
-        {
-          id: `room-${uNum.replace("unit-", "")}`,
-          name: `${uNum} Main Space`,
-          type: "COMMERCIAL",
-          area_sqm: 28.0,
-          dimensions: "7.0m × 4.0m",
-          material: "Vitrified Tile",
-        },
-      ];
+      return [{ id: `room-${uNum.replace("unit-", "")}`, name: `${uNum} Main Space`, type: "COMMERCIAL", area_sqm: 28.0, dimensions: "7.0m × 4.0m", material: "Vitrified Tile" }];
     }
   };
 
   const rooms = (unitNode?.spatial_elements && unitNode.spatial_elements.length > 0)
     ? unitNode.spatial_elements
     : getFallbackRooms(unitNum);
+  const isIllustrative = selection.source === "ILLUSTRATIVE";
 
   return (
     <>
@@ -91,6 +87,20 @@ export const UnitInspector: React.FC<UnitInspectorProps> = ({
       />
 
       <div className="overflow-y-auto flex-1 p-0 divide-y divide-[rgba(244,240,232,0.06)]">
+        {/* Illustrative Notice */}
+        {isIllustrative && (
+          <div className="p-3 bg-[#1A201D] border-b border-[#23847D]/30 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-[#2EB8B0] shrink-0 mt-0.5" />
+            <div className="text-[11px] leading-relaxed">
+              <span className="font-bold text-[#E5F2EC] block">
+                Demonstration Unit Geometry
+              </span>
+              <span className="text-[#8FA89B] block mt-0.5">
+                Internal strata boundary and room partitions are modeled with illustrative BIM LoD3 geometry.
+              </span>
+            </div>
+          </div>
+        )}
         {/* Section 1: Unit Property Dimensions */}
         <InspectorSection title="Strata Unit Metrics" defaultOpen={true}>
           <div className="grid grid-cols-2 gap-2">
