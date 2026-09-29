@@ -105,15 +105,44 @@ export const SearchControl: React.FC<SearchControlProps> = ({
         }
 
         const res = await fetch(url, { headers });
+        let data: PropertySearchResultItem[] = [];
         if (res.ok) {
-          const data: PropertySearchResultItem[] = await res.json();
-          setResults(data);
-          setIsOpen(true);
-          setHasSearched(true);
-        } else {
-          setResults([]);
-          setHasSearched(true);
+          data = await res.json();
         }
+
+        // If search returned 0 items, check if the query was a land use keyword (e.g. Commercial, Residential, etc.)
+        if (data.length === 0) {
+          const norm = trimmed.toUpperCase().replace(/[\s-]+/g, "_");
+          const KNOWN_LUS = ["COMMERCIAL", "RESIDENTIAL", "INSTITUTIONAL", "MIXED_USE", "OPEN_RESERVE", "INDUSTRIAL", "AGRICULTURAL"];
+          const matched = KNOWN_LUS.find((lu) => lu === norm || lu.includes(norm) || norm.includes(lu));
+          if (matched) {
+            try {
+              const luRes = await fetch(`${API_BASE}/properties/geojson/parcels?land_use=${matched}&limit=20`, { headers });
+              if (luRes.ok) {
+                const geo = await luRes.json();
+                if (Array.isArray(geo.features) && geo.features.length > 0) {
+                  data = geo.features.map((f: any) => ({
+                    id: f.id,
+                    ulpin_2d: f.properties?.ulpin_2d || "PARCEL",
+                    survey_number: f.properties?.survey_number || "Survey",
+                    land_use: f.properties?.land_use || matched,
+                    recorded_area_sqm: f.properties?.recorded_area_sqm || 0,
+                    city_name: "Bengaluru Municipal Corporation",
+                    region_name: "Malleshwaram Zone",
+                    buildings_count: f.properties?.buildings_count || 0,
+                    center: [77.5714, 12.9976],
+                  }));
+                }
+              }
+            } catch (luErr) {
+              console.warn("Land use search fallback error:", luErr);
+            }
+          }
+        }
+
+        setResults(data);
+        setIsOpen(true);
+        setHasSearched(true);
       } catch (err) {
         console.error("Search query failed:", err);
         setResults([]);

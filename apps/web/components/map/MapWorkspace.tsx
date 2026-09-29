@@ -367,11 +367,31 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
 
       const bboxStr = `${minLon.toFixed(5)},${minLat.toFixed(5)},${maxLon.toFixed(5)},${maxLat.toFixed(5)}`;
 
+      const norm = searchQuery?.trim().toUpperCase().replace(/[\s-]+/g, "_");
+      const KNOWN_LAND_USES: Record<string, string> = {
+        COMMERCIAL: "COMMERCIAL",
+        RESIDENTIAL: "RESIDENTIAL",
+        INSTITUTIONAL: "INSTITUTIONAL",
+        MIXED_USE: "MIXED_USE",
+        OPEN_RESERVE: "OPEN_RESERVE",
+        PARK: "OPEN_RESERVE",
+        INDUSTRIAL: "INDUSTRIAL",
+        AGRICULTURAL: "AGRICULTURAL",
+      };
+      const matchedLU = norm ? KNOWN_LAND_USES[norm] : undefined;
+
       let parcelUrl = `${API_BASE}/properties/geojson/parcels?limit=500`;
 
-      // If not searching for a specific query, restrict to viewport bbox
-      if (!searchQuery?.trim()) {
-        parcelUrl += `&bbox=${bboxStr}`;
+      if (matchedLU) {
+        parcelUrl += `&land_use=${matchedLU}`;
+      } else {
+        // If not searching for a specific query, restrict to viewport bbox
+        if (!searchQuery?.trim()) {
+          parcelUrl += `&bbox=${bboxStr}`;
+        }
+        if (searchQuery && searchQuery.trim()) {
+          parcelUrl += `&q=${encodeURIComponent(searchQuery.trim())}`;
+        }
       }
 
       if (filters.cityId && isUUID(filters.cityId)) {
@@ -380,11 +400,8 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
       if (filters.regionId && isUUID(filters.regionId)) {
         parcelUrl += `&region_id=${filters.regionId}`;
       }
-      if (filters.landUse) {
+      if (filters.landUse && !matchedLU) {
         parcelUrl += `&land_use=${encodeURIComponent(filters.landUse)}`;
-      }
-      if (searchQuery && searchQuery.trim()) {
-        parcelUrl += `&q=${encodeURIComponent(searchQuery.trim())}`;
       }
 
       // 1. Fetch Parcels
