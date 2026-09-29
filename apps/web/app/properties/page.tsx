@@ -3,8 +3,10 @@
 /**
  * BhuSetu 3D 2D Parcel Mapping & Property Explorer Workspace
  * Evidence-Backed 3D Property Intelligence Platform
+ * Supports dynamic PostGIS filtering, search by ULPIN / Survey Number,
+ * layers control, and property inspection.
  */
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -22,6 +24,8 @@ import {
   Filter,
   ShieldCheck,
   Building2,
+  X,
+  Search,
 } from "lucide-react";
 
 function PropertiesExplorerContent() {
@@ -31,6 +35,9 @@ function PropertiesExplorerContent() {
   // Selection & Inspector State
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(urlParcelId || null);
   const [zoomTargetGeom, setZoomTargetGeom] = useState<any>(null);
+
+  // Search Query State
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Layers State
   const [activeLayers, setActiveLayers] = useState<ActiveLayersState>({
@@ -51,12 +58,12 @@ function PropertiesExplorerContent() {
   const [viewportMetrics, setViewportMetrics] = useState({
     lng: null as number | null,
     lat: null as number | null,
-    zoom: 13,
+    zoom: 14.5,
     featureCount: 0,
     isLoading: false,
   });
 
-  // If URL changes with ?parcel=..., synchronize selection
+  // Synchronize selection if URL changes
   useEffect(() => {
     if (urlParcelId && urlParcelId !== selectedParcelId) {
       setSelectedParcelId(urlParcelId);
@@ -69,7 +76,13 @@ function PropertiesExplorerContent() {
   };
 
   const handleSelectPropertyFromSearch = (item: PropertySearchResultItem) => {
+    if (!item || !item.id) {
+      setSelectedParcelId(null);
+      return;
+    }
     setSelectedParcelId(item.id);
+    setSearchQuery(item.ulpin_2d || item.survey_number);
+
     if (item.bbox) {
       const [minx, miny, maxx, maxy] = item.bbox;
       setZoomTargetGeom({
@@ -90,20 +103,47 @@ function PropertiesExplorerContent() {
         type: "Polygon",
         coordinates: [
           [
-            [lon - 0.001, lat - 0.001],
-            [lon + 0.001, lat - 0.001],
-            [lon + 0.001, lat + 0.001],
-            [lon - 0.001, lat + 0.001],
-            [lon - 0.001, lat - 0.001],
+            [lon - 0.0015, lat - 0.0015],
+            [lon + 0.0015, lat - 0.0015],
+            [lon + 0.0015, lat + 0.0015],
+            [lon - 0.0015, lat + 0.0015],
+            [lon - 0.0015, lat - 0.0015],
           ],
         ],
       });
     }
   };
 
+  const handleSearchSubmit = (q: string) => {
+    setSearchQuery(q);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
+
+  const handleLocationFocus = useCallback((coords: [number, number]) => {
+    const [lon, lat] = coords;
+    setZoomTargetGeom({
+      type: "Polygon",
+      coordinates: [
+        [
+          [lon - 0.004, lat - 0.004],
+          [lon + 0.004, lat - 0.004],
+          [lon + 0.004, lat + 0.004],
+          [lon - 0.004, lat + 0.004],
+          [lon - 0.004, lat - 0.004],
+        ],
+      ],
+    });
+  }, []);
+
   const handleToggleLayer = (key: keyof ActiveLayersState) => {
     setActiveLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const activeFilterCount = [filters.cityId, filters.regionId, filters.landUse].filter(Boolean).length;
+  const isSearchActive = Boolean(searchQuery.trim());
 
   return (
     <ProtectedRoute moduleName="Cadastral Properties Registry">
@@ -148,10 +188,19 @@ function PropertiesExplorerContent() {
           <div className="flex-1 flex overflow-hidden relative">
             {/* Top Left Floating Controls (Search, Layers, Filters) */}
             <div className="absolute top-4 left-4 z-20 space-y-2 max-w-sm pointer-events-auto">
-              <SearchControl onSelectProperty={handleSelectPropertyFromSearch} />
+              <SearchControl
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSearchSubmit={handleSearchSubmit}
+                onSelectProperty={handleSelectPropertyFromSearch}
+                onClearSearch={handleClearSearch}
+                activeFilters={filters}
+              />
 
+              {/* Action Buttons: Layers & Filters */}
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => {
                     setIsLayersOpen(!isLayersOpen);
                     setIsFiltersOpen(false);
@@ -159,7 +208,7 @@ function PropertiesExplorerContent() {
                   className={`px-3 py-1.5 rounded-[6px] border text-xs font-mono flex items-center gap-1.5 shadow-sm transition-all cursor-pointer ${
                     isLayersOpen
                       ? "bg-[#1A201D] text-[#F4F0E8] border-[#B56E48]"
-                      : "bg-[#141816] text-[#6F7772] border-[rgba(244,240,232,0.08)] hover:text-[#D9D2C5]"
+                      : "bg-[#141816]/95 text-[#77867C] border-[rgba(244,240,232,0.08)] hover:text-[#F4F0E8]"
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5 text-[#23847D]" />
@@ -167,23 +216,59 @@ function PropertiesExplorerContent() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setIsFiltersOpen(!isFiltersOpen);
                     setIsLayersOpen(false);
                   }}
                   className={`px-3 py-1.5 rounded-[6px] border text-xs font-mono flex items-center gap-1.5 shadow-sm transition-all cursor-pointer ${
-                    isFiltersOpen || Boolean(filters.cityId || filters.regionId || filters.landUse)
+                    isFiltersOpen || activeFilterCount > 0
                       ? "bg-[#1A201D] text-[#F4F0E8] border-[#B56E48]"
-                      : "bg-[#141816] text-[#6F7772] border-[rgba(244,240,232,0.08)] hover:text-[#D9D2C5]"
+                      : "bg-[#141816]/95 text-[#77867C] border-[rgba(244,240,232,0.08)] hover:text-[#F4F0E8]"
                   }`}
                 >
                   <Filter className="w-3.5 h-3.5 text-[#C47B50]" />
                   <span>Filters</span>
-                  {Boolean(filters.cityId || filters.regionId || filters.landUse) && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#B56E48]" />
+                  {activeFilterCount > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-[#B56E48] text-[#F4F0E8] text-[10px] font-bold flex items-center justify-center">
+                      {activeFilterCount}
+                    </span>
                   )}
                 </button>
+
+                {/* Reset All Filters button if any filter or search is active */}
+                {(activeFilterCount > 0 || isSearchActive) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilters({});
+                      setSearchQuery("");
+                      setSelectedParcelId(null);
+                    }}
+                    className="px-2 py-1.5 rounded-[6px] bg-[#141816]/90 border border-[rgba(244,240,232,0.08)] text-[11px] font-mono text-[#C47B50] hover:text-[#F4F0E8] transition-colors flex items-center gap-1 cursor-pointer"
+                    title="Clear search and all filters"
+                  >
+                    <X className="w-3 h-3" />
+                    <span>Reset All</span>
+                  </button>
+                )}
               </div>
+
+              {/* Active Search & Filter Indicator Banner */}
+              {isSearchActive && (
+                <div className="flex items-center gap-1.5 bg-[#141816]/95 backdrop-blur-md border border-[#B56E48]/40 rounded-[6px] px-2.5 py-1 text-[11px] font-mono text-[#F4F0E8] shadow-md w-fit">
+                  <Search className="w-3 h-3 text-[#B56E48]" />
+                  <span>Filtered: &ldquo;{searchQuery}&rdquo;</span>
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="ml-1 text-[#77867C] hover:text-[#F4F0E8] cursor-pointer"
+                    title="Clear search filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
 
               {/* Collapsible Layer Control Card */}
               {isLayersOpen && (
@@ -198,13 +283,12 @@ function PropertiesExplorerContent() {
 
               {/* Collapsible Filter Control Card */}
               {isFiltersOpen && (
-                <div className="w-72">
-                  <FilterControl
-                    filters={filters}
-                    onChangeFilters={setFilters}
-                    onClearFilters={() => setFilters({})}
-                  />
-                </div>
+                <FilterControl
+                  filters={filters}
+                  onChangeFilters={setFilters}
+                  onClearFilters={() => setFilters({})}
+                  onLocationFocus={handleLocationFocus}
+                />
               )}
             </div>
 
@@ -213,6 +297,7 @@ function PropertiesExplorerContent() {
               <MapWorkspace
                 activeLayers={activeLayers}
                 filters={filters}
+                searchQuery={searchQuery}
                 selectedParcelId={selectedParcelId}
                 onSelectParcel={handleSelectParcel}
                 onViewportMetricsChange={setViewportMetrics}

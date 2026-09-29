@@ -2,6 +2,8 @@
 
 /**
  * BhuSetu 3D 2D Map Workspace (MapLibre GL JS)
+ * Integrated with PostGIS GeoJSON endpoints, dynamic multi-attribute filters,
+ * natural-language / ULPIN search, and geodetic coordinate tracking.
  */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
@@ -22,6 +24,7 @@ import { PropertyFilters } from "./FilterControl";
 interface MapWorkspaceProps {
   activeLayers: ActiveLayersState;
   filters: PropertyFilters;
+  searchQuery?: string;
   selectedParcelId: string | null;
   onSelectParcel: (parcelId: string) => void;
   onViewportMetricsChange: (metrics: {
@@ -56,9 +59,15 @@ const MAP_STYLE: any = {
   ],
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isUUID(str?: string): boolean {
+  return !!str && UUID_RE.test(str);
+}
+
 export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
   activeLayers,
   filters,
+  searchQuery,
   selectedParcelId,
   onSelectParcel,
   onViewportMetricsChange,
@@ -77,12 +86,12 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    // Default center: Bengaluru / Karnataka (77.5946, 12.9716)
+    // Default center: Malleshwaram Zone Cadastral Extents [77.5714, 12.9976]
     const map = new MapLibreMap({
       container: mapContainerRef.current,
       style: MAP_STYLE,
-      center: [77.5946, 12.9716],
-      zoom: 13,
+      center: [77.5714, 12.9976],
+      zoom: 14.5,
       pitchWithRotate: false,
       dragRotate: false,
     });
@@ -143,13 +152,19 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
             "#d97706",
             ["==", ["get", "land_use"], "AGRICULTURAL"],
             "#65a30d",
+            ["==", ["get", "land_use"], "INSTITUTIONAL"],
+            "#8b5cf6",
+            ["==", ["get", "land_use"], "MIXED_USE"],
+            "#ec4899",
+            ["==", ["get", "land_use"], "OPEN_RESERVE"],
+            "#10b981",
             "#0284c7", // Default Residential
           ],
           "fill-opacity": [
             "case",
             ["==", ["get", "id"], ""],
             0.75,
-            0.35,
+            0.4,
           ],
         },
       });
@@ -216,11 +231,11 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         hoverPopup
           .setLngLat(e.lngLat)
           .setHTML(
-            `<div style="font-family: monospace; font-size: 11px; padding: 4px; color: #f8fafc; background: #0f172a; border: 1px solid #334155; border-radius: 4px;">
+            `<div style="font-family: monospace; font-size: 11px; padding: 4px 6px; color: #f8fafc; background: #0f172a; border: 1px solid #334155; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
               <div style="font-weight: bold; color: #38bdf8;">${props.ulpin_2d || "PARCEL"}</div>
-              <div style="color: #94a3b8;">Survey: ${props.survey_number || "N/A"}</div>
-              <div style="color: #94a3b8;">Area: ${Number(props.recorded_area_sqm || 0).toLocaleString()} m²</div>
-              <div style="color: #cbd5e1; font-size: 10px; margin-top: 2px;">Land Use: ${props.land_use || "N/A"}</div>
+              <div style="color: #94a3b8;">${props.survey_number || "N/A"}</div>
+              <div style="color: #cbd5e1;">Area: ${Number(props.recorded_area_sqm || 0).toLocaleString()} m²</div>
+              <div style="color: #f59e0b; font-size: 10px; margin-top: 2px;">${props.land_use || "N/A"}</div>
             </div>`
           )
           .addTo(map);
@@ -231,7 +246,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         hoverPopup.remove();
       });
 
-      // Click to select
+      // Click to select parcel
       map.on("click", "parcels-fill", (e) => {
         if (!e.features || e.features.length === 0) return;
         const parcelId = e.features[0].properties?.id;
@@ -240,7 +255,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         }
       });
 
-      // Track cursor position
+      // Track cursor position for footer
       map.on("mousemove", (e) => {
         onViewportMetricsChange({
           lng: e.lngLat.lng,
@@ -261,7 +276,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Viewport-based Bounding Box Query with Debounce
+  // Viewport and Filter Data Fetcher
   const loadViewportData = useCallback(async () => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -272,8 +287,8 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     const maxLon = bounds.getEast();
     const maxLat = bounds.getNorth();
 
-    // Prevent massive unbounded queries at very low zoom levels
-    if (map.getZoom() < 10) {
+    // Prevent massive unbounded queries at very low zoom levels unless a specific search is active
+    if (map.getZoom() < 9 && !searchQuery?.trim() && !filters.cityId) {
       setFeatureCount(0);
       onViewportMetricsChange({
         lng: map.getCenter().lng,
@@ -295,17 +310,33 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     setIsLoading(true);
 
     try {
+      const isDemoToken = !token || token.startsWith("demo_token_");
       const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      if (token && !isDemoToken) headers["Authorization"] = `Bearer ${token}`;
 
       const bboxStr = `${minLon.toFixed(5)},${minLat.toFixed(5)},${maxLon.toFixed(5)},${maxLat.toFixed(5)}`;
 
-      let parcelUrl = `${API_BASE}/properties/geojson/parcels?bbox=${bboxStr}&limit=500`;
-      if (filters.cityId) parcelUrl += `&city_id=${filters.cityId}`;
-      if (filters.regionId) parcelUrl += `&region_id=${filters.regionId}`;
-      if (filters.landUse) parcelUrl += `&land_use=${encodeURIComponent(filters.landUse)}`;
+      let parcelUrl = `${API_BASE}/properties/geojson/parcels?limit=500`;
 
-      // Fetch parcels
+      // If not searching for a specific query, restrict to viewport bbox
+      if (!searchQuery?.trim()) {
+        parcelUrl += `&bbox=${bboxStr}`;
+      }
+
+      if (filters.cityId && isUUID(filters.cityId)) {
+        parcelUrl += `&city_id=${filters.cityId}`;
+      }
+      if (filters.regionId && isUUID(filters.regionId)) {
+        parcelUrl += `&region_id=${filters.regionId}`;
+      }
+      if (filters.landUse) {
+        parcelUrl += `&land_use=${encodeURIComponent(filters.landUse)}`;
+      }
+      if (searchQuery && searchQuery.trim()) {
+        parcelUrl += `&q=${encodeURIComponent(searchQuery.trim())}`;
+      }
+
+      // 1. Fetch Parcels
       const res = await fetch(parcelUrl, { headers, signal: controller.signal });
       if (res.ok) {
         const geojsonData = await res.json();
@@ -322,10 +353,41 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
           featureCount: count,
           isLoading: false,
         });
+
+        // If a search or specific filter was executed and returned features, auto-fit view to them
+        if ((searchQuery?.trim() || filters.regionId || filters.landUse) && count > 0) {
+          try {
+            const fitBounds = new LngLatBounds();
+            let hasValidCoords = false;
+            geojsonData.features.forEach((feat: any) => {
+              const coords = feat.geometry?.coordinates;
+              if (coords) {
+                const extendCoords = (c: any) => {
+                  if (typeof c[0] === "number" && typeof c[1] === "number") {
+                    fitBounds.extend([c[0], c[1]]);
+                    hasValidCoords = true;
+                  } else if (Array.isArray(c)) {
+                    c.forEach(extendCoords);
+                  }
+                };
+                extendCoords(coords);
+              }
+            });
+            if (hasValidCoords && !fitBounds.isEmpty()) {
+              map.fitBounds(fitBounds, {
+                padding: 60,
+                maxZoom: 16.5,
+                duration: 800,
+              });
+            }
+          } catch (e) {
+            console.warn("[MapWorkspace] Auto-fit bounds error:", e);
+          }
+        }
       }
 
-      // Fetch buildings if layer is active
-      if (activeLayers.buildings && map.getZoom() >= 13) {
+      // 2. Fetch Buildings if layer is active
+      if (activeLayers.buildings && map.getZoom() >= 12) {
         const bldUrl = `${API_BASE}/properties/geojson/buildings?bbox=${bboxStr}&limit=500`;
         const bRes = await fetch(bldUrl, { headers, signal: controller.signal });
         if (bRes.ok) {
@@ -335,7 +397,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         }
       }
 
-      // Fetch infrastructure if layer is active
+      // 3. Fetch Infrastructure if layer is active
       if (activeLayers.infrastructure) {
         const infraUrl = `${API_BASE}/properties/geojson/infrastructure?bbox=${bboxStr}&limit=200`;
         const iRes = await fetch(infraUrl, { headers, signal: controller.signal });
@@ -352,8 +414,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     } finally {
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, activeLayers, token]);
+  }, [filters, searchQuery, activeLayers, token, onViewportMetricsChange]);
 
   // Hook map moveend event
   useEffect(() => {
@@ -383,6 +444,11 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     };
   }, [loadViewportData]);
 
+  // Immediate re-fetch whenever filters or search query change
+  useEffect(() => {
+    loadViewportData();
+  }, [filters, searchQuery, loadViewportData]);
+
   // Handle Layer Visibility Toggles
   useEffect(() => {
     const map = mapRef.current;
@@ -404,7 +470,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     }
   }, [activeLayers]);
 
-  // Update Selected Parcel Highlight
+  // Update Selected Parcel Highlight in Amber
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -422,13 +488,19 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         "#d97706",
         ["==", ["get", "land_use"], "AGRICULTURAL"],
         "#65a30d",
+        ["==", ["get", "land_use"], "INSTITUTIONAL"],
+        "#8b5cf6",
+        ["==", ["get", "land_use"], "MIXED_USE"],
+        "#ec4899",
+        ["==", ["get", "land_use"], "OPEN_RESERVE"],
+        "#10b981",
         "#0284c7",
       ]);
       map.setPaintProperty("parcels-fill", "fill-opacity", [
         "case",
         ["==", ["get", "id"], id],
-        0.75,
-        0.35,
+        0.8,
+        0.4,
       ]);
       map.setPaintProperty("parcels-line", "line-color", [
         "case",
@@ -445,7 +517,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
     }
   }, [selectedParcelId]);
 
-  // Handle Zoom to Geometry
+  // Handle Zoom to Geometry (from search or inspector)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !zoomTargetGeom) return;
@@ -468,7 +540,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
         map.fitBounds(bounds, {
           padding: 80,
           maxZoom: 17,
-          duration: 1200,
+          duration: 1000,
         });
       }
     } catch (err) {
@@ -477,7 +549,7 @@ export const MapWorkspace: React.FC<MapWorkspaceProps> = ({
   }, [zoomTargetGeom]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-canvas">
+    <div className="relative w-full h-full overflow-hidden bg-[#0A0D0B]">
       <div ref={mapContainerRef} className="w-full h-full" />
     </div>
   );

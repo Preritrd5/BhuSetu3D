@@ -140,16 +140,29 @@ class ParcelRepository:
         db: AsyncSession,
         city_id: Optional[uuid.UUID] = None,
         region_id: Optional[uuid.UUID] = None,
+        land_use: Optional[str] = None,
+        query: Optional[str] = None,
         bbox: Optional[Tuple[float, float, float, float]] = None,
         skip: int = 0,
-        limit: int = 20,
+        limit: int = 500,
     ) -> Tuple[List[Parcel], int]:
         filters = []
         if city_id:
             filters.append(Parcel.city_id == city_id)
         if region_id:
             filters.append(Parcel.region_id == region_id)
-        if bbox:
+        if land_use and land_use.strip():
+            filters.append(func.upper(Parcel.land_use) == land_use.upper().strip())
+        if query and query.strip():
+            clean_q = f"%{query.strip()}%"
+            filters.append(
+                or_(
+                    Parcel.ulpin_2d.ilike(clean_q),
+                    Parcel.survey_number.ilike(clean_q),
+                    cast(Parcel.id, String).ilike(clean_q),
+                )
+            )
+        if bbox and not (query and query.strip()):
             min_lon, min_lat, max_lon, max_lat = bbox
             envelope = geofunc.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
             filters.append(geofunc.ST_Intersects(Parcel.geom_2d, envelope))
@@ -174,22 +187,33 @@ class ParcelRepository:
     async def search_parcels(
         db: AsyncSession,
         query: str,
+        city_id: Optional[uuid.UUID] = None,
+        region_id: Optional[uuid.UUID] = None,
+        land_use: Optional[str] = None,
         limit: int = 10
     ) -> List[Parcel]:
         clean_q = f"%{query.strip()}%"
-        from sqlalchemy import or_, cast, String
+        from sqlalchemy import or_, and_, cast, String, func
+        conds = [
+            or_(
+                Parcel.ulpin_2d.ilike(clean_q),
+                Parcel.survey_number.ilike(clean_q),
+                cast(Parcel.id, String).ilike(clean_q),
+                Building.building_code.ilike(clean_q),
+                cast(Building.id, String).ilike(clean_q),
+            )
+        ]
+        if city_id:
+            conds.append(Parcel.city_id == city_id)
+        if region_id:
+            conds.append(Parcel.region_id == region_id)
+        if land_use and land_use.strip():
+            conds.append(func.upper(Parcel.land_use) == land_use.upper().strip())
+
         stmt = (
             select(Parcel)
             .outerjoin(Parcel.buildings)
-            .where(
-                or_(
-                    Parcel.ulpin_2d.ilike(clean_q),
-                    Parcel.survey_number.ilike(clean_q),
-                    cast(Parcel.id, String).ilike(clean_q),
-                    Building.building_code.ilike(clean_q),
-                    cast(Building.id, String).ilike(clean_q),
-                )
-            )
+            .where(and_(*conds))
             .distinct()
             .order_by(Parcel.created_at.desc())
             .limit(limit)

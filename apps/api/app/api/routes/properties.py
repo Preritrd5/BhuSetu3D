@@ -542,22 +542,36 @@ def _compute_center_and_bounds(geom_dict: Optional[dict]):
     description="Spatial viewport query returning parcel boundaries and attributes for MapLibre GL rendering."
 )
 async def get_parcels_geojson(
-    bbox: str = Query(..., description="min_lon,min_lat,max_lon,max_lat in EPSG:4326"),
+    bbox: Optional[str] = Query(None, description="min_lon,min_lat,max_lon,max_lat in EPSG:4326"),
     city_id: Optional[str] = Query(None),
     region_id: Optional[str] = Query(None),
     land_use: Optional[str] = Query(None),
+    q: Optional[str] = Query(None, description="Search term for parcel ULPIN, survey number, or parcel ID"),
     limit: int = Query(500, ge=1, le=1000),
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_current_user),
 ) -> GeoJSONFeatureCollection:
-    parsed_bbox = parse_bbox(bbox)
-    city_uuid = uuid.UUID(city_id) if city_id else None
-    region_uuid = uuid.UUID(region_id) if region_id else None
+    parsed_bbox = parse_bbox(bbox) if bbox else None
+    city_uuid = None
+    if city_id:
+        try:
+            city_uuid = uuid.UUID(city_id)
+        except ValueError:
+            pass
+
+    region_uuid = None
+    if region_id:
+        try:
+            region_uuid = uuid.UUID(region_id)
+        except ValueError:
+            pass
 
     parcels, total = await ParcelRepository.list_parcels(
         db=db,
         city_id=city_uuid,
         region_id=region_uuid,
+        land_use=land_use,
+        query=q,
         bbox=parsed_bbox,
         skip=0,
         limit=limit,
@@ -565,7 +579,7 @@ async def get_parcels_geojson(
 
     features = []
     for p in parcels:
-        if land_use and p.land_use.upper() != land_use.upper():
+        if land_use and p.land_use and p.land_use.upper() != land_use.upper():
             continue
 
         geom_geojson = geometry_to_geojson(p.geom_2d)
@@ -578,6 +592,8 @@ async def get_parcels_geojson(
             geometry=geom_geojson,
             properties={
                 "id": str(p.id),
+                "city_id": str(p.city_id) if p.city_id else None,
+                "region_id": str(p.region_id) if p.region_id else None,
                 "ulpin_2d": p.ulpin_2d,
                 "survey_number": p.survey_number,
                 "land_use": p.land_use,
@@ -591,7 +607,7 @@ async def get_parcels_geojson(
     return GeoJSONFeatureCollection(
         type="FeatureCollection",
         features=features,
-        bbox=list(parsed_bbox),
+        bbox=list(parsed_bbox) if parsed_bbox else None,
         total_count=len(features),
     )
 
@@ -662,7 +678,7 @@ async def get_regions_geojson(
 
     features = []
     for r in regions:
-        geom_geojson = geometry_to_geojson(r.geom_2d)
+        geom_geojson = geometry_to_geojson(getattr(r, "boundary_geom", None) or getattr(r, "geom_2d", None))
         if not geom_geojson:
             continue
         features.append(GeoJSONFeature(
@@ -738,18 +754,41 @@ async def get_infrastructure_geojson(
 )
 async def search_properties(
     q: str = Query(..., min_length=1, description="Search term (ULPIN, survey number, or parcel ID)"),
+    city_id: Optional[str] = Query(None, description="Optional city UUID filter"),
+    region_id: Optional[str] = Query(None, description="Optional region UUID filter"),
+    land_use: Optional[str] = Query(None, description="Optional land use classification filter"),
     limit: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_current_user),
 ) -> List[PropertySearchResult]:
+    city_uuid = None
+    if city_id:
+        try:
+            city_uuid = uuid.UUID(city_id)
+        except ValueError:
+            pass
+
+    region_uuid = None
+    if region_id:
+        try:
+            region_uuid = uuid.UUID(region_id)
+        except ValueError:
+            pass
+
     parcels = []
     for attempt in range(3):
         try:
-            parcels = await ParcelRepository.search_parcels(db=db, query=q, limit=limit)
+            parcels = await ParcelRepository.search_parcels(
+                db=db,
+                query=q,
+                city_id=city_uuid,
+                region_id=region_uuid,
+                land_use=land_use,
+                limit=limit
+            )
             break
         except Exception as e:
             if attempt == 2:
-                # Log error and return empty list gracefully rather than hard 500
                 from app.core.logging import get_logger
                 logger = get_logger("bhusetu_3d")
                 logger.warning(f"[SEARCH_PARCELS_EXCEPTION] Error during search after 3 attempts: {e}")
