@@ -99,7 +99,10 @@ export default function EvidenceDetailPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"]}
+      moduleName="Evidence Dossier"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
         <Sidebar />
 

@@ -275,7 +275,10 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
+      moduleName="Analytics & Quality Intelligence"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] antialiased overflow-hidden font-sans">
         <Sidebar />
 

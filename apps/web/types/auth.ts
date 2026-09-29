@@ -36,5 +36,6 @@ export interface AuthContextType {
   ) => Promise<{ success: boolean; error?: string; requireVerification?: boolean }>;
   logout: () => Promise<void>;
   hasRole: (role: AppRole | AppRole[]) => boolean;
+  hasPermission: (permission: any) => boolean;
   refreshProfile: () => Promise<void>;
 }

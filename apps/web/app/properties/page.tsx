@@ -106,7 +106,7 @@ function PropertiesExplorerContent() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute moduleName="Cadastral Properties Registry">
       <div className="flex-1 flex overflow-hidden h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans">
         {/* Navigation Sidebar */}
         <Sidebar />

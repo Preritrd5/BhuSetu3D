@@ -325,7 +325,10 @@ function SpatialAnalysisContent() {
   );
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "ANALYST"]}
+      moduleName="Spatial Analysis Engine"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 

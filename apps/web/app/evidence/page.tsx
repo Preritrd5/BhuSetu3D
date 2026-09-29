@@ -228,7 +228,10 @@ export default function EvidenceVaultPage() {
   const derivedCount = evidenceList.filter((e) => ["DERIVED", "INFERRED"].includes(e.source_classification)).length;
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"]}
+      moduleName="Cryptographic Evidence Vault"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans overflow-hidden">
         <Sidebar />
 

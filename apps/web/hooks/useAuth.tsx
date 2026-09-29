@@ -15,6 +15,11 @@ import React, {
 import { supabase } from "@/lib/supabase/client";
 import { AuthUser, AppRole, AuthContextType } from "@/types/auth";
 import { AuthApiService } from "@/services/api/auth";
+import {
+  hasPermission as checkPermission,
+  hasRole as checkRole,
+  Permission,
+} from "@/lib/auth/permissions";
 
 const TOKEN_KEY = "bhusetu_token";
 const DEMO_EMAIL_KEY = "bhusetu_demo_email";
@@ -251,6 +256,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     const cleanEmail = email.trim().toLowerCase();
 
+    // Reset previous session state immediately to prevent permission leaking between personas
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(DEMO_EMAIL_KEY);
+      sessionStorage.clear();
+    }
+
     // 1. Primary path: authenticate directly against platform API
     try {
       const authResult = await AuthApiService.login(cleanEmail, password);
@@ -474,6 +486,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(DEMO_EMAIL_KEY);
+      sessionStorage.clear();
     }
     try {
       await supabase.auth.signOut();
@@ -491,13 +504,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Verifies if current user has the required role. ADMIN has universal access.
    */
   const hasRole = (role: AppRole | AppRole[]): boolean => {
-    if (!user) return false;
-    if (user.roles.includes("ADMIN")) return true;
+    return checkRole(user, role);
+  };
 
-    if (Array.isArray(role)) {
-      return role.some((r) => user.roles.includes(r));
-    }
-    return user.roles.includes(role);
+  /**
+   * Verifies if current user has the required permission. ADMIN has universal access.
+   */
+  const hasPermission = (permission: Permission | Permission[]): boolean => {
+    return checkPermission(user, permission);
   };
 
   /**
@@ -519,6 +533,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     logout,
     hasRole,
+    hasPermission,
     refreshProfile,
   };
 

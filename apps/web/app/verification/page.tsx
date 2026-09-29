@@ -228,7 +228,10 @@ export default function VerificationQueuePage() {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
+      moduleName="Statutory Review Queue"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 

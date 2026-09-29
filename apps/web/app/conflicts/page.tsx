@@ -181,7 +181,10 @@ export default function ConflictsPage() {
   });
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
+      moduleName="Discrepancy Engine"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] select-none font-sans">
         <Sidebar />
 

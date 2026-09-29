@@ -523,7 +523,10 @@ export default function HistoryPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
+      moduleName="4D History Scrubber"
+    >
       <div className="flex h-screen w-screen overflow-hidden bg-[#0F1210] text-[#F4F0E8]">
         <Sidebar />
 

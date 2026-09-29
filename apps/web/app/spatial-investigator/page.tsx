@@ -223,7 +223,10 @@ function SpatialInvestigatorContent() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "ANALYST"]}
+      moduleName="AI Spatial Investigator"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 

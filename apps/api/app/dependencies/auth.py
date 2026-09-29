@@ -86,15 +86,25 @@ async def get_optional_current_user(
         return None
 
 
+ROLE_ALIASES = {
+    "GOVERNMENT_OFFICER": {"GOVERNMENT_OFFICER", "OFFICER"},
+    "OFFICER": {"GOVERNMENT_OFFICER", "OFFICER"},
+}
+
+
 def require_role(required_role: str) -> Callable:
     """
     Dependency factory enforcing a specific role requirement.
     ADMIN role always has access across all endpoints.
+    Normalizes aliases (e.g. OFFICER and GOVERNMENT_OFFICER).
     """
+    valid_roles = ROLE_ALIASES.get(required_role.upper(), {required_role.upper()})
+
     async def role_checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role == "ADMIN":
             return current_user
-        if current_user.role != required_role:
+        user_roles = ROLE_ALIASES.get(current_user.role.upper(), {current_user.role.upper()})
+        if not user_roles.intersection(valid_roles):
             logger.warning(
                 f"Access denied for user {current_user.email} (Role: {current_user.role}). Required: {required_role}"
             )
@@ -111,11 +121,17 @@ def require_any_role(allowed_roles: List[str]) -> Callable:
     """
     Dependency factory enforcing that the user possesses at least one of the allowed roles.
     ADMIN role always possesses access.
+    Normalizes aliases (e.g. OFFICER and GOVERNMENT_OFFICER).
     """
+    valid_roles = set()
+    for r in allowed_roles:
+        valid_roles.update(ROLE_ALIASES.get(r.upper(), {r.upper()}))
+
     async def multi_role_checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role == "ADMIN":
             return current_user
-        if current_user.role not in allowed_roles:
+        user_roles = ROLE_ALIASES.get(current_user.role.upper(), {current_user.role.upper()})
+        if not user_roles.intersection(valid_roles):
             logger.warning(
                 f"Access denied for user {current_user.email} (Role: {current_user.role}). Allowed: {allowed_roles}"
             )

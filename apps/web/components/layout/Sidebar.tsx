@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * BhuSetu 3D Role-Aware Sidebar Navigation
+ * BhuSetu 3D Role-Governed Dynamic Sidebar Navigation
  * Evidence-Backed 3D Property Intelligence Platform
  */
-import React, { useState } from "react";
+import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -16,251 +16,347 @@ import {
   UserCheck,
   History,
   Settings,
-  Lock,
-  Info,
   Sparkles,
   BarChart3,
+  Users,
+  Shield,
+  ShieldAlert,
+  Sliders,
+  FileText,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { AppRole } from "@/types/auth";
+import { Permission, hasRole, hasPermission } from "@/lib/auth/permissions";
 
 interface NavItemDef {
   id: string;
   label: string;
   icon: React.ElementType;
-  isImplemented: boolean;
-  allowedRoles: (AppRole | "*")[];
+  allowedRoles: AppRole[];
+  requiredPermission?: Permission;
   description: string;
-  href?: string;
+  href: string;
+  badge?: string;
+  badgeColor?: string;
 }
 
-const NAV_ITEMS: NavItemDef[] = [
+// 1. Core Platform Operational Modules
+const ALL_OPERATIONAL_ITEMS: NavItemDef[] = [
   {
     id: "overview",
-    label: "Overview",
+    label: "Workspace Overview",
     icon: LayoutDashboard,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Authenticated workspace & live system telemetry.",
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST", "PLANNER", "PUBLIC_USER"],
+    description: "Role-specific mission overview & spatial telemetry.",
     href: "/overview",
   },
   {
-    id: "city-3d",
-    label: "3D City Twin",
-    icon: Building2,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Cesium 3D building envelopes, floor cutaways & cadastral boundaries.",
-    href: "/3d-city",
-  },
-  {
-    id: "properties",
-    label: "Properties",
-    icon: MapPin,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "2D Cadastral parcels & 3D ULPIN registry.",
-    href: "/properties",
-  },
-  {
-    id: "spatial-analysis",
-    label: "Spatial Analysis",
-    icon: Layers,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Topological relationships & 3D spatial geometry validation.",
-    href: "/spatial-analysis",
-  },
-  {
-    id: "conflicts",
-    label: "Discrepancy Engine",
-    icon: AlertTriangle,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Automated setback & vertical height encroachment detection.",
-    href: "/conflicts",
+    id: "verification",
+    label: "Statutory Review Queue",
+    icon: UserCheck,
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"],
+    requiredPermission: "verification:view",
+    description: "Statutory verification queue & cryptographically chained audit decisions.",
+    href: "/verification",
+    badge: "Official",
+    badgeColor: "bg-[#176C68]/20 text-[#2EB8B0] border-[#176C68]/40",
   },
   {
     id: "spatial-investigator",
     label: "AI Spatial Investigator",
     icon: Sparkles,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Natural-language spatial queries & grounded AI investigation.",
+    allowedRoles: ["ADMIN", "ANALYST"],
+    requiredPermission: "investigation:view",
+    description: "Natural-language spatial queries & grounded Gemini AI investigation.",
     href: "/spatial-investigator",
+    badge: "Grounded AI",
+    badgeColor: "bg-[#176C68]/20 text-[#2EB8B0] border-[#176C68]/40",
+  },
+  {
+    id: "city-3d",
+    label: "3D City Twin",
+    icon: Building2,
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST", "PLANNER", "PUBLIC_USER"],
+    description: "Cesium 3D building envelopes, multi-floor strata & cadastral parcels.",
+    href: "/3d-city",
+  },
+  {
+    id: "properties",
+    label: "Cadastral Properties",
+    icon: MapPin,
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST", "PLANNER", "PUBLIC_USER"],
+    description: "2D Cadastral parcels, 3D ULPIN registry & spatial geometry.",
+    href: "/properties",
+  },
+  {
+    id: "conflicts",
+    label: "Discrepancy Engine",
+    icon: AlertTriangle,
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"],
+    requiredPermission: "conflict:view",
+    description: "Automated setback violations & vertical height deviation detection.",
+    href: "/conflicts",
+    badge: "Audited",
+    badgeColor: "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40",
+  },
+  {
+    id: "spatial-analysis",
+    label: "Spatial Analysis",
+    icon: Layers,
+    allowedRoles: ["ADMIN", "ANALYST"],
+    requiredPermission: "analysis:view",
+    description: "Topological relationships, buffer intersections & 3D geometry validation.",
+    href: "/spatial-analysis",
   },
   {
     id: "evidence",
     label: "Cryptographic Vault",
     icon: FileCheck2,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Sensor datasets, lineage graph & SHA-256 confidence tracking.",
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR", "ANALYST"],
+    requiredPermission: "evidence:view",
+    description: "Sensor datasets, photogrammetry & SHA-256 confidence tracking.",
     href: "/evidence",
-  },
-  {
-    id: "verification",
-    label: "Review Queue",
-    icon: UserCheck,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Statutory review queue & cryptographically chained audit trail.",
-    href: "/verification",
   },
   {
     id: "history",
     label: "4D History Scrubber",
     icon: History,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "4D temporal property history, change detection & infrastructure intelligence.",
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"],
+    requiredPermission: "history:view",
+    description: "4D temporal property history, change detection & multi-epoch scans.",
     href: "/history",
   },
   {
     id: "analytics",
     label: "Analytics & Quality",
     icon: BarChart3,
-    isImplemented: true,
-    allowedRoles: ["*"],
-    description: "Explainable data quality scoring, record completeness & enterprise spatial metrics.",
+    allowedRoles: ["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"],
+    requiredPermission: "analytics:view",
+    description: "7-dimension explainable data quality scoring & spatial conformance.",
     href: "/analytics",
   },
+];
+
+// 2. Platform Administration Modules (ADMIN Only)
+const ADMIN_MODULES: NavItemDef[] = [
   {
-    id: "settings",
-    label: "GIS Parameters",
-    icon: Settings,
-    isImplemented: false,
+    id: "admin-users",
+    label: "User Access Directory",
+    icon: Users,
     allowedRoles: ["ADMIN"],
-    description: "Coordinate system & municipal boundary parameters.",
+    requiredPermission: "admin:users",
+    description: "Institutional user accounts, active sessions & persona management.",
+    href: "/admin/users",
+    badge: "Admin",
+    badgeColor: "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40",
+  },
+  {
+    id: "admin-roles",
+    label: "Role Capability Matrix",
+    icon: Shield,
+    allowedRoles: ["ADMIN"],
+    requiredPermission: "admin:roles",
+    description: "Canonical RBAC capability assignments & permission rules.",
+    href: "/admin/roles",
+    badge: "Admin",
+    badgeColor: "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40",
+  },
+  {
+    id: "admin-audit",
+    label: "Security Audit Trail",
+    icon: FileText,
+    allowedRoles: ["ADMIN"],
+    requiredPermission: "admin:audit",
+    description: "Chained cryptographic audit logs of all platform operations.",
+    href: "/admin/audit",
+    badge: "SecOps",
+    badgeColor: "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40",
+  },
+  {
+    id: "admin-settings",
+    label: "GIS Engine Settings",
+    icon: Sliders,
+    allowedRoles: ["ADMIN"],
+    requiredPermission: "admin:settings",
+    description: "Coordinate reference systems (EPSG:32643) & municipal parameters.",
+    href: "/admin/settings",
+    badge: "Config",
+    badgeColor: "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40",
   },
 ];
 
 export function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [selectedItemInfo, setSelectedItemInfo] = useState<NavItemDef | null>(null);
   const { user } = useAuth();
 
-  const userRoles = user?.roles || [];
-  const isAdmin = userRoles.includes("ADMIN");
+  const userRole = user?.roles?.[0] || "PUBLIC_USER";
+  const isAdmin = user?.roles?.includes("ADMIN") ?? false;
 
-  const hasRolePermission = (allowedRoles: (AppRole | "*")[]) => {
+  // Filter operational items dynamically by authorized role and permission
+  const authorizedOperationalItems = ALL_OPERATIONAL_ITEMS.filter((item) => {
     if (isAdmin) return true;
-    if (allowedRoles.includes("*")) return true;
-    return allowedRoles.some((role) => userRoles.includes(role as AppRole));
-  };
+    if (item.requiredPermission && !hasPermission(user, item.requiredPermission)) {
+      return false;
+    }
+    return hasRole(user, item.allowedRoles);
+  });
+
+  // Filter admin items strictly for ADMIN
+  const authorizedAdminItems = isAdmin ? ADMIN_MODULES : [];
 
   return (
-    <aside className="w-64 border-r border-[rgba(244,240,232,0.08)] bg-[#0F1210] flex flex-col justify-between h-[calc(100vh-3.5rem)] sticky top-14 select-none">
-      {/* Navigation List */}
-      <div className="p-3 space-y-1">
-        <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-widest text-[#6F7772] font-semibold flex items-center justify-between">
-          <span>PLATFORM MODULES</span>
-          <span className="text-[9px] text-[#23847D] font-bold bg-[#141816] border border-[rgba(244,240,232,0.12)] px-2 py-0.5 rounded-[4px]">
-            10 MODULES
+    <aside className="w-64 border-r border-[rgba(244,240,232,0.06)] bg-[#0C0F0D] flex flex-col justify-between h-[calc(100vh-3.5rem)] sticky top-14 select-none">
+      {/* Navigation Scrollable Body */}
+      <div className="p-3 space-y-4 overflow-y-auto">
+        
+        {/* Role Identity Card in Sidebar */}
+        <div className="p-2.5 rounded-[8px] bg-[#121614] border border-[rgba(244,240,232,0.06)] flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-[4px] bg-[#161D1A] border border-[rgba(244,240,232,0.08)] flex items-center justify-center text-[#2EB8B0] font-mono text-xs font-bold shrink-0">
+              {user?.name ? user.name.split(" ").map((n) => n[0]).join("") : "U"}
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-semibold text-[#F4F0E8] font-mono truncate">
+                {user?.name || "Evaluator"}
+              </div>
+              <div className="text-[10px] text-[#A7B3AB] font-mono truncate">
+                {user?.department || "Cadastre Unit"}
+              </div>
+            </div>
+          </div>
+          <span
+            className={cn(
+              "text-[9px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase shrink-0",
+              isAdmin
+                ? "bg-[#B56E48]/20 text-[#E09F67] border-[#B56E48]/40"
+                : userRole === "GOVERNMENT_OFFICER"
+                ? "bg-[#176C68]/20 text-[#2EB8B0] border-[#176C68]/40"
+                : userRole === "SURVEYOR"
+                ? "bg-[#2A443B]/30 text-[#4ADE80] border-[#2A443B]/60"
+                : "bg-[#253248]/30 text-[#60A5FA] border-[#253248]/60"
+            )}
+          >
+            {userRole === "GOVERNMENT_OFFICER" ? "OFFICER" : userRole}
           </span>
         </div>
 
-        {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.href ? pathname === item.href : false;
-          const isPermitted = hasRolePermission(item.allowedRoles);
+        {/* SECTION 1: ROLE-AUTHORIZED OPERATIONAL MODULES */}
+        <div className="space-y-1">
+          <div className="px-2 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#94A3B8] font-semibold flex items-center justify-between">
+            <span>AUTHORIZED WORKSPACE</span>
+            <span className="text-[9px] text-[#2EB8B0] font-bold bg-[#141816] border border-[rgba(244,240,232,0.08)] px-1.5 py-0.5 rounded-[3px]">
+              {authorizedOperationalItems.length} MODULES
+            </span>
+          </div>
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (item.isImplemented && item.href) {
-                  setSelectedItemInfo(null);
-                  router.push(item.href);
-                } else {
-                  setSelectedItemInfo(item);
-                }
-              }}
-              className={cn(
-                "w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-mono transition-all group relative border",
-                isActive
-                  ? "bg-[#141816] border-[rgba(244,240,232,0.15)] text-[#F4F0E8] font-bold shadow-sm"
-                  : isPermitted
-                  ? "text-[#6F7772] hover:text-[#F4F0E8] hover:bg-[#141816] border-transparent hover:border-[rgba(244,240,232,0.08)]"
-                  : "text-[#6F7772]/50 hover:text-[#6F7772] hover:bg-[#141816]/40 border-transparent"
-              )}
-            >
-              <div className="flex items-center gap-2.5 truncate">
-                <Icon
-                  className={cn(
-                    "w-4 h-4 flex-shrink-0 transition-colors",
-                    isActive
-                      ? "text-[#C47B50]"
-                      : isPermitted
-                      ? "text-[#6F7772] group-hover:text-[#D9D2C5]"
-                      : "text-[#6F7772]/40"
-                  )}
-                />
-                <span className="truncate">{item.label}</span>
-              </div>
+          {authorizedOperationalItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href || (item.href !== "/overview" && pathname.startsWith(item.href));
 
-              {/* Status / Role Badge */}
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                {!isPermitted ? (
-                  <span
-                    title="Access restricted"
-                    className="p-1 rounded-[4px] bg-[#141816] text-[#6F7772] border border-[rgba(244,240,232,0.08)]"
-                  >
-                    <Lock className="w-3 h-3" />
-                  </span>
-                ) : item.isImplemented ? (
+            return (
+              <button
+                key={item.id}
+                onClick={() => router.push(item.href)}
+                className={cn(
+                  "w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-mono transition-all group border text-left cursor-pointer",
+                  isActive
+                    ? "bg-[#171D1A] border-[#23847D]/50 text-[#F4F0E8] font-semibold shadow-sm"
+                    : "text-[#CBD5E1] hover:text-[#F4F0E8] hover:bg-[#141816] border-transparent hover:border-[rgba(244,240,232,0.06)]"
+                )}
+                title={item.description}
+              >
+                <div className="flex items-center gap-2.5 truncate">
+                  <Icon
+                    className={cn(
+                      "w-4 h-4 flex-shrink-0 transition-colors",
+                      isActive
+                        ? "text-[#2EB8B0]"
+                        : "text-[#94A3B8] group-hover:text-[#F4F0E8]"
+                    )}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </div>
+
+                {item.badge && (
                   <span
                     className={cn(
-                      "text-[9px] font-mono px-1.5 py-0.5 rounded-[4px] border font-bold",
-                      isActive
-                        ? "bg-[#B56E48]/20 text-[#C47B50] border-[#B56E48]/40"
-                        : "bg-[#141816] text-[#6F7772] border-[rgba(244,240,232,0.08)]"
+                      "text-[9px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase",
+                      item.badgeColor || "bg-[#161B18] text-[#CBD5E1] border-[rgba(244,240,232,0.08)]"
                     )}
                   >
-                    Active
-                  </span>
-                ) : (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-[4px] bg-[#141816] text-[#6F7772] border border-[rgba(244,240,232,0.08)]">
-                    Config
+                    {item.badge}
                   </span>
                 )}
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* SECTION 2: PLATFORM ADMINISTRATION (ADMIN ONLY) */}
+        {authorizedAdminItems.length > 0 && (
+          <div className="space-y-1 pt-3 border-t border-[rgba(244,240,232,0.06)]">
+            <div className="px-2 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#E09F67] font-semibold flex items-center justify-between">
+              <span>ADMINISTRATION</span>
+              <span className="text-[9px] text-[#E09F67] font-bold bg-[#1C1613] border border-[#B56E48]/35 px-1.5 py-0.5 rounded-[3px]">
+                RESTRICTED
+              </span>
+            </div>
+
+            {authorizedAdminItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href || pathname.startsWith(item.href);
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => router.push(item.href)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-mono transition-all group border text-left cursor-pointer",
+                    isActive
+                      ? "bg-[#1C1613] border-[#B56E48]/50 text-[#F4F0E8] font-semibold shadow-sm"
+                      : "text-[#CBD5E1] hover:text-[#F4F0E8] hover:bg-[#161311] border-transparent hover:border-[#B56E48]/20"
+                  )}
+                  title={item.description}
+                >
+                  <div className="flex items-center gap-2.5 truncate">
+                    <Icon
+                      className={cn(
+                        "w-4 h-4 flex-shrink-0 transition-colors",
+                        isActive
+                          ? "text-[#E09F67]"
+                          : "text-[#B56E48]/80 group-hover:text-[#E09F67]"
+                      )}
+                    />
+                    <span className="truncate">{item.label}</span>
+                  </div>
+
+                  {item.badge && (
+                    <span
+                      className={cn(
+                        "text-[9px] font-mono px-1.5 py-0.5 rounded-[3px] border font-bold uppercase",
+                        item.badgeColor
+                      )}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
       </div>
 
-      {/* Information Drawer for Configuration Items */}
-      {selectedItemInfo && (
-        <div className="p-3 mx-3 mb-3 bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[8px] text-left animate-in fade-in duration-200 shadow-sm">
-          <div className="flex items-center gap-1.5 text-[#C47B50] text-xs font-mono mb-1">
-            <Info className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="font-semibold uppercase truncate">
-              {selectedItemInfo.label}
-            </span>
-          </div>
-          <p className="text-[11px] text-[#D9D2C5] leading-relaxed mb-2 font-sans">
-            {selectedItemInfo.description}
-          </p>
-          <div className="flex items-center justify-between text-[10px] font-mono text-[#6F7772] border-t border-[rgba(244,240,232,0.08)] pt-1.5">
-            <span>Access:</span>
-            <span className="text-[#F4F0E8] font-semibold">
-              {selectedItemInfo.allowedRoles.includes("*")
-                ? "All Roles"
-                : selectedItemInfo.allowedRoles.join(", ")}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Bottom Footer Information */}
-      <div className="p-3 border-t border-[rgba(244,240,232,0.08)] bg-[#0F1210] flex items-center justify-between text-[11px] text-[#6F7772] font-mono">
-        <span>SECURITY LEVEL</span>
-        <span className="text-[#23847D] font-semibold flex items-center gap-1.5">
+      <div className="p-3 border-t border-[rgba(244,240,232,0.06)] bg-[#0A0D0B] flex items-center justify-between text-xs text-[#CBD5E1] font-mono">
+        <span className="text-[11px] text-[#94A3B8]">RBAC Policy: Active</span>
+        <span className="text-[#2EB8B0] font-semibold flex items-center gap-1.5 text-[11px]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#176C68]" />
-          ACTIVE
+          Level 4 Clearance
         </span>
       </div>
     </aside>

@@ -232,7 +232,10 @@ export default function VerificationReviewWorkspacePage() {
 
   if (isLoading) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute
+        requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
+        moduleName="Statutory Verification Dossier"
+      >
         <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] font-sans">
           <Sidebar />
           <div className="flex-1 flex items-center justify-center">
@@ -248,7 +251,10 @@ export default function VerificationReviewWorkspacePage() {
 
   if (error || !data) {
     return (
-      <ProtectedRoute>
+      <ProtectedRoute
+        requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
+        moduleName="Statutory Verification Dossier"
+      >
         <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] font-sans">
           <Sidebar />
           <div className="flex-1 p-8">
@@ -271,9 +277,13 @@ export default function VerificationReviewWorkspacePage() {
   const item = data.item;
   const isCompleted = item.verification_status === "VERIFIED" || item.verification_status === "REJECTED";
   const canDecide = item.verification_status === "IN_REVIEW" || item.verification_status === "ESCALATED";
+  const canApprove = user?.roles?.includes("ADMIN") || user?.roles?.includes("GOVERNMENT_OFFICER");
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "SURVEYOR"]}
+      moduleName="Statutory Verification Dossier"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden select-none font-sans">
         <Sidebar />
 
@@ -590,7 +600,19 @@ export default function VerificationReviewWorkspacePage() {
                 )}
 
                 {/* State: IN_REVIEW or ESCALATED */}
-                {canDecide && (
+                {canDecide && !canApprove && (
+                  <div className="p-4 rounded-[8px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] space-y-2 text-xs font-mono">
+                    <div className="flex items-center gap-2 text-[#4ADE80] font-bold">
+                      <UserCheck className="w-4 h-4" />
+                      <span>Field Inspection Mode (Surveyor)</span>
+                    </div>
+                    <p className="text-[#94A3B8] font-sans leading-relaxed">
+                      You are authenticated with Surveyor clearance. You may inspect the evidence chain and submitted measurements. Statutory determinations and legal sealing require Town Planning Officer or Admin authorization.
+                    </p>
+                  </div>
+                )}
+
+                {canDecide && canApprove && (
                   <form onSubmit={handleSubmitDecision} className="space-y-4">
                     <div>
                       <label className="block text-xs font-semibold text-[#D9D2C5] mb-1.5">

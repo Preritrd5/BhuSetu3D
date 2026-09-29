@@ -672,7 +672,7 @@ function City3DContent() {
   const elementDisplayName = activeElement ? activeElement.name : "Door D-302-A";
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute moduleName="3D City Digital Twin">
       <div className="relative w-screen h-screen overflow-hidden bg-black select-none">
         {/* Full-Screen WebGL Cesium 3D Viewport (85-90%+ Screen Real Estate) */}
         <main className="absolute inset-0 w-full h-full z-0">

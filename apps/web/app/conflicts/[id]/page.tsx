@@ -163,7 +163,10 @@ export default function ConflictDetailPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      requiredRole={["ADMIN", "GOVERNMENT_OFFICER", "ANALYST"]}
+      moduleName="Discrepancy Detail"
+    >
       <div className="flex h-screen bg-[#0F1210] text-[#F4F0E8] overflow-hidden font-sans select-none">
         <Sidebar />
 
