@@ -880,6 +880,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       Cesium,
       selectedBuildingId,
       selectedParcelId,
+      selectedFloorId,
       comparisonEntityBId,
       highlightEntityIds,
       currentLevel,
@@ -910,6 +911,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   }, [
     selectedBuildingId,
     selectedParcelId,
+    selectedFloorId,
     comparisonEntityBId,
     layers.buildings,
     layers.conflicts,
@@ -1184,13 +1186,54 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
 
     if (!isCutawayLevel || !selectedBuildingId) return;
 
-    // Interior Coordinates inside Aura Horizon Floor 03 (Elevated if explodeFloors is active)
-    const zBase = explodeFloors ? 14.0 : 3.6;
-    const zCeil = explodeFloors ? 17.4 : 7.0;
+    // Determine floor elevation band based on selectedFloorId
+    // FL-01: 0.0 - 7.0m | FL-02: 7.0 - 14.0m | FL-03: 14.0 - 21.0m
+    const FL_HEIGHT = 7.0;
+    const FL_GAP = 3.5;
+
+    let floorBaseM = 14.0; // Default FL-03
+    let floorLabel = "Floor 03";
+    let floorCode = "FL-03";
+    let unitAId = "unit-301";
+    let unitALabel = "Unit 301 · Conference Hall";
+    let unitBId = "unit-302";
+    let unitBLabel = "Unit 302 · Executive Suite";
+    let doorId = "door-302";
+    let doorLabel = "Door D-302-A (Egress Door)";
+
+    if (selectedFloorId === "FL-01") {
+      floorBaseM = explodeFloors ? 0.0 : 0.0;
+      floorLabel = "Floor 01 (Ground Floor)";
+      floorCode = "FL-01";
+      unitAId = "unit-101";
+      unitALabel = "Unit 101 · Reception & Lobby";
+      unitBId = "unit-102";
+      unitBLabel = "Unit 102 · Commercial Retail";
+      doorId = "door-102";
+      doorLabel = "Door D-102-A (Entrance Door)";
+    } else if (selectedFloorId === "FL-02") {
+      floorBaseM = explodeFloors ? FL_HEIGHT + FL_GAP : FL_HEIGHT;
+      floorLabel = "Floor 02 (First Floor)";
+      floorCode = "FL-02";
+      unitAId = "unit-201";
+      unitALabel = "Unit 201 · Collaborative Work";
+      unitBId = "unit-202";
+      unitBLabel = "Unit 202 · Innovation Lab";
+      doorId = "door-202";
+      doorLabel = "Door D-202-A (Access Door)";
+    } else {
+      // Default: FL-03
+      floorBaseM = explodeFloors ? (FL_HEIGHT + FL_GAP) * 2 : FL_HEIGHT * 2;
+      floorLabel = "Floor 03 (Executive Suite)";
+      floorCode = "FL-03";
+    }
+
+    const zBase = floorBaseM;
+    const zCeil = floorBaseM + FL_HEIGHT;
 
     // A. Concrete Floor Slab Deck (Light Slate Gray)
     const floorSlabEntity = viewer.entities.add({
-      name: "Floor 03 Concrete Slab Deck",
+      name: `${floorLabel} Concrete Slab Deck`,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57206, 12.99835,
@@ -1207,17 +1250,17 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         outlineWidth: 1.5,
       },
     });
-    (floorSlabEntity as any)._bhuFloorId = "floor-3";
+    (floorSlabEntity as any)._bhuFloorId = floorCode;
     interiorEntitiesRef.current.push(floorSlabEntity);
 
-    // B. Room 302 / Unit 302 (Executive Suite - 24.8 m²)
-    const isUnit302Active =
+    // B. Unit B / Room B (East Suite)
+    const isUnitBActive =
       currentLevel === "UNIT"
-        ? (selectedUnitId === "unit-302" || selectedRoomId === "unit-302" || selectedRoomId === "room-302")
-        : (selectedRoomId === "room-302" || selectedElementId === "door-302");
+        ? (selectedUnitId === unitBId || selectedRoomId === unitBId || selectedRoomId === `room-${unitBId.replace("unit-", "")}`)
+        : (selectedRoomId === `room-${unitBId.replace("unit-", "")}` || selectedElementId === doorId);
 
-    const room302Walls = viewer.entities.add({
-      name: "Room 302 Partition Walls",
+    const roomBWalls = viewer.entities.add({
+      name: `${unitBLabel} Partition Walls`,
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray([
           77.57222, 12.9984,
@@ -1229,23 +1272,23 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         width: 0.15,
         height: zBase + 0.35,
         extrudedHeight: zCeil,
-        material: isUnit302Active
-          ? Cesium.Color.fromCssColorString("#F97316").withAlpha(0.95)
+        material: isUnitBActive
+          ? Cesium.Color.fromCssColorString("#C47B50").withAlpha(0.95)
           : Cesium.Color.fromCssColorString("#334155").withAlpha(0.92),
         outline: true,
-        outlineColor: isUnit302Active
-          ? Cesium.Color.fromCssColorString("#FF9A1F")
+        outlineColor: isUnitBActive
+          ? Cesium.Color.fromCssColorString("#B56E48")
           : Cesium.Color.fromCssColorString("#64748B"),
         outlineWidth: 1.5,
       },
     });
-    (room302Walls as any)._bhuRoomId = "room-302";
-    (room302Walls as any)._bhuUnitId = "unit-302";
-    interiorEntitiesRef.current.push(room302Walls);
+    (roomBWalls as any)._bhuRoomId = `room-${unitBId.replace("unit-", "")}`;
+    (roomBWalls as any)._bhuUnitId = unitBId;
+    interiorEntitiesRef.current.push(roomBWalls);
 
-    // Room 302 Floor carpet surface
-    const room302Carpet = viewer.entities.add({
-      name: "Room 302 Executive Office Suite",
+    // Unit B Carpet surface
+    const roomBCarpet = viewer.entities.add({
+      name: unitBLabel,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57222, 12.9984,
@@ -1256,32 +1299,32 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         ]),
         height: zBase + 0.36,
         extrudedHeight: zBase + 0.42,
-        material: isUnit302Active
-          ? Cesium.Color.fromCssColorString("#F97316").withAlpha(currentLevel === "UNIT" ? 0.65 : 0.40)
+        material: isUnitBActive
+          ? Cesium.Color.fromCssColorString("#B56E48").withAlpha(currentLevel === "UNIT" ? 0.65 : 0.40)
           : currentLevel === "UNIT"
           ? Cesium.Color.fromCssColorString("#1E293B").withAlpha(0.15)
-          : Cesium.Color.fromCssColorString("#14B8A6").withAlpha(0.25),
+          : Cesium.Color.fromCssColorString("#23847D").withAlpha(0.25),
         outline: true,
-        outlineColor: isUnit302Active
-          ? Cesium.Color.fromCssColorString("#F97316")
+        outlineColor: isUnitBActive
+          ? Cesium.Color.fromCssColorString("#C47B50")
           : currentLevel === "UNIT"
           ? Cesium.Color.fromCssColorString("#334155")
-          : Cesium.Color.fromCssColorString("#14B8A6"),
-        outlineWidth: isUnit302Active ? 2.5 : 1.0,
+          : Cesium.Color.fromCssColorString("#23847D"),
+        outlineWidth: isUnitBActive ? 2.5 : 1.0,
       },
     });
-    (room302Carpet as any)._bhuRoomId = "room-302";
-    (room302Carpet as any)._bhuUnitId = "unit-302";
-    interiorEntitiesRef.current.push(room302Carpet);
+    (roomBCarpet as any)._bhuRoomId = `room-${unitBId.replace("unit-", "")}`;
+    (roomBCarpet as any)._bhuUnitId = unitBId;
+    interiorEntitiesRef.current.push(roomBCarpet);
 
-    // C. Room 301 / Unit 301 (Conference Hall - 32.5 m²)
-    const isUnit301Active =
+    // C. Unit A / Room A (West Suite)
+    const isUnitAActive =
       currentLevel === "UNIT"
-        ? (selectedUnitId === "unit-301" || selectedRoomId === "unit-301" || selectedRoomId === "room-301")
-        : (selectedRoomId === "room-301");
+        ? (selectedUnitId === unitAId || selectedRoomId === unitAId || selectedRoomId === `room-${unitAId.replace("unit-", "")}`)
+        : (selectedRoomId === `room-${unitAId.replace("unit-", "")}`);
 
-    const room301Walls = viewer.entities.add({
-      name: "Room 301 Partition Walls",
+    const roomAWalls = viewer.entities.add({
+      name: `${unitALabel} Partition Walls`,
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray([
           77.57207, 12.9984,
@@ -1293,23 +1336,23 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         width: 0.15,
         height: zBase + 0.35,
         extrudedHeight: zCeil,
-        material: isUnit301Active
-          ? Cesium.Color.fromCssColorString("#00F0FF").withAlpha(0.95)
+        material: isUnitAActive
+          ? Cesium.Color.fromCssColorString("#23847D").withAlpha(0.95)
           : Cesium.Color.fromCssColorString("#334155").withAlpha(0.92),
         outline: true,
-        outlineColor: isUnit301Active
-          ? Cesium.Color.fromCssColorString("#2DD4BF")
+        outlineColor: isUnitAActive
+          ? Cesium.Color.fromCssColorString("#2EB8B0")
           : Cesium.Color.fromCssColorString("#64748B"),
         outlineWidth: 1.5,
       },
     });
-    (room301Walls as any)._bhuRoomId = "room-301";
-    (room301Walls as any)._bhuUnitId = "unit-301";
-    interiorEntitiesRef.current.push(room301Walls);
+    (roomAWalls as any)._bhuRoomId = `room-${unitAId.replace("unit-", "")}`;
+    (roomAWalls as any)._bhuUnitId = unitAId;
+    interiorEntitiesRef.current.push(roomAWalls);
 
-    // Room 301 Carpet
-    const room301Carpet = viewer.entities.add({
-      name: "Room 301 Conference Hall",
+    // Unit A Carpet
+    const roomACarpet = viewer.entities.add({
+      name: unitALabel,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57207, 12.9984,
@@ -1320,28 +1363,28 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         ]),
         height: zBase + 0.36,
         extrudedHeight: zBase + 0.42,
-        material: isUnit301Active
-          ? Cesium.Color.fromCssColorString("#00F0FF").withAlpha(currentLevel === "UNIT" ? 0.60 : 0.40)
+        material: isUnitAActive
+          ? Cesium.Color.fromCssColorString("#23847D").withAlpha(currentLevel === "UNIT" ? 0.60 : 0.40)
           : currentLevel === "UNIT"
           ? Cesium.Color.fromCssColorString("#1E293B").withAlpha(0.15)
           : Cesium.Color.fromCssColorString("#334155").withAlpha(0.20),
         outline: true,
-        outlineColor: isUnit301Active
-          ? Cesium.Color.fromCssColorString("#00F0FF")
+        outlineColor: isUnitAActive
+          ? Cesium.Color.fromCssColorString("#2EB8B0")
           : currentLevel === "UNIT"
           ? Cesium.Color.fromCssColorString("#334155")
           : Cesium.Color.fromCssColorString("#64748B"),
-        outlineWidth: isUnit301Active ? 2.5 : 1.0,
+        outlineWidth: isUnitAActive ? 2.5 : 1.0,
       },
     });
-    (room301Carpet as any)._bhuRoomId = "room-301";
-    (room301Carpet as any)._bhuUnitId = "unit-301";
-    interiorEntitiesRef.current.push(room301Carpet);
+    (roomACarpet as any)._bhuRoomId = `room-${unitAId.replace("unit-", "")}`;
+    (roomACarpet as any)._bhuUnitId = unitAId;
+    interiorEntitiesRef.current.push(roomACarpet);
 
     // D. Central Egress Corridor / Hall
     const isCorridorSelected = currentLevel === "CORRIDOR";
     const corridorEntity = viewer.entities.add({
-      name: "Central Egress Corridor & Hall",
+      name: `${floorLabel} Egress Corridor`,
       polygon: {
         hierarchy: Cesium.Cartesian3.fromDegreesArray([
           77.57207, 12.9991,
@@ -1353,22 +1396,22 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         height: zBase + 0.36,
         extrudedHeight: zBase + 0.40,
         material: isCorridorSelected
-          ? Cesium.Color.fromCssColorString("#F97316").withAlpha(0.35)
+          ? Cesium.Color.fromCssColorString("#C47B50").withAlpha(0.35)
           : Cesium.Color.fromCssColorString("#64748B").withAlpha(0.22),
         outline: true,
         outlineColor: isCorridorSelected
-          ? Cesium.Color.fromCssColorString("#F97316")
+          ? Cesium.Color.fromCssColorString("#C47B50")
           : Cesium.Color.fromCssColorString("#94A3B8"),
         outlineWidth: 1.5,
       },
     });
-    (corridorEntity as any)._bhuCorridorId = "corridor-3";
+    (corridorEntity as any)._bhuCorridorId = `corridor-${floorCode.toLowerCase()}`;
     interiorEntitiesRef.current.push(corridorEntity);
 
-    // E. Door D-302-A (Egress Door Opening Frame)
-    const isDoorSelected = selectedElementId === "door-302";
+    // E. Door Opening Frame
+    const isDoorSelected = selectedElementId === doorId;
     const doorEntity = viewer.entities.add({
-      name: "Door D-302-A (Egress Door)",
+      name: doorLabel,
       corridor: {
         positions: Cesium.Cartesian3.fromDegreesArray([
           77.57222, 12.9990,
@@ -1378,14 +1421,14 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         height: zBase + 0.35,
         extrudedHeight: zBase + 2.40,
         material: isDoorSelected
-          ? Cesium.Color.fromCssColorString("#F97316").withAlpha(0.95)
-          : Cesium.Color.fromCssColorString("#F97316").withAlpha(0.70),
+          ? Cesium.Color.fromCssColorString("#C47B50").withAlpha(0.95)
+          : Cesium.Color.fromCssColorString("#C47B50").withAlpha(0.70),
         outline: true,
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 2.0,
       },
     });
-    (doorEntity as any)._bhuElementId = "door-302";
+    (doorEntity as any)._bhuElementId = doorId;
     interiorEntitiesRef.current.push(doorEntity);
 
     // F. Structural Columns (C-1, C-2)
@@ -1410,13 +1453,13 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
 
     // G. Unit Centroid 3D Point Markers
     [
-      { id: "unit-301", no: "Unit 301", lng: 77.572135, lat: 12.9987 },
-      { id: "unit-302", no: "Unit 302", lng: 77.572285, lat: 12.9987 },
+      { id: unitAId, no: unitALabel.split(" · ")[0], lng: 77.572135, lat: 12.9987 },
+      { id: unitBId, no: unitBLabel.split(" · ")[0], lng: 77.572285, lat: 12.9987 },
     ].forEach((u) => {
       const isThisUnitActive =
         currentLevel === "UNIT"
           ? (selectedUnitId === u.id || selectedRoomId === u.id)
-          : (selectedRoomId === (u.id === "unit-301" ? "room-301" : "room-302"));
+          : (selectedRoomId === (u.id === unitAId ? `room-${unitAId.replace("unit-", "")}` : `room-${unitBId.replace("unit-", "")}`));
 
       const unitEntity = viewer.entities.add({
         name: u.no,
@@ -1424,7 +1467,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         point: {
           pixelSize: isThisUnitActive ? 13 : 9,
           color: isThisUnitActive
-            ? Cesium.Color.fromCssColorString(u.id === "unit-301" ? "#00F0FF" : "#F97316")
+            ? Cesium.Color.fromCssColorString(u.id === unitAId ? "#23847D" : "#C47B50")
             : Cesium.Color.fromCssColorString("#64748B"),
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
@@ -1591,20 +1634,20 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         });
       } else if (cameraPreset === "BUILDING") {
         viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.57140, 12.99820, 68.0),
+          destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99820, 42.0),
           orientation: {
-            heading: Cesium.Math.toRadians(38.0),
-            pitch: Cesium.Math.toRadians(-28.0),
+            heading: Cesium.Math.toRadians(36.0),
+            pitch: Cesium.Math.toRadians(-22.0),
             roll: 0.0,
           },
           duration: 1.5,
         });
       } else if (cameraPreset === "FLOOR") {
         viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.57140, 12.99840, 36.0),
+          destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, 18.0),
           orientation: {
-            heading: Cesium.Math.toRadians(45.0),
-            pitch: Cesium.Math.toRadians(-35.0),
+            heading: Cesium.Math.toRadians(38.0),
+            pitch: Cesium.Math.toRadians(-30.0),
             roll: 0.0,
           },
           duration: 1.5,
@@ -1726,34 +1769,42 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     } else if (currentLevel === "BUILDING") {
       let targetLng = 77.57221;
       let targetLat = 12.99910;
-      let targetAlt = 68.0;
+      let targetAlt = 42.0;
       if (selectedBuildingId) {
         const bld = getUrbanBuildingById(selectedBuildingId);
         if (bld) {
           targetLng = bld.centroid[0];
           targetLat = bld.centroid[1];
-          targetAlt = Math.max(bld.height * 2.5, 48.0);
+          // Close-up inspection distance: ~2× building height, min 32m
+          targetAlt = Math.max(bld.height * 2.0, 32.0);
         }
       }
       viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(targetLng - 0.00065, targetLat - 0.00085, targetAlt),
+        destination: Cesium.Cartesian3.fromDegrees(targetLng - 0.00055, targetLat - 0.00070, targetAlt),
         orientation: {
           heading: Cesium.Math.toRadians(36.0),
-          pitch: Cesium.Math.toRadians(-28.0),
+          pitch: Cesium.Math.toRadians(-22.0),
           roll: 0.0,
         },
         duration: 1.4,
       });
     } else if (currentLevel === "FLOOR") {
-      const camZ = explodeFloors ? 48.0 : 36.0;
+      // Camera shows the specific floor clearly: altitude = 1 floor height × 3
+      // selectedFloorId determines vertical focus within the building
+      const floorHeightM = 7.0; // per floor
+      const floorIndex = selectedFloorId
+        ? (selectedFloorId === "FL-01" ? 0 : selectedFloorId === "FL-02" ? 1 : 2)
+        : 2; // default FL-03
+      const floorMidZ = floorIndex * floorHeightM + floorHeightM / 2;
+      const camZ = explodeFloors ? 26.0 : 18.0;
       viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(77.57140, 12.99840, camZ),
+        destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, camZ),
         orientation: {
-          heading: Cesium.Math.toRadians(45.0),
-          pitch: Cesium.Math.toRadians(-35.0),
+          heading: Cesium.Math.toRadians(38.0),
+          pitch: Cesium.Math.toRadians(-30.0),
           roll: 0.0,
         },
-        duration: 1.5,
+        duration: 1.4,
       });
     } else if (currentLevel === "UNIT") {
       const isUnit301 = selectedUnitId === "unit-301" || selectedRoomId === "unit-301";
@@ -1946,6 +1997,129 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
           </button>
         )}
       </div>
+
+      {/* Floating Floor Selector Rail (Visible during Building / Floor Inspection) */}
+      {(currentLevel === "BUILDING" ||
+        currentLevel === "FLOOR" ||
+        currentLevel === "UNIT" ||
+        currentLevel === "ROOM" ||
+        currentLevel === "ELEMENT" ||
+        currentLevel === "CORRIDOR") && selectedBuildingId && (
+        <div
+          className={`absolute top-[260px] z-20 flex flex-col bg-[#141816]/95 backdrop-blur-md rounded-[10px] border border-[rgba(244,240,232,0.10)] shadow-2xl transition-all duration-300 overflow-hidden w-36 select-none ${
+            isRightPanelOpen ? "right-[436px]" : "right-4"
+          }`}
+        >
+          {/* Header */}
+          <div className="px-2.5 py-1.5 bg-[#0F1210] border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">
+              FLOORS
+            </span>
+            <span className="text-[9px] font-mono text-[#6F7772]">3 LEVELS</span>
+          </div>
+
+          {/* Floor Items (Rendered top to bottom: FL-03, FL-02, FL-01) */}
+          <div className="flex flex-col p-1 gap-1">
+            {[
+              {
+                id: "FL-03",
+                label: "Floor 03",
+                sublabel: "Executive",
+                isUnsanctioned: true,
+              },
+              {
+                id: "FL-02",
+                label: "Floor 02",
+                sublabel: "First Floor",
+                isUnsanctioned: false,
+              },
+              {
+                id: "FL-01",
+                label: "Floor 01",
+                sublabel: "Ground Floor",
+                isUnsanctioned: false,
+              },
+            ].map((fl) => {
+              const isSelected = selectedFloorId === fl.id;
+              return (
+                <button
+                  key={fl.id}
+                  onClick={() => onSelectLevel("FLOOR", fl.id)}
+                  className={`px-2 py-1.5 rounded-[6px] text-left transition-all flex items-center justify-between group ${
+                    isSelected
+                      ? "bg-[#C47B50] text-[#F4F0E8] shadow-md font-bold"
+                      : "hover:bg-[#1A201D] text-[#D9D2C5]"
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] font-mono font-semibold">{fl.label}</span>
+                      {fl.isUnsanctioned && (
+                        <span
+                          className={`text-[8px] font-mono px-1 rounded ${
+                            isSelected
+                              ? "bg-black/30 text-white"
+                              : "bg-rose-900/60 text-rose-300"
+                          }`}
+                          title="Unsanctioned Floor (+3.0m)"
+                        >
+                          +3m
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`text-[9px] block truncate ${
+                        isSelected ? "text-[#F4F0E8]/80" : "text-[#77867C]"
+                      }`}
+                    >
+                      {fl.sublabel}
+                    </span>
+                  </div>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      isSelected
+                        ? "bg-white"
+                        : fl.isUnsanctioned
+                        ? "bg-rose-400"
+                        : "bg-[#23847D]"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick mode toggles */}
+          <div className="px-1.5 py-1 bg-[#0F1210] border-t border-[rgba(244,240,232,0.06)] flex items-center justify-between text-[9px] font-mono">
+            {onToggleIsolateFloor && (
+              <button
+                onClick={onToggleIsolateFloor}
+                className={`px-1.5 py-0.5 rounded transition-all ${
+                  isolateFloor
+                    ? "bg-[#C47B50] text-white font-bold"
+                    : "text-[#77867C] hover:text-[#D9D2C5]"
+                }`}
+                title="Isolate selected floor"
+              >
+                {isolateFloor ? "ISOLATED" : "ISOLATE"}
+              </button>
+            )}
+            {onToggleExplodeFloors && (
+              <button
+                onClick={onToggleExplodeFloors}
+                className={`px-1.5 py-0.5 rounded transition-all ${
+                  explodeFloors
+                    ? "bg-[#23847D] text-[#0F1210] font-bold"
+                    : "text-[#77867C] hover:text-[#D9D2C5]"
+                }`}
+                title="Explode all floors vertically"
+              >
+                {explodeFloors ? "COLLAPSE" : "EXPLODE"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Measurement Mode Prompt Bar (Fallback when onMeasurementUpdate not supplied) */}
       {measurementActive && !onMeasurementUpdate && (

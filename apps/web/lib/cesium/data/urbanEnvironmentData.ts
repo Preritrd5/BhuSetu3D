@@ -420,8 +420,8 @@ export const URBAN_BUILDINGS: UrbanBuildingDefinition[] = [
     typology: "TYPE_B_MID_RISE",
     typologyLabel: "Commercial Office Complex",
     floorCount: 3,
-    height: 14.5,
-    sanctionedHeight: 11.5,
+    height: 21.0,
+    sanctionedHeight: 14.0,
     hasConflict: true,
     isPrimaryDemo: true,
     footprint: [

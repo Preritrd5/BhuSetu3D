@@ -46,8 +46,81 @@ export const FloorInspector: React.FC<FloorInspectorProps> = ({
   onOpenAI,
 }) => {
   const meta = selection.metadata || {};
-  const units = floorNode?.units || [];
-  const isUnsanctioned = meta.is_unsanctioned;
+  const floorCode = meta.floor_code || selection.entityId || "FL-03";
+
+  // Canonical fallback units per floor
+  const getFallbackUnits = (code: string) => {
+    if (code === "FL-01") {
+      return [
+        {
+          id: "unit-101",
+          unit_number: "unit-101",
+          unit_label: "Unit 101 · Reception & Lobby",
+          unit_type: "COMMERCIAL",
+          carpet_area_sqm: 110.0,
+          ulpin_3d: "KA-BLR-2026-P102-U101",
+          rooms: [],
+        },
+        {
+          id: "unit-102",
+          unit_number: "unit-102",
+          unit_label: "Unit 102 · Retail Arcade",
+          unit_type: "COMMERCIAL",
+          carpet_area_sqm: 85.0,
+          ulpin_3d: "KA-BLR-2026-P102-U102",
+          rooms: [],
+        },
+      ];
+    } else if (code === "FL-02") {
+      return [
+        {
+          id: "unit-201",
+          unit_number: "unit-201",
+          unit_label: "Unit 201 · Collaborative Work",
+          unit_type: "COMMERCIAL",
+          carpet_area_sqm: 115.0,
+          ulpin_3d: "KA-BLR-2026-P102-U201",
+          rooms: [],
+        },
+        {
+          id: "unit-202",
+          unit_number: "unit-202",
+          unit_label: "Unit 202 · Innovation Lab",
+          unit_type: "COMMERCIAL",
+          carpet_area_sqm: 90.0,
+          ulpin_3d: "KA-BLR-2026-P102-U202",
+          rooms: [],
+        },
+      ];
+    } else {
+      // Default: FL-03
+      return [
+        {
+          id: "unit-301",
+          unit_number: "unit-301",
+          unit_label: "Unit 301 · Conference Hall",
+          unit_type: "COMMERCIAL",
+          carpet_area_sqm: 118.0,
+          ulpin_3d: "KA-BLR-2026-P102-U301",
+          rooms: [],
+        },
+        {
+          id: "unit-302",
+          unit_number: "unit-302",
+          unit_label: "Unit 302 · Executive Suite",
+          unit_type: "COMMERCIAL",
+          carpet_area_sqm: 88.0,
+          ulpin_3d: "KA-BLR-2026-P102-U302",
+          rooms: [],
+        },
+      ];
+    }
+  };
+
+  const units = (floorNode?.units && floorNode.units.length > 0)
+    ? floorNode.units
+    : getFallbackUnits(floorCode);
+  const isUnsanctioned = meta.is_unsanctioned || floorCode === "FL-03";
 
   return (
     <>

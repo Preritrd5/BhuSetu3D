@@ -30,6 +30,7 @@ export interface RenderContext {
   Cesium: any;
   selectedBuildingId: string | null;
   selectedParcelId: string | null;
+  selectedFloorId?: string | null;
   comparisonEntityBId?: string | null;
   highlightEntityIds?: string[];
   currentLevel: string;
@@ -379,65 +380,63 @@ export function renderBuildings(
     // A. PRIMARY DEMONSTRATION BUILDING SPECIAL HERO HANDLING (AURA HORIZON)
     // ========================================================================
     if (b.isPrimaryDemo) {
+      // ----------------------------------------------------------------
+      // FLOOR CONSTANTS (21m building: 3 × 7m floors)
+      // ----------------------------------------------------------------
+      const FL_HEIGHT = 7.0;       // metres per structural floor
+      const FL_GAP    = 3.5;       // exploded separation gap
+      const ROOF_H    = 2.5;       // penthouse / mechanical roof band
+      const BLDG_TOP  = FL_HEIGHT * b.floorCount; // 21.0m
+
       if (ctx.explodeFloors && isSelected) {
-        // Exploded Floor Visualization Mode
-        // Floor 01 (0.0m - 3.5m)
-        const fl1 = viewer.entities.add({
-          name: "Floor 01 Exploded Volume",
-          polygon: {
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
-            height: 0.0,
-            extrudedHeight: 3.5,
-            material: Cesium.Color.fromCssColorString("#0D2534").withAlpha(0.85),
-            outline: true,
-            outlineColor: Cesium.Color.fromCssColorString("#00F0FF"),
-            outlineWidth: 2.0,
-          },
-        });
-        (fl1 as any)._bhuFloorId = "FL-01";
-        collections.explodedEntities.push(fl1);
+        // ========================================
+        // EXPLODED FLOOR VISUALIZATION MODE
+        // 3 Slab floors separated vertically by FL_GAP
+        // ========================================
+        const floorDefs = [
+          { id: "FL-01", label: "FL-01 — Ground Floor",    base: 0.0,                              top: FL_HEIGHT },
+          { id: "FL-02", label: "FL-02 — First Floor",     base: FL_HEIGHT + FL_GAP,               top: FL_HEIGHT * 2 + FL_GAP },
+          { id: "FL-03", label: "FL-03 — Executive Suite", base: FL_HEIGHT * 2 + FL_GAP * 2,       top: FL_HEIGHT * 3 + FL_GAP * 2 },
+        ];
+        const totalExplodedH = FL_HEIGHT * 3 + FL_GAP * 2 + ROOF_H;
 
-        // Floor 02 (7.0m - 10.5m)
-        const fl2 = viewer.entities.add({
-          name: "Floor 02 Exploded Volume",
-          polygon: {
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
-            height: 7.0,
-            extrudedHeight: 10.5,
-            material: Cesium.Color.fromCssColorString("#0C2535").withAlpha(0.88),
-            outline: true,
-            outlineColor: Cesium.Color.fromCssColorString("#00F0FF"),
-            outlineWidth: 2.0,
-          },
-        });
-        (fl2 as any)._bhuFloorId = "FL-02";
-        collections.explodedEntities.push(fl2);
+        floorDefs.forEach((fd, idx) => {
+          if (fd.id === "FL-03" && isCutawayActive) return; // cutaway hides FL-03 solid
 
-        // Floor 03 (14.0m - 17.5m)
-        if (!isCutawayActive) {
-          const fl3 = viewer.entities.add({
-            name: "Floor 03 Exploded Volume",
+          const isActiveFloor = ctx.isolateFloor
+            ? (fd.id === ctx.selectedFloorId || (!ctx.selectedFloorId && fd.id === "FL-03"))
+            : false;
+
+          const floorAlpha = isActiveFloor ? 0.95 : ctx.isolateFloor ? 0.18 : 0.85 + idx * 0.03;
+          const outlineAlpha = isActiveFloor ? 1.0 : ctx.isolateFloor ? 0.35 : 0.90;
+          const outlineW = isActiveFloor ? 3.0 : 1.8;
+
+          const floorEntity = viewer.entities.add({
+            name: fd.label,
             polygon: {
               hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
-              height: 14.0,
-              extrudedHeight: 17.5,
-              material: Cesium.Color.fromCssColorString("#0C2535").withAlpha(0.92),
+              height: fd.base,
+              extrudedHeight: fd.top,
+              material: Cesium.Color.fromCssColorString("#0C2535").withAlpha(floorAlpha),
               outline: true,
-              outlineColor: Cesium.Color.fromCssColorString("#00F0FF"),
-              outlineWidth: 2.5,
+              outlineColor: isActiveFloor
+                ? Cesium.Color.fromCssColorString("#C47B50")
+                : Cesium.Color.fromCssColorString("#00F0FF").withAlpha(outlineAlpha),
+              outlineWidth: outlineW,
             },
           });
-          (fl3 as any)._bhuFloorId = "FL-03";
-          collections.explodedEntities.push(fl3);
-        }
+          (floorEntity as any)._bhuFloorId = fd.id;
+          collections.explodedEntities.push(floorEntity);
+        });
 
-        // Roof Exploded Volume (21.0m - 23.5m)
+        // Roof / Penthouse Volume
+        const roofBase = FL_HEIGHT * 3 + FL_GAP * 2;
         const roof = viewer.entities.add({
-          name: "Rooftop Mechanical Exploded Penthouse",
+          name: "Rooftop Mechanical Penthouse",
           polygon: {
             hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
-            height: 21.0,
-            extrudedHeight: 23.5,
+            height: roofBase,
+            extrudedHeight: roofBase + ROOF_H,
             material: Cesium.Color.fromCssColorString("#1E293B").withAlpha(0.90),
             outline: true,
             outlineColor: Cesium.Color.fromCssColorString("#38BDF8"),
@@ -453,7 +452,7 @@ export function renderBuildings(
             polyline: {
               positions: [
                 Cesium.Cartesian3.fromDegrees(cLng, cLat, 0.0),
-                Cesium.Cartesian3.fromDegrees(cLng, cLat, 23.5),
+                Cesium.Cartesian3.fromDegrees(cLng, cLat, totalExplodedH),
               ],
               width: 1.5,
               material: new Cesium.PolylineDashMaterialProperty({
@@ -465,17 +464,17 @@ export function renderBuildings(
           collections.explodedEntities.push(leader);
         });
 
-        // Floor Level Badges
+        // Floor Level Labels
         [
-          { label: "FL-01 (Ground)", z: 1.7 },
-          { label: "FL-02 (Podium)", z: 8.7 },
-          { label: "FL-03 (Executive Suite)", z: 15.7 },
-          { label: "ROOF (Mechanical)", z: 22.2 },
+          { label: "FL-01 (Ground)", z: FL_HEIGHT * 0.5 },
+          { label: "FL-02 (First)",  z: FL_HEIGHT + FL_GAP + FL_HEIGHT * 0.5 },
+          { label: "FL-03 (Executive)", z: FL_HEIGHT * 2 + FL_GAP * 2 + FL_HEIGHT * 0.5 },
+          { label: "ROOF (Mechanical)", z: roofBase + ROOF_H * 0.5 },
         ].forEach((tag) => {
           const tagEntity = viewer.entities.add({
             name: tag.label,
             position: Cesium.Cartesian3.fromDegrees(
-              b.centroid[0] + 0.00035,
+              b.centroid[0] + 0.00038,
               b.centroid[1],
               tag.z
             ),
@@ -485,46 +484,161 @@ export function renderBuildings(
               fillColor: Cesium.Color.WHITE,
               showBackground: true,
               backgroundColor: Cesium.Color.fromCssColorString("#090E17").withAlpha(0.92),
+              backgroundPadding: new Cesium.Cartesian2(6, 4),
               pixelOffset: new Cesium.Cartesian2(0, 0),
             },
           });
           collections.explodedEntities.push(tagEntity);
         });
       } else {
-        // Main Architectural Volume
-        const entity = viewer.entities.add({
-          name: b.name,
-          polygon: {
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
-            height: 0.0,
-            extrudedHeight: isCutawayActive ? 3.5 : bHeight,
-            material: isComparisonB
-              ? Cesium.Color.fromCssColorString("#B45309").withAlpha(0.85)
+        // ======================================================
+        // NON-EXPLODED MODE: Per-Floor Slab Rendering
+        //
+        // In BUILDING/FLOOR/UNIT/ROOM/ELEMENT levels: render each
+        // floor as a distinct Cesium entity so floors are individually
+        // clickable and can be visually isolated.
+        //
+        // In CITY/PARCEL levels (not selected): single fast volume.
+        // ======================================================
+        const isDetailLevel =
+          isSelected &&
+          (ctx.currentLevel === "BUILDING" ||
+           ctx.currentLevel === "FLOOR" ||
+           ctx.currentLevel === "UNIT" ||
+           ctx.currentLevel === "ROOM" ||
+           ctx.currentLevel === "CORRIDOR" ||
+           ctx.currentLevel === "ELEMENT");
+
+        if (isDetailLevel) {
+          // Render each floor as a separate entity with its own id/color/opacity
+          // FL-01: 0.0 – 7.0m | FL-02: 7.0 – 14.0m | FL-03: 14.0 – 21.0m
+          const floorSlabs = [
+            { id: "FL-01", label: "Floor 01 — Ground",     base: 0.0,  top: FL_HEIGHT },
+            { id: "FL-02", label: "Floor 02 — First",      base: FL_HEIGHT,      top: FL_HEIGHT * 2 },
+            { id: "FL-03", label: "Floor 03 — Executive",  base: FL_HEIGHT * 2,  top: FL_HEIGHT * 3 },
+          ];
+
+          // Determine active floor (for isolateFloor dimming)
+          const activeFloorId = ctx.selectedFloorId;
+
+          floorSlabs.forEach((slab, idx) => {
+            // When cutaway active (FLOOR+) hide the solid FL-03 top (interior shows)
+            if (isCutawayActive && slab.id === "FL-03") return;
+
+            const isThisFloorActive = activeFloorId
+              ? (slab.id === activeFloorId)
+              : (slab.id === "FL-03"); // Default highlight FL-03
+
+            // Floor isolation: selected floor 100% visible, others ghost
+            const alpha = ctx.isolateFloor
+              ? (isThisFloorActive ? 0.92 : 0.08)
+              : isComparisonB
+              ? 0.85
               : isCutawayActive
-              ? Cesium.Color.fromCssColorString("#0D2534").withAlpha(0.35)
-              : ctx.isolateFloor && isSelected
-              ? Cesium.Color.fromCssColorString("#0C2535").withAlpha(0.10)
-              : isSelected
-              ? Cesium.Color.fromCssColorString("#0C2535").withAlpha(0.92)
-              : Cesium.Color.fromCssColorString("#152332").withAlpha(0.92),
-            outline: true,
-            outlineColor: isAiHighlighted
-              ? Cesium.Color.fromCssColorString("#00F0FF")
+              ? 0.35
+              : 0.88 + idx * 0.02;
+
+            const floorOutlineColor = isThisFloorActive && ctx.isolateFloor
+              ? Cesium.Color.fromCssColorString("#C47B50")       // Copper — active floor
               : isComparisonB
               ? Cesium.Color.fromCssColorString("#F59E0B")
-              : isSelected
+              : isSelected && ctx.currentLevel === "BUILDING"
               ? Cesium.Color.fromCssColorString("#00F0FF")
-              : isConflict
+              : isConflict && slab.id === "FL-03"                // Conflict on FL-03 (unsanctioned)
               ? Cesium.Color.fromCssColorString("#F97316")
-              : Cesium.Color.fromCssColorString("#334960"),
-            outlineWidth: isAiHighlighted || isComparisonB || isSelected ? 3.0 : 1.5,
-          },
-        });
+              : Cesium.Color.fromCssColorString("#334960").withAlpha(0.80);
 
-        (entity as any)._bhuBuildingId = b.legacyId || b.buildingId;
-        (entity as any)._bhuBuildingMeta = b;
-        collections.buildings.set(b.buildingId, entity);
-        if (b.legacyId) collections.buildings.set(b.legacyId, entity);
+            const floorOutlineW = isThisFloorActive && ctx.isolateFloor ? 3.5 :
+              (isSelected ? 2.5 : 1.5);
+
+            const slabEntity = viewer.entities.add({
+              name: slab.label,
+              polygon: {
+                hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
+                height: slab.base,
+                extrudedHeight: slab.top,
+                material: isComparisonB
+                  ? Cesium.Color.fromCssColorString("#B45309").withAlpha(alpha)
+                  : isCutawayActive
+                  ? Cesium.Color.fromCssColorString("#0D2534").withAlpha(0.35)
+                  : Cesium.Color.fromCssColorString("#0C2535").withAlpha(alpha),
+                outline: true,
+                outlineColor: floorOutlineColor,
+                outlineWidth: floorOutlineW,
+              },
+            });
+
+            (slabEntity as any)._bhuBuildingId = b.legacyId || b.buildingId;
+            (slabEntity as any)._bhuFloorId = slab.id;
+            (slabEntity as any)._bhuBuildingMeta = b;
+            collections.buildings.set(`${b.buildingId}-${slab.id}`, slabEntity);
+          });
+
+          // Roof / parapet volume (above FL-03)
+          if (!isCutawayActive) {
+            const parapetVol = viewer.entities.add({
+              name: "Roof Parapet Volume",
+              polygon: {
+                hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
+                height: BLDG_TOP,
+                extrudedHeight: BLDG_TOP + ROOF_H,
+                material: Cesium.Color.fromCssColorString("#1A2638").withAlpha(
+                  ctx.isolateFloor ? 0.05 : 0.92
+                ),
+                outline: true,
+                outlineColor: Cesium.Color.fromCssColorString("#38BDF8").withAlpha(
+                  ctx.isolateFloor ? 0.20 : 0.90
+                ),
+                outlineWidth: 1.5,
+              },
+            });
+            (parapetVol as any)._bhuBuildingId = b.legacyId || b.buildingId;
+            collections.buildings.set(`${b.buildingId}-roof`, parapetVol);
+          }
+
+          // Register main entity alias for flyTo etc.
+          const mainAlias = viewer.entities.add({
+            name: b.name,
+            position: Cesium.Cartesian3.fromDegrees(b.centroid[0], b.centroid[1], FL_HEIGHT * 1.5),
+            point: { pixelSize: 0.1, color: Cesium.Color.TRANSPARENT },
+          });
+          (mainAlias as any)._bhuBuildingId = b.legacyId || b.buildingId;
+          (mainAlias as any)._bhuBuildingMeta = b;
+          collections.buildings.set(b.buildingId, mainAlias);
+          if (b.legacyId) collections.buildings.set(b.legacyId, mainAlias);
+
+        } else {
+          // CITY/PARCEL/non-selected: fast single-volume render
+          const entity = viewer.entities.add({
+            name: b.name,
+            polygon: {
+              hierarchy: Cesium.Cartesian3.fromDegreesArray(flatCoords),
+              height: 0.0,
+              extrudedHeight: bHeight,
+              material: isComparisonB
+                ? Cesium.Color.fromCssColorString("#B45309").withAlpha(0.85)
+                : isAiHighlighted
+                ? Cesium.Color.fromCssColorString("#0C2535").withAlpha(0.92)
+                : isCitySubdued
+                ? Cesium.Color.fromCssColorString("#0C1A26").withAlpha(0.50)
+                : Cesium.Color.fromCssColorString("#152332").withAlpha(0.92),
+              outline: true,
+              outlineColor: isAiHighlighted
+                ? Cesium.Color.fromCssColorString("#00F0FF")
+                : isComparisonB
+                ? Cesium.Color.fromCssColorString("#F59E0B")
+                : isConflict
+                ? Cesium.Color.fromCssColorString("#F97316")
+                : Cesium.Color.fromCssColorString("#334960"),
+              outlineWidth: isAiHighlighted || isComparisonB ? 3.0 : 1.5,
+            },
+          });
+
+          (entity as any)._bhuBuildingId = b.legacyId || b.buildingId;
+          (entity as any)._bhuBuildingMeta = b;
+          collections.buildings.set(b.buildingId, entity);
+          if (b.legacyId) collections.buildings.set(b.legacyId, entity);
+        }
       }
 
       // Hero Architectural Detailing (Entrance, mullions, spandrels, roof chillers)
