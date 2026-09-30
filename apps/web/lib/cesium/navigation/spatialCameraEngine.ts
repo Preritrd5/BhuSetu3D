@@ -505,8 +505,9 @@ export function resolveSpatialTargetForSelection(
  *
  * Guarantees:
  * - Cancels previous flight safely to prevent race conditions during rapid clicking.
- * - Restores camera transform to Cesium.Matrix4.IDENTITY on completion or cancellation,
- *   preserving unrestricted 360° orbital manual navigation.
+ * - Restores camera transform to Cesium.Matrix4.IDENTITY both BEFORE the flight
+ *   starts AND on completion/cancellation, ensuring no locked lookAt transform
+ *   can ever restrict 360° orbital manual navigation.
  */
 export function executeCameraFlight(
   viewer: any,
@@ -524,9 +525,14 @@ export function executeCameraFlight(
     if (viewer.camera) {
       viewer.camera.cancelFlight();
 
-      // Clear any locked lookAtTransform before starting flight
-      if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+      // ── Release any locked camera transform BEFORE the new flight starts ──
+      // This is critical: if a previous lookAt() left a non-IDENTITY transform,
+      // the user would be locked into a fixed-orbit mode with no 360° freedom.
+      // We always reset to IDENTITY first, then flyTo to a world coordinate.
+      try {
         viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+      } catch {
+        // safe to ignore if already IDENTITY
       }
     }
 
@@ -541,17 +547,21 @@ export function executeCameraFlight(
       },
       duration,
       complete: () => {
-        // Unlock transform to guarantee full manual orbit/pan/zoom/tilt freedom
-        if (viewer.camera && viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
-          viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-        }
+        // Unlock transform again on completion to guarantee full manual orbit/pan/zoom/tilt freedom
+        try {
+          if (viewer.camera && viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+          }
+        } catch {}
         options?.onComplete?.();
       },
       cancel: () => {
         // Yield to user input cleanly if user grabs controls during flight
-        if (viewer.camera && viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
-          viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-        }
+        try {
+          if (viewer.camera && viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+          }
+        } catch {}
       },
     });
   } catch (err) {

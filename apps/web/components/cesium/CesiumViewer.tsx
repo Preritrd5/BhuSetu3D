@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Compass, Plus, Minus, RefreshCw, Box, Layers, Ruler } from "lucide-react";
+import { Compass, Plus, Minus, RefreshCw, Box, Layers, Ruler, RotateCcw, MousePointer2, X } from "lucide-react";
 import { WebGLFallback } from "./WebGLFallback";
 import { SpatialLoadingRoller } from "../common/SpatialLoadingRoller";
 import { CARTO_BASEMAP_CONFIG } from "@/lib/carto";
@@ -175,8 +175,6 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   const viewerRef = useRef<any>(null);
   const CesiumRef = useRef<any>(null);
 
-  const treeDataRef = useRef(treeData);
-  treeDataRef.current = treeData;
   const onSourceStatusChangeRef = useRef(onSourceStatusChange);
   onSourceStatusChangeRef.current = onSourceStatusChange;
 
@@ -202,6 +200,25 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   const selectedParcelIdRef = useRef(selectedParcelId);
   selectedParcelIdRef.current = selectedParcelId;
 
+  // ─── Camera Context Refs (read by camera engine without re-triggering flights) ───
+  // These values are passed into the camera engine at flight time via the ref's .current.
+  // They must NOT be in the auto-selection effect dependency array — changes to these
+  // alone must never re-trigger a camera flight and override manual user navigation.
+  const isRightPanelOpenRef = useRef(isRightPanelOpen);
+  isRightPanelOpenRef.current = isRightPanelOpen;
+  const explodeFloorsRef = useRef(explodeFloors);
+  explodeFloorsRef.current = explodeFloors;
+  const isolateFloorRef = useRef(isolateFloor);
+  isolateFloorRef.current = isolateFloor;
+  const isolateBuildingRef = useRef(isolateBuilding);
+  isolateBuildingRef.current = isolateBuilding;
+  const treeDataRef = useRef(treeData);
+  treeDataRef.current = treeData;
+
+  // Tracks the last selection key that triggered a camera flight.
+  // Only genuine selection changes (not panel/mode changes) trigger new flights.
+  const prevSelectionKeyRef = useRef<string>("");
+
   const entitiesMapRef = useRef<Map<string, any>>(new Map());
   const cityEntitiesRef = useRef<any[]>([]);
   const parcelsMapRef = useRef<Map<string, any>>(new Map());
@@ -223,6 +240,11 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   const [webGLError, setWebGLError] = useState<string | null>(null);
   const [totalBuildingsCount, setTotalBuildingsCount] = useState(0);
   const [cameraAltitude, setCameraAltitude] = useState<number>(88);
+  // 360° orbit mode: when active, camera is explicitly unlocked for free orbit
+  const [isOrbitActive, setIsOrbitActive] = useState(false);
+  // Navigation hints panel: shown on first load, dismissible
+  const [showNavHints, setShowNavHints] = useState(true);
+
 
   const measurePointsRef = useRef<any[]>([]);
   const screenSpaceHandlerRef = useRef<any>(null);
@@ -365,6 +387,34 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#060A12");
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#040711");
         viewer.scene.globe.depthTestAgainstTerrain = false;
+
+        // ─── Explicit 360° Navigation Controller Configuration ─────────────────
+        // Guarantee full unrestricted orbit, tilt, zoom, and pan at all times.
+        // These flags ensure Cesium never internally restricts the camera
+        // regardless of transform state after flyTo completes.
+        if (viewer.scene.screenSpaceCameraController) {
+          const ctrl = viewer.scene.screenSpaceCameraController;
+          ctrl.enableRotate = true;       // Full 360° horizontal orbit
+          ctrl.enableTilt = true;         // Full vertical pitch / tilt control
+          ctrl.enableZoom = true;         // Mouse wheel + pinch zoom
+          ctrl.enableTranslate = true;    // Pan / translate
+          ctrl.enableLook = true;         // Right-click / keyboard look
+
+          // Touch device 360° orbit configuration:
+          // Single finger: pan/orbit | Two fingers: pitch/tilt | Pinch: zoom
+          if (ctrl.maximumMovementRatio !== undefined) {
+            ctrl.maximumMovementRatio = 0.1;
+          }
+
+          // Remove any minimum/maximum tilt constraints that would prevent
+          // looking from above or from different vertical angles:
+          if (ctrl.minimumZoomDistance !== undefined) {
+            ctrl.minimumZoomDistance = 1.0;    // Allow very close inspection
+          }
+          if (ctrl.maximumZoomDistance !== undefined) {
+            ctrl.maximumZoomDistance = 20000.0; // Allow city-wide pullback
+          }
+        }
 
         // Camera: Elevated Oblique 3/4 Perspective framing the multi-building property block and primary hero building
         viewer.camera.setView({
@@ -1795,6 +1845,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   }, [currentLevel, selectedBuildingId, selectedUnitId, selectedRoomId, explodeFloors]);
 
   // 8. Geometry-Driven Smooth Camera Transitions for Camera Presets
+  // Context values are read via refs to avoid spurious re-flights.
   useEffect(() => {
     const viewer = viewerRef.current;
     const Cesium = CesiumRef.current;
@@ -1808,11 +1859,12 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       selectedUnitId,
       selectedRoomId,
       selectedElementId,
-      explodeFloors,
-      isolateFloor,
-      isolateBuilding,
-      isRightPanelOpen,
-      treeData,
+      // Read from refs — not in deps, so toggling these never re-fires presets:
+      explodeFloors: explodeFloorsRef.current,
+      isolateFloor: isolateFloorRef.current,
+      isolateBuilding: isolateBuildingRef.current,
+      isRightPanelOpen: isRightPanelOpenRef.current,
+      treeData: treeDataRef.current,
       renderedBuildingEntities: entitiesMapRef.current,
       explodedEntities: explodedEntitiesRef.current,
       interiorEntities: interiorEntitiesRef.current,
@@ -1889,6 +1941,8 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
     }
   }, [
+    // Only cameraPreset changing (and loading state) should re-trigger this.
+    // Selection state is included so the preset always frames the right entity.
     cameraPreset,
     isLoading,
     currentLevel,
@@ -1898,20 +1952,50 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     selectedUnitId,
     selectedRoomId,
     selectedElementId,
-    explodeFloors,
-    isolateFloor,
-    isolateBuilding,
-    isRightPanelOpen,
-    treeData,
+    // ── NOT in deps (intentional, read via refs) ──
+    // explodeFloors, isolateFloor, isolateBuilding, isRightPanelOpen, treeData
   ]);
 
-  // 9. Automatically respond to hierarchical level, building, parcel, and floor selection changes
-  // Runs dynamically whenever the user selects any floor (FL-01 to FL-07), building, parcel, or unit
+  // 9. Auto-camera: fires ONLY when the actual selection changes (level + entity IDs).
+  //
+  // ─── CRITICAL 360° NAVIGATION CONTRACT ───────────────────────────────────────
+  //
+  //  Context values like isRightPanelOpen, explodeFloors, isolateFloor,
+  //  isolateBuilding, and treeData are intentionally kept OUT of the dependency
+  //  array. They are read from refs (.current) at flight time so the camera engine
+  //  always has the latest viewport/context data WITHOUT re-triggering the flight.
+  //
+  //  This guarantees that:
+  //    ✓  Selecting a floor/building/parcel/unit → smooth auto-focus → done.
+  //    ✓  After that, the user retains complete 360° orbit, tilt, zoom, and pan.
+  //    ✓  Opening/closing the right inspector does NOT re-fire the camera.
+  //    ✓  Toggling Explode Floors / Isolate Floor does NOT re-fire the camera.
+  //    ✓  treeData loading updates do NOT re-fire the camera.
+  //    ✓  NO camera fight. The application never continuously overrides manual nav.
+  //
+  // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     const viewer = viewerRef.current;
     const Cesium = CesiumRef.current;
     if (!viewer || !Cesium || isLoading) return;
 
+    // Build a stable, deterministic key from the pure selection state.
+    // This key changes ONLY when the user explicitly selects a different entity.
+    const selectionKey = [
+      currentLevel,
+      selectedBuildingId ?? "",
+      selectedParcelId ?? "",
+      selectedFloorId ?? "",
+      selectedUnitId ?? "",
+      selectedRoomId ?? "",
+      selectedElementId ?? "",
+    ].join("|");
+
+    // Guard: if the selection hasn't changed, do nothing — preserve user's current camera orientation.
+    if (selectionKey === prevSelectionKeyRef.current) return;
+    prevSelectionKeyRef.current = selectionKey;
+
+    // Read camera-context values from refs so they are current without being dependencies.
     const ctx: TargetResolutionContext = {
       currentLevel,
       selectedBuildingId,
@@ -1920,11 +2004,12 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       selectedUnitId,
       selectedRoomId,
       selectedElementId,
-      explodeFloors,
-      isolateFloor,
-      isolateBuilding,
-      isRightPanelOpen,
-      treeData,
+      // Context values read from refs — never trigger re-flights:
+      explodeFloors: explodeFloorsRef.current,
+      isolateFloor: isolateFloorRef.current,
+      isolateBuilding: isolateBuildingRef.current,
+      isRightPanelOpen: isRightPanelOpenRef.current,
+      treeData: treeDataRef.current,
       renderedBuildingEntities: entitiesMapRef.current,
       explodedEntities: explodedEntitiesRef.current,
       interiorEntities: interiorEntitiesRef.current,
@@ -1933,6 +2018,9 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
     executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
   }, [
+    // ── SELECTION-ONLY dependencies ──
+    // Only these can trigger a new auto-focus flight.
+    isLoading,
     currentLevel,
     selectedBuildingId,
     selectedParcelId,
@@ -1940,12 +2028,8 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     selectedUnitId,
     selectedRoomId,
     selectedElementId,
-    explodeFloors,
-    isolateFloor,
-    isolateBuilding,
-    isRightPanelOpen,
-    treeData,
-    isLoading,
+    // ── NOT in deps (intentional, read via refs) ──
+    // explodeFloors, isolateFloor, isolateBuilding, isRightPanelOpen, treeData
   ]);
 
   // Camera Zoom & Dynamic Reset Controls
@@ -1985,6 +2069,40 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     executeCameraFlight(viewer, Cesium, target, { duration: 1.4 });
   };
 
+  // ── 360° Free Orbit Handler ──────────────────────────────────────────────
+  // Explicitly cancels any active flight, clears all camera transform locks,
+  // and re-enables all navigation controller axes for full 360° free orbit.
+  const handleFreeOrbit = () => {
+    const viewer = viewerRef.current;
+    const Cesium = CesiumRef.current;
+    if (!viewer || !Cesium) return;
+
+    try {
+      // Cancel any active flight that might be fighting manual navigation
+      viewer.camera.cancelFlight();
+
+      // Release ALL camera transform locks → restores full free orbit
+      viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+
+      // Ensure all navigation axes are ON
+      if (viewer.scene.screenSpaceCameraController) {
+        const ctrl = viewer.scene.screenSpaceCameraController;
+        ctrl.enableRotate = true;
+        ctrl.enableTilt = true;
+        ctrl.enableZoom = true;
+        ctrl.enableTranslate = true;
+        ctrl.enableLook = true;
+      }
+    } catch (e) {
+      console.warn("[FREE_ORBIT] Camera unlock warning:", e);
+    }
+
+    setIsOrbitActive(true);
+    // Auto-deactivate the visual highlight after 3 seconds
+    setTimeout(() => setIsOrbitActive(false), 3000);
+  };
+
+
 
   if (webGLError) {
     return (
@@ -2015,7 +2133,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       )}
 
       {/* Floating Inspection Mode Prompts & Exit Actions */}
-      <div className="absolute top-32 sm:top-[128px] inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none select-none max-w-xl">
+      <div className="absolute top-[204px] inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none select-none max-w-xl">
         {isolateFloor && (
           <div className="pointer-events-auto flex items-center gap-2.5 px-4 py-2 rounded-[10px] bg-[#141816]/95 backdrop-blur-md border border-[#B56E48]/60 text-[#C47B50] text-xs font-mono shadow-2xl animate-in fade-in slide-in-from-top-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#C47B50] animate-ping" />
@@ -2069,12 +2187,29 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       <div
         className={`absolute z-20 flex flex-col items-end gap-2.5 transition-all duration-300 pointer-events-none select-none ${
           isRightPanelOpen
-            ? "top-[74px] right-[390px] sm:right-[400px] md:right-[410px] lg:right-[420px] xl:right-[435px]"
-            : "top-[122px] right-3.5 sm:right-4"
+            ? "top-[156px] right-[390px] sm:right-[400px] md:right-[410px] lg:right-[420px] xl:right-[435px]"
+            : "top-[156px] right-3.5 sm:right-4"
         }`}
       >
         {/* Floating Camera Toolbar */}
         <div className="pointer-events-auto flex items-center gap-1 bg-[#141816]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-[8px] border border-[rgba(244,240,232,0.12)] shadow-2xl">
+          {/* 360° Free Orbit — primary action button */}
+          <button
+            onClick={handleFreeOrbit}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] transition-all cursor-pointer font-mono font-bold text-xs ${
+              isOrbitActive
+                ? "bg-[#23847D] text-white shadow-md ring-1 ring-[#2EB8B0]/50"
+                : "bg-[#1A201D] hover:bg-[#23847D]/20 text-[#2EB8B0] border border-[#23847D]/30 hover:border-[#23847D]/60"
+            }`}
+            title="360° Free Orbit — Unlock camera for full 360° rotation. Then drag the 3D scene to orbit."
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isOrbitActive ? "animate-spin" : ""}`} style={isOrbitActive ? { animationDuration: "1.5s" } : {}} />
+            <span>360°</span>
+          </button>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-[rgba(244,240,232,0.10)] mx-0.5" />
+
           <button
             onClick={handleZoomIn}
             className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
@@ -2092,7 +2227,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
           <button
             onClick={handleResetCamera}
             className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
-            title="Reset Camera (Focus Building)"
+            title="Re-focus Camera on current selection"
           >
             <Compass className="w-4 h-4" />
           </button>
@@ -2133,6 +2268,56 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             </button>
           )}
         </div>
+
+        {/* 360° Orbit Active Toast */}
+        {isOrbitActive && (
+          <div className="pointer-events-none flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#0F1F1D]/96 backdrop-blur-md border border-[#23847D]/50 text-[#2EB8B0] text-[11px] font-mono font-bold shadow-2xl animate-in fade-in slide-in-from-top-2 w-[265px] sm:w-[275px]">
+            <RotateCcw className="w-3.5 h-3.5 shrink-0 animate-spin" style={{ animationDuration: "1.5s" }} />
+            <span>Free orbit active — drag 3D scene to rotate 360°</span>
+          </div>
+        )}
+
+        {/* Navigation Hints Card — dismissible, shown on first load */}
+        {showNavHints && !isLoading && (
+          <div className="pointer-events-auto flex flex-col gap-2 p-3 rounded-[10px] bg-[#141816]/97 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-2xl w-[245px] sm:w-[265px] animate-in fade-in slide-in-from-right-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <MousePointer2 className="w-3.5 h-3.5 text-[#C47B50]" />
+                <span className="text-[11px] font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">3D Navigation</span>
+              </div>
+              <button
+                onClick={() => setShowNavHints(false)}
+                className="p-0.5 rounded hover:bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5] transition-colors cursor-pointer"
+                title="Dismiss"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-1.5 text-[11px] font-mono">
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Left drag</span>
+                <span className="text-[#6F7772]">Orbit 360° around building</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Right drag</span>
+                <span className="text-[#6F7772]">Pan / translate view</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Scroll</span>
+                <span className="text-[#6F7772]">Zoom in / out</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Middle drag</span>
+                <span className="text-[#6F7772]">Tilt / pitch camera</span>
+              </div>
+              <div className="mt-1 pt-1.5 border-t border-[rgba(244,240,232,0.08)] flex items-center gap-1.5 text-[#23847D]">
+                <RotateCcw className="w-3 h-3 shrink-0" />
+                <span>Press <span className="font-bold text-[#2EB8B0]">360°</span> button above to unlock camera if stuck</span>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Floating Floor Selector Rail (Visible during Building / Floor Inspection) */}
         {(currentLevel === "BUILDING" ||

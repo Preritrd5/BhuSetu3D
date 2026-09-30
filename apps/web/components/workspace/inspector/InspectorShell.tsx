@@ -35,7 +35,7 @@ export const InspectorShell: React.FC<InspectorShellProps> = ({
         ${isMinimized ? "opacity-90 max-md:translate-y-[calc(100%-72px)]" : "opacity-100"} 
         ${className}`}
     >
-      <div className="bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] md:rounded-[12px] max-md:rounded-t-[16px] max-md:border-b-0 shadow-2xl overflow-hidden flex flex-col md:max-h-[calc(100vh-6.5rem)] max-md:max-h-[70vh] font-sans text-xs">
+      <div className="bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] md:rounded-[12px] max-md:rounded-t-[16px] max-md:border-b-0 shadow-2xl overflow-hidden flex flex-col md:max-h-[calc(100vh-5.5rem)] max-md:max-h-[70vh] font-sans text-xs">
         {/* Mobile Drag Handle Indicator */}
         <div className="md:hidden pt-2 pb-1 flex justify-center cursor-pointer" onClick={onMinimize}>
           <div className="w-10 h-1.5 rounded-full bg-[rgba(244,240,232,0.25)] hover:bg-[rgba(244,240,232,0.4)] transition-colors" />

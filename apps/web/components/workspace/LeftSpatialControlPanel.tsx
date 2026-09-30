@@ -188,13 +188,13 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
         aria-label="Spatial Layers and Hierarchy Control Panel"
         className={`transition-all duration-300 ease-in-out select-none
           /* Desktop & Tablet: floating left panel */
-          md:absolute md:top-[66px] md:left-4 md:z-20
+          md:absolute md:top-[116px] md:left-4 md:z-20
           ${isCollapsed ? "md:w-12 max-md:hidden" : "md:w-80"}
           /* Mobile: slide-in drawer */
           max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:w-80 max-md:max-w-[85vw]
         `}
       >
-        <div className="bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] md:rounded-[12px] max-md:h-full max-md:rounded-r-[14px] shadow-2xl overflow-hidden flex flex-col md:max-h-[calc(100vh-6rem)] font-sans">
+        <div className="bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] md:rounded-[12px] max-md:h-full max-md:rounded-r-[14px] shadow-2xl overflow-hidden flex flex-col md:max-h-[calc(100vh-8rem)] font-sans">
           {/* Header Tabs (Expanded) / Icon Rail (Collapsed) */}
           {!isCollapsed ? (
             <div className="p-3 border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between bg-[#141816]">

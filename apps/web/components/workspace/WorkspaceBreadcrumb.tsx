@@ -71,8 +71,9 @@ export const WorkspaceBreadcrumb: React.FC<WorkspaceBreadcrumbProps> = ({
     <nav
       role="navigation"
       aria-label="Spatial hierarchy navigation breadcrumb"
-      className="absolute top-16 sm:top-[74px] z-20 flex pointer-events-none select-none transition-all duration-300 ease-out justify-start"
+      className="absolute z-20 flex pointer-events-none select-none transition-all duration-300 ease-out justify-start"
       style={{
+        top: "116px",
         left: isWide ? (isLeftPanelCollapsed ? "68px" : "344px") : "12px",
         right: isWide ? (isRightPanelOpen ? "415px" : (!isCity ? "320px" : "20px")) : "12px",
       }}
