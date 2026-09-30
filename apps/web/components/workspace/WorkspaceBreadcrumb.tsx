@@ -57,16 +57,24 @@ export const WorkspaceBreadcrumb: React.FC<WorkspaceBreadcrumbProps> = ({
   isRightPanelOpen = true,
 }) => {
   const isCity = currentLevel === "CITY";
+  const [isWide, setIsWide] = React.useState(true);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkWidth = () => setIsWide(window.innerWidth >= 768);
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
 
   return (
     <nav
       role="navigation"
       aria-label="Spatial hierarchy navigation breadcrumb"
-      className="absolute top-16 sm:top-[74px] z-20 flex justify-center pointer-events-none select-none transition-all duration-300 ease-out max-xl:inset-x-3 max-xl:mx-auto max-xl:max-w-[calc(100vw-1.5rem)]"
+      className="absolute top-16 sm:top-[74px] z-20 flex pointer-events-none select-none transition-all duration-300 ease-out justify-start"
       style={{
-        // On wide screens (>= 1280px), align safely between left and right floating panels
-        left: typeof window !== "undefined" && window.innerWidth >= 1280 ? (isLeftPanelCollapsed ? "68px" : "344px") : undefined,
-        right: typeof window !== "undefined" && window.innerWidth >= 1280 ? (isRightPanelOpen ? "450px" : "20px") : undefined,
+        left: isWide ? (isLeftPanelCollapsed ? "68px" : "344px") : "12px",
+        right: isWide ? (isRightPanelOpen ? "415px" : (!isCity ? "320px" : "20px")) : "12px",
       }}
     >
       <div className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-xl text-xs sm:text-[13px] font-mono max-w-full overflow-x-auto no-scrollbar scroll-smooth flex-nowrap touch-manipulation">

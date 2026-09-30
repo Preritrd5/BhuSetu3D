@@ -800,7 +800,7 @@ function City3DContent() {
         <div
           className="fixed bottom-16 sm:bottom-12 z-20 pointer-events-none hidden sm:block transition-all duration-300"
           style={{
-            right: isWideScreen && (isRightPanelOpen || comparisonState.isActive) ? "460px" : "16px",
+            right: isWideScreen && (isRightPanelOpen || comparisonState.isActive) ? "420px" : "16px",
           }}
         >
           <SpatialScaleBar altitude={cameraTelemetry.altitude} pitch={cameraTelemetry.pitch} />

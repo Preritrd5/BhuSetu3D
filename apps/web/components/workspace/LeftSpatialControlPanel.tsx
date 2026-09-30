@@ -539,6 +539,38 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                               </span>
                                             )}
                                           </button>
+
+                                          {hasFloors && isBldgExpanded && (
+                                            <div className="pl-5 pr-1 py-1 space-y-0.5 border-t border-[rgba(244,240,232,0.06)] bg-[#101412]">
+                                              {building.floors.map((floor) => {
+                                                const isFloorActive =
+                                                  currentLevel === "FLOOR" && selectedFloorId === floor.floor_code;
+                                                return (
+                                                  <button
+                                                    key={floor.id}
+                                                    onClick={() => onSelectLevel("FLOOR", floor.floor_code)}
+                                                    className={`w-full text-left px-2 py-1 rounded-[3px] flex items-center justify-between text-[11px] transition-colors ${
+                                                      isFloorActive
+                                                        ? "bg-[#B56E48] text-[#F4F0E8] font-bold"
+                                                        : "hover:bg-[#1A201D] text-[#A7B3AB]"
+                                                    }`}
+                                                  >
+                                                    <div className="flex items-center gap-1.5 truncate">
+                                                      <Layers className="w-2.5 h-2.5 text-[#B56E48] flex-shrink-0" />
+                                                      <span className="truncate">
+                                                        {floor.floor_label || `Floor ${floor.floor_code}`}
+                                                      </span>
+                                                    </div>
+                                                    {floor.is_unsanctioned && (
+                                                      <span className="text-[9px] px-1 py-0.2 rounded bg-rose-900/70 text-rose-200 font-mono font-bold">
+                                                        UNSANCTIONED
+                                                      </span>
+                                                    )}
+                                                  </button>
+                                                );
+                                              })}
+                                            </div>
+                                          )}
                                         </div>
                                       );
                                     })}

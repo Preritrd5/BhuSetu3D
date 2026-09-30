@@ -54,7 +54,7 @@ export const InspectorActionBar: React.FC<InspectorActionBarProps> = ({
               key={action.id}
               onClick={action.onClick}
               disabled={action.disabled}
-              className={`py-2.5 px-3.5 rounded-[8px] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 border cursor-pointer ${
+              className={`py-2.5 px-3 rounded-[8px] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-1.5 border cursor-pointer min-w-0 ${
                 action.active
                   ? "bg-[#1A201D] text-[#C47B50] border-[#B56E48]/50"
                   : "bg-[#1A201D] hover:bg-[#222A26] text-[#F4F0E8] border-[rgba(244,240,232,0.12)] hover:border-[#B56E48]/40"
@@ -69,7 +69,9 @@ export const InspectorActionBar: React.FC<InspectorActionBarProps> = ({
           {onOpenAI && (
             <button
               onClick={onOpenAI}
-              className="py-2.5 px-3.5 rounded-[8px] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-2 bg-[#1A201D] hover:bg-[#222A26] text-[#F4F0E8] border border-[rgba(244,240,232,0.12)] hover:border-[#B56E48]/50 cursor-pointer shadow-sm"
+              className={`py-2.5 px-3 rounded-[8px] text-xs font-mono font-semibold transition-all flex items-center justify-center gap-1.5 bg-[#1A201D] hover:bg-[#222A26] text-[#F4F0E8] border border-[rgba(244,240,232,0.12)] hover:border-[#B56E48]/50 cursor-pointer shadow-sm min-w-0 ${
+                secondaryActions.length % 2 === 0 ? "col-span-2" : ""
+              }`}
               title="Query AI Spatial Investigator about this entity"
             >
               <Sparkles className="w-4 h-4 text-[#C47B50]" />

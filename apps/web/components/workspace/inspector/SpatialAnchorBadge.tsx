@@ -40,9 +40,9 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
 
   return (
     <div
-      className={`fixed top-18 right-4 z-20 pointer-events-auto select-none transition-all duration-200 animate-in fade-in slide-in-from-right-4 ${className}`}
+      className={`fixed top-16 sm:top-[74px] right-3.5 sm:right-4 z-20 pointer-events-auto select-none transition-all duration-200 animate-in fade-in slide-in-from-right-4 max-w-[calc(100vw-120px)] ${className}`}
     >
-      <div className="flex items-center gap-1.5 p-1.5 pl-3 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.08)] shadow-sm text-xs font-mono">
+      <div className="flex items-center gap-1.5 p-1.5 pl-3 rounded-[8px] bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-xl text-xs font-mono">
         <div className="flex items-center gap-2">
           {renderIcon(selection.entityType)}
           <span className="text-[11px] font-bold text-[#A7B3AB] uppercase tracking-wider">

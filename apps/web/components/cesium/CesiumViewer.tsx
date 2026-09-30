@@ -58,6 +58,14 @@ import {
   renderUtilities as renderUtilitiesRenderer,
   renderVegetation as renderVegetationRenderer,
   renderStreetLamps as renderStreetLampsRenderer,
+  resolveSpatialTargetForSelection,
+  resolveFloorTarget,
+  resolveBuildingTarget,
+  resolveParcelTarget,
+  resolveCityTarget,
+  resolveUnitTarget,
+  executeCameraFlight,
+  TargetResolutionContext,
 } from "@/lib/cesium";
 
 interface CesiumViewerProps {
@@ -1786,240 +1794,161 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     });
   }, [currentLevel, selectedBuildingId, selectedUnitId, selectedRoomId, explodeFloors]);
 
-  // 8. Smooth Camera Transitions for Multi-Level Spatial Navigation
+  // 8. Geometry-Driven Smooth Camera Transitions for Camera Presets
   useEffect(() => {
     const viewer = viewerRef.current;
     const Cesium = CesiumRef.current;
-    if (!viewer || !Cesium) return;
+    if (!viewer || !Cesium || isLoading || !cameraPreset) return;
 
-    if (cameraPreset) {
-      if (cameraPreset === "CITY") {
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.5680, 12.9920, 480.0),
-          orientation: {
-            heading: Cesium.Math.toRadians(35.0),
-            pitch: Cesium.Math.toRadians(-35.0),
-            roll: 0.0,
-          },
-          duration: 1.5,
-        });
-      } else if (cameraPreset === "PARCEL") {
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.5710, 12.9970, 140.0),
-          orientation: {
-            heading: Cesium.Math.toRadians(38.0),
-            pitch: Cesium.Math.toRadians(-30.0),
-            roll: 0.0,
-          },
-          duration: 1.5,
-        });
-      } else if (cameraPreset === "BUILDING") {
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99820, 42.0),
-          orientation: {
-            heading: Cesium.Math.toRadians(36.0),
-            pitch: Cesium.Math.toRadians(-22.0),
-            roll: 0.0,
-          },
-          duration: 1.5,
-        });
-      } else if (cameraPreset === "FLOOR") {
-        const floorNum = selectedFloorId
-          ? parseInt(selectedFloorId.replace("FL-0", "").replace("FL-", "")) || 3
-          : 3;
-        const floorIndex = Math.max(0, Math.min(6, floorNum - 1));
-        const floorMidZ = floorIndex * 4.0 + 2.0;
-        const camZ = explodeFloors ? floorIndex * 6.0 + 14.0 : floorMidZ + 14.0;
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, camZ),
-          orientation: {
-            heading: Cesium.Math.toRadians(38.0),
-            pitch: Cesium.Math.toRadians(-28.0),
-            roll: 0.0,
-          },
-          duration: 1.4,
-        });
-      } else if (cameraPreset === "ROOM") {
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(77.57195, 12.99865, 18.0),
-          orientation: {
-            heading: Cesium.Math.toRadians(45.0),
-            pitch: Cesium.Math.toRadians(-38.0),
-            roll: 0.0,
-          },
-          duration: 1.5,
-        });
-      } else if (cameraPreset === "UNIT") {
-        const isUnit301 = selectedUnitId === "unit-301" || selectedRoomId === "unit-301";
-        const targetLng = isUnit301 ? 77.572135 : 77.572285;
-        const targetLat = 12.99870;
-        const camZ = explodeFloors ? 28.0 : 22.0;
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(targetLng - 0.00025, targetLat - 0.00030, camZ),
-          orientation: {
-            heading: Cesium.Math.toRadians(38.0),
-            pitch: Cesium.Math.toRadians(-32.0),
-            roll: 0.0,
-          },
-          duration: 1.2,
-        });
-      } else if (cameraPreset === "TOP_DOWN") {
-        const carto = Cesium.Cartographic.fromCartesian(viewer.camera.position);
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromRadians(
-            carto.longitude,
-            carto.latitude,
-            Math.max(carto.height, 140.0)
-          ),
-          orientation: {
-            heading: 0.0,
-            pitch: Cesium.Math.toRadians(-89.9),
-            roll: 0.0,
-          },
-          duration: 1.2,
-        });
-      } else if (cameraPreset === "NORTH") {
-        viewer.camera.flyTo({
-          destination: viewer.camera.position,
-          orientation: {
-            heading: 0.0,
-            pitch: viewer.camera.pitch,
-            roll: 0.0,
-          },
-          duration: 0.8,
-        });
-      } else if (cameraPreset === "FIT") {
-        if (selectedBuildingId) {
-          const bEntity = entitiesMapRef.current.get(selectedBuildingId);
-          if (bEntity) {
-            viewer.flyTo(bEntity, {
-              offset: new Cesium.HeadingPitchRange(
-                Cesium.Math.toRadians(35.0),
-                Cesium.Math.toRadians(-30.0),
-                75.0
-              ),
-              duration: 1.2,
-            });
+    const ctx: TargetResolutionContext = {
+      currentLevel,
+      selectedBuildingId,
+      selectedParcelId,
+      selectedFloorId,
+      selectedUnitId,
+      selectedRoomId,
+      selectedElementId,
+      explodeFloors,
+      isolateFloor,
+      isolateBuilding,
+      isRightPanelOpen,
+      treeData,
+      renderedBuildingEntities: entitiesMapRef.current,
+      explodedEntities: explodedEntitiesRef.current,
+      interiorEntities: interiorEntitiesRef.current,
+    };
+
+    if (cameraPreset === "CITY") {
+      const target = resolveCityTarget(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.4 });
+    } else if (cameraPreset === "PARCEL") {
+      const target = resolveParcelTarget(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.4 });
+    } else if (cameraPreset === "BUILDING") {
+      const target = resolveBuildingTarget(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.4 });
+    } else if (cameraPreset === "FLOOR") {
+      const target = resolveFloorTarget(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
+    } else if (cameraPreset === "UNIT" || cameraPreset === "ROOM") {
+      const target = resolveUnitTarget(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
+    } else if (cameraPreset === "TOP_DOWN") {
+      const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
+      const carto = Cesium.Cartographic.fromCartesian(target.targetCenter);
+      const topDownHeight = Math.max(target.range * 1.5, 90.0);
+      viewer.camera.cancelFlight();
+      if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+      }
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, topDownHeight),
+        orientation: {
+          heading: 0.0,
+          pitch: Cesium.Math.toRadians(-89.9),
+          roll: 0.0,
+        },
+        duration: 1.2,
+        complete: () => {
+          if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
           }
-        }
+        },
+        cancel: () => {
+          if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+          }
+        },
+      });
+    } else if (cameraPreset === "NORTH") {
+      viewer.camera.cancelFlight();
+      if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
       }
+      viewer.camera.flyTo({
+        destination: viewer.camera.position,
+        orientation: {
+          heading: 0.0,
+          pitch: viewer.camera.pitch,
+          roll: 0.0,
+        },
+        duration: 0.8,
+        complete: () => {
+          if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+          }
+        },
+        cancel: () => {
+          if (viewer.camera.transform && !viewer.camera.transform.equals(Cesium.Matrix4.IDENTITY)) {
+            viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+          }
+        },
+      });
+    } else if (cameraPreset === "FIT") {
+      const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
     }
-  }, [cameraPreset, explodeFloors, selectedUnitId, selectedRoomId, selectedBuildingId]);
+  }, [
+    cameraPreset,
+    isLoading,
+    currentLevel,
+    selectedBuildingId,
+    selectedParcelId,
+    selectedFloorId,
+    selectedUnitId,
+    selectedRoomId,
+    selectedElementId,
+    explodeFloors,
+    isolateFloor,
+    isolateBuilding,
+    isRightPanelOpen,
+    treeData,
+  ]);
 
-  // Automatically respond to currentLevel changes
+  // 9. Automatically respond to hierarchical level, building, parcel, and floor selection changes
+  // Runs dynamically whenever the user selects any floor (FL-01 to FL-07), building, parcel, or unit
   useEffect(() => {
     const viewer = viewerRef.current;
     const Cesium = CesiumRef.current;
-    if (!viewer || !Cesium) return;
+    if (!viewer || !Cesium || isLoading) return;
 
-    if (currentLevel === "CITY") {
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(77.5680, 12.9920, 480.0),
-        orientation: {
-          heading: Cesium.Math.toRadians(35.0),
-          pitch: Cesium.Math.toRadians(-35.0),
-          roll: 0.0,
-        },
-        duration: 1.5,
-      });
-    } else if (currentLevel === "REGION") {
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(77.5700, 12.9950, 260.0),
-        orientation: {
-          heading: Cesium.Math.toRadians(36.0),
-          pitch: Cesium.Math.toRadians(-32.0),
-          roll: 0.0,
-        },
-        duration: 1.5,
-      });
-    } else if (currentLevel === "PARCEL") {
-      let targetLng = 77.5710;
-      let targetLat = 12.9970;
-      let targetAlt = 140.0;
-      if (selectedParcelId) {
-        const pcl = getUrbanParcelById(selectedParcelId);
-        if (pcl) {
-          targetLng = pcl.centroid[0];
-          targetLat = pcl.centroid[1];
-          targetAlt = Math.max(Math.sqrt(pcl.areaSqm) * 2.2, 110.0);
-        }
-      }
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(targetLng - 0.0008, targetLat - 0.0010, targetAlt),
-        orientation: {
-          heading: Cesium.Math.toRadians(36.0),
-          pitch: Cesium.Math.toRadians(-32.0),
-          roll: 0.0,
-        },
-        duration: 1.4,
-      });
-    } else if (currentLevel === "BUILDING") {
-      let targetLng = 77.57221;
-      let targetLat = 12.99910;
-      let targetAlt = 42.0;
-      if (selectedBuildingId) {
-        const bld = getUrbanBuildingById(selectedBuildingId);
-        if (bld) {
-          targetLng = bld.centroid[0];
-          targetLat = bld.centroid[1];
-          // Close-up inspection distance: ~2× building height, min 32m
-          targetAlt = Math.max(bld.height * 2.0, 32.0);
-        }
-      }
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(targetLng - 0.00055, targetLat - 0.00070, targetAlt),
-        orientation: {
-          heading: Cesium.Math.toRadians(36.0),
-          pitch: Cesium.Math.toRadians(-22.0),
-          roll: 0.0,
-        },
-        duration: 1.4,
-      });
-    } else if (currentLevel === "FLOOR") {
-      // Camera dynamically targets the specific floor (FL-01 to FL-07)
-      const floorNum = selectedFloorId
-        ? parseInt(selectedFloorId.replace("FL-0", "").replace("FL-", "")) || 3
-        : 3;
-      const floorIndex = Math.max(0, Math.min(6, floorNum - 1));
-      const floorMidZ = floorIndex * 4.0 + 2.0;
-      const camZ = explodeFloors ? floorIndex * 6.0 + 14.0 : floorMidZ + 14.0;
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(77.57121, 12.99840, camZ),
-        orientation: {
-          heading: Cesium.Math.toRadians(38.0),
-          pitch: Cesium.Math.toRadians(-28.0),
-          roll: 0.0,
-        },
-        duration: 1.4,
-      });
-    } else if (currentLevel === "UNIT") {
-      const isUnit301 = selectedUnitId === "unit-301" || selectedRoomId === "unit-301";
-      const targetLng = isUnit301 ? 77.572135 : 77.572285;
-      const targetLat = 12.99870;
-      const camZ = explodeFloors ? 28.0 : 22.0;
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(targetLng - 0.00025, targetLat - 0.00030, camZ),
-        orientation: {
-          heading: Cesium.Math.toRadians(38.0),
-          pitch: Cesium.Math.toRadians(-32.0),
-          roll: 0.0,
-        },
-        duration: 1.2,
-      });
-    } else if (currentLevel === "ROOM" || currentLevel === "ELEMENT") {
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(77.57195, 12.99865, 18.0),
-        orientation: {
-          heading: Cesium.Math.toRadians(45.0),
-          pitch: Cesium.Math.toRadians(-38.0),
-          roll: 0.0,
-        },
-        duration: 1.2,
-      });
-    }
-  }, [currentLevel, selectedBuildingId, selectedParcelId, explodeFloors, selectedUnitId, selectedRoomId]);
+    const ctx: TargetResolutionContext = {
+      currentLevel,
+      selectedBuildingId,
+      selectedParcelId,
+      selectedFloorId,
+      selectedUnitId,
+      selectedRoomId,
+      selectedElementId,
+      explodeFloors,
+      isolateFloor,
+      isolateBuilding,
+      isRightPanelOpen,
+      treeData,
+      renderedBuildingEntities: entitiesMapRef.current,
+      explodedEntities: explodedEntitiesRef.current,
+      interiorEntities: interiorEntitiesRef.current,
+    };
 
-  // Camera Zoom Controls
+    const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
+    executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
+  }, [
+    currentLevel,
+    selectedBuildingId,
+    selectedParcelId,
+    selectedFloorId,
+    selectedUnitId,
+    selectedRoomId,
+    selectedElementId,
+    explodeFloors,
+    isolateFloor,
+    isolateBuilding,
+    isRightPanelOpen,
+    treeData,
+    isLoading,
+  ]);
+
+  // Camera Zoom & Dynamic Reset Controls
   const handleZoomIn = () => {
     if (viewerRef.current) viewerRef.current.camera.zoomIn(60);
   };
@@ -2027,18 +1956,35 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     if (viewerRef.current) viewerRef.current.camera.zoomOut(60);
   };
   const handleResetCamera = () => {
-    if (viewerRef.current && CesiumRef.current) {
-      viewerRef.current.camera.flyTo({
-        destination: CesiumRef.current.Cartesian3.fromDegrees(77.57140, 12.99820, 68.0),
-        orientation: {
-          heading: CesiumRef.current.Math.toRadians(38.0),
-          pitch: CesiumRef.current.Math.toRadians(-28.0),
-          roll: 0.0,
-        },
-        duration: 1.5,
-      });
-    }
+    const viewer = viewerRef.current;
+    const Cesium = CesiumRef.current;
+    if (!viewer || !Cesium) return;
+
+    const ctx: TargetResolutionContext = {
+      currentLevel,
+      selectedBuildingId,
+      selectedParcelId,
+      selectedFloorId,
+      selectedUnitId,
+      selectedRoomId,
+      selectedElementId,
+      explodeFloors,
+      isolateFloor,
+      isolateBuilding,
+      isRightPanelOpen,
+      treeData,
+      renderedBuildingEntities: entitiesMapRef.current,
+      explodedEntities: explodedEntitiesRef.current,
+      interiorEntities: interiorEntitiesRef.current,
+    };
+
+    const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx, {
+      preferredHeadingRad: Cesium.Math.toRadians(36.0),
+      preferredPitchRad: Cesium.Math.toRadians(-24.0),
+    });
+    executeCameraFlight(viewer, Cesium, target, { duration: 1.4 });
   };
+
 
   if (webGLError) {
     return (
@@ -2069,7 +2015,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       )}
 
       {/* Floating Inspection Mode Prompts & Exit Actions */}
-      <div className="absolute top-28 inset-x-0 z-20 flex flex-col items-center gap-2 pointer-events-none select-none">
+      <div className="absolute top-32 sm:top-[128px] inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none select-none max-w-xl">
         {isolateFloor && (
           <div className="pointer-events-auto flex items-center gap-2.5 px-4 py-2 rounded-[10px] bg-[#141816]/95 backdrop-blur-md border border-[#B56E48]/60 text-[#C47B50] text-xs font-mono shadow-2xl animate-in fade-in slide-in-from-top-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#C47B50] animate-ping" />
@@ -2078,7 +2024,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             {onToggleIsolateFloor && (
               <button
                 onClick={onToggleIsolateFloor}
-                className="ml-2 px-2.5 py-1 rounded-[6px] bg-[#B56E48] text-[#F4F0E8] text-[11px] font-bold hover:bg-[#C47B50] transition-all"
+                className="ml-2 px-2.5 py-1 rounded-[6px] bg-[#B56E48] text-[#F4F0E8] text-[11px] font-bold hover:bg-[#C47B50] transition-all cursor-pointer"
               >
                 Exit Isolation
               </button>
@@ -2094,7 +2040,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             {onToggleExplodeFloors && (
               <button
                 onClick={onToggleExplodeFloors}
-                className="ml-2 px-2.5 py-1 rounded-[6px] bg-[#23847D] text-[#0F1210] text-[11px] font-bold hover:bg-[#2EB8B0] transition-all"
+                className="ml-2 px-2.5 py-1 rounded-[6px] bg-[#23847D] text-[#0F1210] text-[11px] font-bold hover:bg-[#2EB8B0] transition-all cursor-pointer"
               >
                 Reset Building
               </button>
@@ -2110,7 +2056,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             {onToggleIsolateBuilding && (
               <button
                 onClick={onToggleIsolateBuilding}
-                className="ml-2 px-2.5 py-1 rounded-[6px] bg-[#23847D] text-[#0F1210] text-[11px] font-bold hover:bg-[#2EB8B0] transition-all"
+                className="ml-2 px-2.5 py-1 rounded-[6px] bg-[#23847D] text-[#0F1210] text-[11px] font-bold hover:bg-[#2EB8B0] transition-all cursor-pointer"
               >
                 Exit Isolation
               </button>
@@ -2119,217 +2065,222 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         )}
       </div>
 
-      {/* Floating Camera Toolbar - dynamically coordinated with right inspector safe zone */}
+      {/* Unified Right-Docked Spatial Controls Container (Camera Toolbar + Floors Panel) */}
       <div
-        className={`absolute top-[68px] z-20 flex flex-col gap-1.5 bg-[#141816]/95 backdrop-blur-md p-1.5 rounded-[10px] border border-[rgba(244,240,232,0.10)] shadow-2xl transition-all duration-300 ${
-          isRightPanelOpen ? "right-[436px]" : "right-4"
+        className={`absolute z-20 flex flex-col items-end gap-2.5 transition-all duration-300 pointer-events-none select-none ${
+          isRightPanelOpen
+            ? "top-[74px] right-[390px] sm:right-[400px] md:right-[410px] lg:right-[420px] xl:right-[435px]"
+            : "top-[122px] right-3.5 sm:right-4"
         }`}
       >
-        <button
-          onClick={handleZoomIn}
-          className="p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all"
-          title="Zoom In"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleZoomOut}
-          className="p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all"
-          title="Zoom Out"
-        >
-          <Minus className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleResetCamera}
-          className="p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all"
-          title="Reset Camera (Focus Building)"
-        >
-          <Compass className="w-4 h-4" />
-        </button>
-        <button
-          onClick={renderBuildings}
-          className="p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all"
-          title="Refresh 3D Scene"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
-
-        {/* Quick Inspection Mode Toggles */}
-        {onToggleExplodeFloors && (
+        {/* Floating Camera Toolbar */}
+        <div className="pointer-events-auto flex items-center gap-1 bg-[#141816]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-[8px] border border-[rgba(244,240,232,0.12)] shadow-2xl">
           <button
-            onClick={onToggleExplodeFloors}
-            className={`p-2 rounded-[6px] transition-all ${
-              explodeFloors
-                ? "bg-[#23847D] text-[#0F1210] font-bold shadow-md"
-                : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#23847D]"
-            }`}
-            title={explodeFloors ? "Collapse Floors (Reset Building)" : "Explode Floors (Vertical Separation)"}
+            onClick={handleZoomIn}
+            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
+            title="Zoom In"
           >
-            <Layers className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
           </button>
-        )}
-
-        {onToggleIsolateFloor && (
           <button
-            onClick={onToggleIsolateFloor}
-            className={`p-2 rounded-[6px] transition-all ${
-              isolateFloor
-                ? "bg-[#B56E48] text-[#F4F0E8] font-bold shadow-md"
-                : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50]"
-            }`}
-            title={isolateFloor ? "Exit Floor Isolation" : "Isolate Current Floor"}
+            onClick={handleZoomOut}
+            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
+            title="Zoom Out"
           >
-            <Box className="w-4 h-4" />
+            <Minus className="w-4 h-4" />
           </button>
-        )}
-      </div>
+          <button
+            onClick={handleResetCamera}
+            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
+            title="Reset Camera (Focus Building)"
+          >
+            <Compass className="w-4 h-4" />
+          </button>
+          <button
+            onClick={renderBuildings}
+            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
+            title="Refresh 3D Scene"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
 
-      {/* Floating Floor Selector Rail (Visible during Building / Floor Inspection) */}
-      {(currentLevel === "BUILDING" ||
-        currentLevel === "FLOOR" ||
-        currentLevel === "UNIT" ||
-        currentLevel === "ROOM" ||
-        currentLevel === "ELEMENT" ||
-        currentLevel === "CORRIDOR") && selectedBuildingId && (
-        <div
-          className={`absolute top-[260px] z-20 flex flex-col bg-[#141816]/95 backdrop-blur-md rounded-[10px] border border-[rgba(244,240,232,0.10)] shadow-2xl transition-all duration-300 overflow-hidden w-36 select-none ${
-            isRightPanelOpen ? "right-[436px]" : "right-4"
-          }`}
-        >
-          {/* Header */}
-          <div className="px-2.5 py-1.5 bg-[#0F1210] border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between">
-            <span className="text-[10px] font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">
-              FLOORS
-            </span>
-            <span className="text-[9px] font-mono text-[#C47B50] font-bold">7 LEVELS</span>
-          </div>
+          {/* Quick Inspection Mode Toggles */}
+          {onToggleExplodeFloors && (
+            <button
+              onClick={onToggleExplodeFloors}
+              className={`p-1.5 sm:p-2 rounded-[6px] transition-all cursor-pointer ${
+                explodeFloors
+                  ? "bg-[#23847D] text-[#0F1210] font-bold shadow-md"
+                  : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#23847D]"
+              }`}
+              title={explodeFloors ? "Collapse Floors (Reset Building)" : "Explode Floors (Vertical Separation)"}
+            >
+              <Layers className="w-4 h-4" />
+            </button>
+          )}
 
-          {/* Floor Items (Rendered top to bottom: FL-07 down to FL-01) */}
-          <div className="flex flex-col p-1 gap-0.5 max-h-[340px] overflow-y-auto">
-            {[
-              {
-                id: "FL-07",
-                label: "Floor 07",
-                sublabel: "Sky Lounge",
-                badge: "DEMO",
-                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-              },
-              {
-                id: "FL-06",
-                label: "Floor 06",
-                sublabel: "R&D Studios",
-                badge: "DEMO",
-                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-              },
-              {
-                id: "FL-05",
-                label: "Floor 05",
-                sublabel: "Corporate Advisory",
-                badge: "DEMO",
-                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-              },
-              {
-                id: "FL-04",
-                label: "Floor 04",
-                sublabel: "Tech Workstations",
-                badge: "DEMO",
-                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-              },
-              {
-                id: "FL-03",
-                label: "Floor 03",
-                sublabel: "Executive Suite",
-                badge: "+3m AUTH",
-                badgeColor: "bg-rose-900/70 text-rose-200 font-bold",
-              },
-              {
-                id: "FL-02",
-                label: "Floor 02",
-                sublabel: "Commercial Banking",
-                badge: "DEMO",
-                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-              },
-              {
-                id: "FL-01",
-                label: "Floor 01",
-                sublabel: "Ground Lobby",
-                badge: "DEMO",
-                badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-              },
-            ].map((fl) => {
-              const isSelected = selectedFloorId === fl.id;
-              return (
-                <button
-                  key={fl.id}
-                  onClick={() => onSelectLevel("FLOOR", fl.id)}
-                  className={`px-2 py-1 rounded-[5px] text-left transition-all flex items-center justify-between group ${
-                    isSelected
-                      ? "bg-[#C47B50] text-[#F4F0E8] shadow-md font-bold"
-                      : "hover:bg-[#1A201D] text-[#D9D2C5]"
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-mono font-semibold">{fl.label}</span>
+          {onToggleIsolateFloor && (
+            <button
+              onClick={onToggleIsolateFloor}
+              className={`p-1.5 sm:p-2 rounded-[6px] transition-all cursor-pointer ${
+                isolateFloor
+                  ? "bg-[#B56E48] text-[#F4F0E8] font-bold shadow-md"
+                  : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50]"
+              }`}
+              title={isolateFloor ? "Exit Floor Isolation" : "Isolate Current Floor"}
+            >
+              <Box className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Floating Floor Selector Rail (Visible during Building / Floor Inspection) */}
+        {(currentLevel === "BUILDING" ||
+          currentLevel === "FLOOR" ||
+          currentLevel === "UNIT" ||
+          currentLevel === "ROOM" ||
+          currentLevel === "ELEMENT" ||
+          currentLevel === "CORRIDOR") && selectedBuildingId && (
+          <div className="pointer-events-auto flex flex-col bg-[#141816]/98 backdrop-blur-md rounded-[10px] border border-[rgba(244,240,232,0.12)] shadow-2xl overflow-hidden w-[245px] sm:w-[265px] xl:w-[275px]">
+            {/* Header */}
+            <div className="px-3 py-2 bg-[#0F1210] border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">
+                FLOORS
+              </span>
+              <span className="text-[11px] font-mono text-[#C47B50] font-bold bg-[#C47B50]/15 px-2 py-0.5 rounded-[4px] border border-[#C47B50]/25">
+                7 LEVELS
+              </span>
+            </div>
+
+            {/* Floor Items (Rendered top to bottom: FL-07 down to FL-01) */}
+            <div className="flex flex-col p-1.5 gap-1 max-h-[calc(100vh-280px)] sm:max-h-[380px] overflow-y-auto no-scrollbar">
+              {[
+                {
+                  id: "FL-07",
+                  label: "Floor 07",
+                  sublabel: "Sky Lounge",
+                  badge: "DEMO",
+                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+                },
+                {
+                  id: "FL-06",
+                  label: "Floor 06",
+                  sublabel: "R&D Studios",
+                  badge: "DEMO",
+                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+                },
+                {
+                  id: "FL-05",
+                  label: "Floor 05",
+                  sublabel: "Corporate Advisory",
+                  badge: "DEMO",
+                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+                },
+                {
+                  id: "FL-04",
+                  label: "Floor 04",
+                  sublabel: "Tech Workstations",
+                  badge: "DEMO",
+                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+                },
+                {
+                  id: "FL-03",
+                  label: "Floor 03",
+                  sublabel: "Executive Suite",
+                  badge: "+3m AUTH",
+                  badgeColor: "bg-rose-900/80 text-rose-200 font-bold",
+                },
+                {
+                  id: "FL-02",
+                  label: "Floor 02",
+                  sublabel: "Commercial Banking",
+                  badge: "DEMO",
+                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+                },
+                {
+                  id: "FL-01",
+                  label: "Floor 01",
+                  sublabel: "Ground Lobby",
+                  badge: "DEMO",
+                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+                },
+              ].map((fl) => {
+                const isSelected = selectedFloorId === fl.id;
+                return (
+                  <button
+                    key={fl.id}
+                    onClick={() => onSelectLevel("FLOOR", fl.id)}
+                    className={`px-3 py-2 rounded-[6px] text-left transition-all flex items-center justify-between group cursor-pointer ${
+                      isSelected
+                        ? "bg-[#C47B50] text-[#F4F0E8] shadow-md font-bold"
+                        : "hover:bg-[#1A201D] text-[#D9D2C5]"
+                    }`}
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs sm:text-[13px] font-mono font-bold">{fl.label}</span>
+                        <span
+                          className={`text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded ${fl.badgeColor}`}
+                        >
+                          {fl.badge}
+                        </span>
+                      </div>
                       <span
-                        className={`text-[8px] font-mono px-1 rounded ${fl.badgeColor}`}
+                        className={`text-[11px] font-sans block truncate mt-0.5 ${
+                          isSelected ? "text-[#F4F0E8]/90 font-medium" : "text-[#77867C]"
+                        }`}
                       >
-                        {fl.badge}
+                        {fl.sublabel}
                       </span>
                     </div>
                     <span
-                      className={`text-[8.5px] block truncate ${
-                        isSelected ? "text-[#F4F0E8]/80" : "text-[#77867C]"
+                      className={`w-2 h-2 rounded-full shrink-0 ${
+                        isSelected
+                          ? "bg-white"
+                          : fl.id === "FL-03"
+                          ? "bg-rose-400"
+                          : "bg-[#23847D]"
                       }`}
-                    >
-                      {fl.sublabel}
-                    </span>
-                  </div>
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                      isSelected
-                        ? "bg-white"
-                        : fl.id === "FL-03"
-                        ? "bg-rose-400"
-                        : "bg-[#23847D]"
-                    }`}
-                  />
-                </button>
-              );
-            })}
-          </div>
+                    />
+                  </button>
+                );
+              })}
+            </div>
 
-          {/* Quick mode toggles */}
-          <div className="px-1.5 py-1 bg-[#0F1210] border-t border-[rgba(244,240,232,0.06)] flex items-center justify-between text-[9px] font-mono">
-            {onToggleIsolateFloor && (
-              <button
-                onClick={onToggleIsolateFloor}
-                className={`px-1.5 py-0.5 rounded transition-all ${
-                  isolateFloor
-                    ? "bg-[#C47B50] text-white font-bold"
-                    : "text-[#77867C] hover:text-[#D9D2C5]"
-                }`}
-                title="Isolate selected floor"
-              >
-                {isolateFloor ? "ISOLATED" : "ISOLATE"}
-              </button>
-            )}
-            {onToggleExplodeFloors && (
-              <button
-                onClick={onToggleExplodeFloors}
-                className={`px-1.5 py-0.5 rounded transition-all ${
-                  explodeFloors
-                    ? "bg-[#23847D] text-[#0F1210] font-bold"
-                    : "text-[#77867C] hover:text-[#D9D2C5]"
-                }`}
-                title="Explode all floors vertically"
-              >
-                {explodeFloors ? "COLLAPSE" : "EXPLODE"}
-              </button>
-            )}
+            {/* Quick mode toggles */}
+            <div className="p-2 bg-[#0F1210] border-t border-[rgba(244,240,232,0.08)] grid grid-cols-2 gap-1.5 text-xs font-mono font-bold">
+              {onToggleIsolateFloor && (
+                <button
+                  onClick={onToggleIsolateFloor}
+                  className={`py-1.5 px-2 rounded-[6px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isolateFloor
+                      ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm font-bold"
+                      : "bg-[#1A201D] hover:bg-[#222A26] text-[#A2B3A8] hover:text-[#F4F0E8] border border-[rgba(244,240,232,0.08)]"
+                  }`}
+                  title="Isolate selected floor"
+                >
+                  <Box className="w-3.5 h-3.5" />
+                  <span>{isolateFloor ? "ISOLATED" : "ISOLATE"}</span>
+                </button>
+              )}
+              {onToggleExplodeFloors && (
+                <button
+                  onClick={onToggleExplodeFloors}
+                  className={`py-1.5 px-2 rounded-[6px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    explodeFloors
+                      ? "bg-[#23847D] text-[#0F1210] shadow-sm font-bold"
+                      : "bg-[#1A201D] hover:bg-[#222A26] text-[#A2B3A8] hover:text-[#F4F0E8] border border-[rgba(244,240,232,0.08)]"
+                  }`}
+                  title="Explode all floors vertically"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>{explodeFloors ? "COLLAPSE" : "EXPLODE"}</span>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Measurement Mode Prompt Bar (Fallback when onMeasurementUpdate not supplied) */}
       {measurementActive && !onMeasurementUpdate && (

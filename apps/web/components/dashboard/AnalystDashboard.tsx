@@ -125,7 +125,7 @@ export function AnalystDashboard() {
                   onClick={() => handleRunQuery(q)}
                   className="px-3 py-1.5 rounded-[4px] bg-[#161B18] border border-[rgba(244,240,232,0.08)] hover:border-[#2EB8B0]/50 hover:bg-[#1A221E] text-left text-xs font-mono text-[#CBD5E1] transition-all cursor-pointer"
                 >
-                  "{q}"
+                  {`"${q}"`}
                 </button>
               ))}
             </div>

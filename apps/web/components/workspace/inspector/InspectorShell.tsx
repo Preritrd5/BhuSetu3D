@@ -29,7 +29,7 @@ export const InspectorShell: React.FC<InspectorShellProps> = ({
       className={`z-30 select-none transition-all duration-300 ease-out
         /* Desktop & Tablet: floating right panel */
         md:absolute md:top-[74px] md:right-4 md:bottom-auto md:inset-x-auto
-        md:w-[400px] xl:w-[440px]
+        md:w-[365px] lg:w-[380px] xl:w-[395px] max-w-[calc(100vw-2rem)]
         /* Mobile: bottom sheet */
         max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:w-full
         ${isMinimized ? "opacity-90 max-md:translate-y-[calc(100%-72px)]" : "opacity-100"} 
