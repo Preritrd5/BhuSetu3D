@@ -148,46 +148,60 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
   };
 
   return (
-    <header className="absolute top-3 sm:top-4 inset-x-3 sm:inset-x-6 h-13 sm:h-14 z-30 flex items-center justify-between gap-3 pointer-events-none select-none">
-      {/* Zone 1: Left - Brand & Omnibar Search */}
-      <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3 shrink-0">
-        {/* Brand & Workspace Identity */}
-        <div className="flex items-center gap-2.5 sm:gap-3 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] px-3 sm:px-3.5 py-1.5 rounded-[6px] shadow-sm">
-          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-            <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-[4px] overflow-hidden shrink-0 shadow-sm group-hover:scale-[1.03] transition-transform">
-              <Image
-                src="/brand/bhusetu-logo.webp"
-                alt="BhuSetu 3D Official Brand Logo"
-                width={32}
-                height={32}
-                priority
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs sm:text-sm font-bold tracking-wider text-[#F4F0E8] font-mono leading-none">
-                  BHUSETU 3D
-                </span>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#176C68]" />
-              </div>
-              <span className="hidden sm:block text-xs font-mono uppercase tracking-widest text-[#94A3B8] mt-0.5">
-                Spatial Intelligence
-              </span>
-            </div>
-          </Link>
-        </div>
+    /**
+     * LAYOUT SYSTEM — TopBar occupies a fixed 56px strip at the very top.
+     *
+     * Three zones (flex row, items-center):
+     *   ZONE 1 (left, shrink-0):  Brand logo + Search + Ask
+     *   ZONE 2 (center, flex-1):  Demo context chip (hidden on <lg)
+     *   ZONE 3 (right, shrink-0): 2D/3D switch + KPI compact + User profile
+     *
+     * No zone overflows into another. Each is bounded by its own container.
+     * Total bar height: h-14 (56px). Top: 0 (edge of viewport, no gap).
+     */
+    <header
+      className="absolute top-0 inset-x-0 h-14 z-30 flex items-center px-3 sm:px-4 gap-2 lg:gap-3
+                 bg-[#0F1210] border-b border-[rgba(244,240,232,0.10)] shadow-lg select-none"
+    >
+      {/* ── ZONE 1: Brand + Search ──────────────────────────────────────── */}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Brand */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 group shrink-0
+                     bg-[#141816] border border-[rgba(244,240,232,0.10)] px-3 py-1.5 rounded-[6px]
+                     hover:border-[rgba(244,240,232,0.2)] transition-all"
+        >
+          <div className="relative w-7 h-7 rounded-[4px] overflow-hidden shrink-0">
+            <Image
+              src="/brand/bhusetu-logo.webp"
+              alt="BhuSetu 3D"
+              width={28}
+              height={28}
+              priority
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="text-[13px] font-bold tracking-wider text-[#F4F0E8] font-mono">
+              BHUSETU 3D
+            </span>
+            <span className="hidden sm:block text-[10px] font-mono uppercase tracking-widest text-[#A2B3A8] mt-0.5">
+              Spatial Intelligence
+            </span>
+          </div>
+        </Link>
 
         {/* Omnibar Search */}
-        <div className="relative w-48 sm:w-60 md:w-72 lg:w-80">
+        <div className="relative w-44 sm:w-56 lg:w-72 xl:w-80">
           <div
-            className={`flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border px-2.5 sm:px-3 py-1.5 rounded-[6px] shadow-sm transition-all ${
+            className={`flex items-center gap-2 bg-[#141816] border px-2.5 py-2 rounded-[6px] shadow-sm transition-all ${
               isSearchFocused
-                ? "border-[#B56E48] ring-1 ring-[#B56E48]/30"
-                : "border-[rgba(244,240,232,0.12)] hover:border-[rgba(244,240,232,0.22)]"
+                ? "border-[#B56E48] ring-1 ring-[#B56E48]/25"
+                : "border-[rgba(244,240,232,0.10)] hover:border-[rgba(244,240,232,0.20)]"
             }`}
           >
-            <Search className="w-4 h-4 text-[#94A3B8] shrink-0" />
+            <Search className="w-3.5 h-3.5 text-[#A2B3A8] shrink-0" />
             <input
               type="text"
               role="combobox"
@@ -196,7 +210,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
               aria-controls="workspace-search-listbox"
               aria-haspopup="listbox"
               aria-label="Search cadastral parcels, 3D buildings, and units"
-              placeholder="Search parcel, building, ULPIN..."
+              placeholder="Search parcel, building, ULPIN…"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -204,6 +218,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
               }}
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   setIsSearchFocused(false);
@@ -233,11 +248,12 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
                   }
                 }
               }}
-              className="bg-transparent text-xs sm:text-[13px] text-[#F4F0E8] placeholder-[#94A3B8] font-mono focus:outline-none w-full min-w-0"
+              className="bg-transparent text-[13px] text-[#D9D2C5] placeholder-[#5A6B62] font-mono focus:outline-none w-full min-w-0"
             />
+            {/* Ask BhuSetu — inside the search bar */}
             <button
               onClick={onOpenAI}
-              className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.15)] text-xs font-mono text-[#D9D2C5] hover:text-[#F4F0E8] hover:border-[#B56E48] transition-all shrink-0 cursor-pointer"
+              className="flex items-center gap-1 px-2 py-1 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] text-xs font-mono text-[#D9D2C5] hover:text-[#F4F0E8] hover:border-[#B56E48] transition-all shrink-0 cursor-pointer"
               title="Ask BhuSetu Spatial Intelligence"
               aria-label="Ask BhuSetu Spatial Intelligence"
             >
@@ -246,15 +262,15 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
             </button>
           </div>
 
-          {/* Search Dropdown Results */}
+          {/* Search Dropdown */}
           {isSearchFocused && (
             <div
               id="workspace-search-listbox"
               role="listbox"
               aria-label="Search suggestions"
-              className="absolute top-full left-0 right-0 mt-1.5 bg-[#141816] border border-[rgba(244,240,232,0.14)] rounded-[8px] shadow-2xl overflow-hidden py-1 z-40"
+              className="absolute top-full left-0 right-0 mt-1.5 bg-[#141816] border border-[rgba(244,240,232,0.14)] rounded-[8px] shadow-2xl overflow-hidden py-1 z-50"
             >
-              <div className="px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider text-[#94A3B8] border-b border-[rgba(244,240,232,0.08)] font-bold">
+              <div className="px-3.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-[#5A6B62] border-b border-[rgba(244,240,232,0.08)] font-bold">
                 Authoritative PostGIS Digital Twin Entities
               </div>
               <div className="max-h-60 overflow-y-auto">
@@ -270,27 +286,23 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
                         : "hover:bg-[#1A201D] text-[#D9D2C5]"
                     }`}
                   >
-                    <div className="flex items-center gap-2 truncate">
+                    <div className="flex items-center gap-2 truncate min-w-0">
                       {item.type === "BUILDING" ? (
-                        <Building2 className="w-4 h-4 text-[#C47B50] flex-shrink-0" />
+                        <Building2 className="w-4 h-4 text-[#C47B50] shrink-0" />
                       ) : item.type === "PARCEL" ? (
-                        <MapPin className="w-4 h-4 text-[#23847D] flex-shrink-0" />
+                        <MapPin className="w-4 h-4 text-[#23847D] shrink-0" />
                       ) : item.type === "FLOOR" ? (
-                        <Layers className="w-4 h-4 text-[#23847D] flex-shrink-0" />
+                        <Layers className="w-4 h-4 text-[#23847D] shrink-0" />
                       ) : (
-                        <LayoutGrid className="w-4 h-4 text-[#C47B50] flex-shrink-0" />
+                        <LayoutGrid className="w-4 h-4 text-[#C47B50] shrink-0" />
                       )}
-                      <div className="truncate">
-                        <div className="text-xs font-mono font-medium truncate">
-                          {item.title}
-                        </div>
-                        <div className="text-xs font-mono text-[#A7B3AB]">
-                          {item.code}
-                        </div>
+                      <div className="truncate min-w-0">
+                        <div className="text-[13px] font-mono font-medium truncate">{item.title}</div>
+                        <div className="text-xs font-mono text-[#5A6B62]">{item.code}</div>
                       </div>
                     </div>
                     <span
-                      className={`text-xs font-mono px-2 py-0.5 rounded-[4px] border font-bold flex-shrink-0 ${item.badgeColor}`}
+                      className={`text-[10px] font-mono px-1.5 py-0.5 rounded border font-bold shrink-0 ${item.badgeColor}`}
                     >
                       {item.badge}
                     </span>
@@ -302,52 +314,57 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
         </div>
       </div>
 
-      {/* Zone 2: Center - Target Context & Macro Telemetry */}
-      <div className="pointer-events-auto hidden md:flex items-center gap-2 min-w-0 justify-center">
-        {/* Flagship Demonstration Quick-Focus Chip */}
+      {/* ── ZONE 2: Center — Demo context chip ───────────────────────────── */}
+      {/*
+        Shown only on lg+ to avoid crowding 1280px.
+        flex-1 with min-w-0 means it compresses gracefully.
+      */}
+      <div className="hidden lg:flex items-center justify-center flex-1 min-w-0 px-2">
         <button
           onClick={() => onSelectEntity?.("77777777-7777-4000-8000-000000000102", "BUILDING")}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-[#141816]/95 hover:bg-[#1A201D] border border-[rgba(244,240,232,0.12)] hover:border-[#B56E48] text-xs font-mono text-[#D9D2C5] transition-all cursor-pointer group shadow-sm shrink-0"
-          title="Instant 1-Click Flagship Demo: Inspect Aura Horizon Discrepancy (BLD-KA-BLR-102)"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-[6px]
+                     bg-[#141816] hover:bg-[#1A201D]
+                     border border-[rgba(244,240,232,0.10)] hover:border-[#B56E48]
+                     text-[13px] font-mono text-[#D9D2C5] transition-all cursor-pointer shadow-sm
+                     max-w-[380px] xl:max-w-[480px]"
+          title="Instant 1-Click Flagship Demo: Inspect Aura Horizon Discrepancy"
         >
-          <span className="w-2 h-2 rounded-full bg-[#B56E48] group-hover:scale-110 transition-transform" />
-          <span className="text-[#94A3B8]">Target:</span>
-          <span className="text-[#F4F0E8] font-bold truncate max-w-[150px] lg:max-w-[200px]">
+          <span className="w-2 h-2 rounded-full bg-[#B56E48] shrink-0" />
+          <span className="text-[#A2B3A8] shrink-0 text-xs">Target:</span>
+          <span className="text-[#F4F0E8] font-semibold truncate min-w-0">
             Aura Horizon Commercial
           </span>
-          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-rose-950/40 border border-rose-800/50 text-rose-300 text-[11px] font-bold">
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-950/60 border border-rose-800/50 text-rose-300 text-[10px] font-bold shrink-0">
             <AlertTriangle className="w-3 h-3 text-rose-400" />
-            <span>+3.0m Discrepancy</span>
+            <span>+3.0m</span>
           </span>
         </button>
-
-        {/* Macro KPI Strip (Visible on 2xl screens) */}
-        <div className="hidden 2xl:flex items-center gap-1.5 bg-[#141816]/95 border border-[rgba(244,240,232,0.12)] px-2.5 py-1 rounded-[6px] text-xs font-mono">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
-            <span className="text-[#94A3B8]">Parcels:</span>
-            <span className="text-[#23847D] font-bold">{stats.parcels}</span>
-          </div>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
-            <span className="text-[#94A3B8]">Twins:</span>
-            <span className="text-[#23847D] font-bold">{stats.buildings}</span>
-          </div>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] bg-[#1A201D] text-[#D9D2C5]">
-            <span className="text-[#94A3B8]">Quality:</span>
-            <span className="text-[#F4F0E8] font-bold">{stats.qualityIndex}%</span>
-          </div>
-        </div>
       </div>
 
-      {/* Zone 3: Right - Mode Switcher, Modules, and User Profile */}
-      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.12)] p-1 rounded-[6px] shadow-sm shrink-0">
-        {/* 2D / 3D Switcher */}
+      {/* ── ZONE 3: Right — KPI compact + Mode switch + User ────────────── */}
+      <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+
+        {/* Compact KPI — shown only on xl+ to avoid crowding */}
+        <div className="hidden xl:flex items-center gap-1 bg-[#141816] border border-[rgba(244,240,232,0.10)] px-2.5 py-1.5 rounded-[6px] text-[11px] font-mono">
+          <span className="text-[#A2B3A8]">Parcels</span>
+          <span className="text-[#23847D] font-bold ml-0.5">{stats.parcels}</span>
+          <span className="mx-1.5 text-[rgba(244,240,232,0.2)]">·</span>
+          <span className="text-[#A2B3A8]">Twins</span>
+          <span className="text-[#23847D] font-bold ml-0.5">{stats.buildings}</span>
+          <span className="mx-1.5 text-[rgba(244,240,232,0.2)]">·</span>
+          <span className="text-[#A2B3A8]">Quality</span>
+          <span className="text-[#F4F0E8] font-bold ml-0.5">{stats.qualityIndex}%</span>
+        </div>
+
+
+        {/* 2D Cadastre / 3D Twin switcher */}
         {onToggleMode ? (
           <button
             onClick={onToggleMode}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[4px] text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-[6px] text-[12px] font-mono font-bold transition-all cursor-pointer ${
               activeMode === "3D"
                 ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm"
-                : "bg-[#1A201D] text-[#94A3B8] hover:text-[#F4F0E8]"
+                : "bg-[#141816] border border-[rgba(244,240,232,0.10)] text-[#A2B3A8] hover:text-[#F4F0E8]"
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
@@ -356,73 +373,76 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
         ) : (
           <Link
             href="/properties"
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[4px] bg-[#1A201D] text-[#94A3B8] hover:text-[#F4F0E8] text-xs font-mono transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.10)] text-[#A2B3A8] hover:text-[#F4F0E8] text-[12px] font-mono transition-colors"
           >
             <MapPin className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">2D Cadastre</span>
           </Link>
         )}
 
-        {/* Global Modules Quick Link */}
+        {/* Modules quick link */}
         <Link
           href="/overview"
-          className="p-1.5 rounded-[4px] hover:bg-[#1A201D] text-[#94A3B8] hover:text-[#F4F0E8] transition-colors"
+          className="p-2 rounded-[6px] bg-[#141816] border border-[rgba(244,240,232,0.10)] hover:border-[rgba(244,240,232,0.2)] text-[#5A6B62] hover:text-[#A2B3A8] transition-colors"
           title="All System Intelligence Modules"
           aria-label="All System Intelligence Modules"
         >
           <Layers className="w-4 h-4" />
         </Link>
 
-        {/* User Persona Profile Panel */}
+        {/* User profile */}
         <div className="relative">
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] bg-[#1A201D] hover:bg-[#141816] border border-[rgba(244,240,232,0.12)] text-xs font-mono text-[#D9D2C5] transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-[6px]
+                       bg-[#141816] border border-[rgba(244,240,232,0.10)]
+                       hover:border-[rgba(244,240,232,0.22)] text-[12px] font-mono text-[#D9D2C5]
+                       transition-colors cursor-pointer"
             aria-label="User account and profile menu"
           >
-            <div className="w-6 h-6 rounded-[3px] bg-[#141816] border border-[rgba(244,240,232,0.15)] flex items-center justify-center text-xs text-[#C47B50] font-bold">
+            <div className="w-6 h-6 rounded-[4px] bg-[#1A201D] border border-[rgba(244,240,232,0.12)] flex items-center justify-center text-[11px] text-[#C47B50] font-bold">
               {user?.email?.charAt(0).toUpperCase() || "O"}
             </div>
-            <span className="hidden sm:inline font-medium text-[#F4F0E8] max-w-[120px] truncate">
+            <span className="hidden lg:inline font-medium text-[#D9D2C5] max-w-[100px] truncate">
               {user?.name || user?.email?.split("@")[0] || "Officer"}
             </span>
-            <span className="text-xs px-2 py-0.5 rounded-[3px] bg-[#141816] text-[#A7B3AB] border border-[rgba(244,240,232,0.10)] font-semibold">
+            <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-[#1A201D] text-[#5A6B62] border border-[rgba(244,240,232,0.08)] font-semibold">
               {user?.roles?.[0] || "ADMIN"}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-[#94A3B8]" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#5A6B62]" />
           </button>
 
           {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-60 bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[6px] shadow-2xl py-1 z-40 text-xs font-mono">
+            <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[8px] shadow-2xl py-1 z-50 text-xs font-mono">
               <div className="px-3 py-2 border-b border-[rgba(244,240,232,0.08)]">
-                <div className="font-semibold text-[#F4F0E8] truncate text-sm">
+                <div className="font-semibold text-[#F4F0E8] truncate text-[13px]">
                   {user?.name || "Official User"}
                 </div>
-                <div className="text-xs text-[#94A3B8] truncate mt-0.5">
+                <div className="text-[11px] text-[#5A6B62] truncate mt-0.5">
                   {user?.email || "admin.official@bhusetu.gov.in"}
                 </div>
-                <div className="text-xs text-[#2EB8B0] mt-1 uppercase font-semibold">
+                <div className="text-[11px] text-[#2EB8B0] mt-1 uppercase font-semibold">
                   Role: {user?.roles?.join(", ") || "ADMINISTRATOR"}
                 </div>
               </div>
               <div className="py-1">
                 <Link
                   href="/overview"
-                  className="w-full px-3 py-1.5 flex items-center gap-2 text-[#D9D2C5] hover:bg-[#1A201D] hover:text-[#F4F0E8] transition-colors"
+                  className="w-full px-3 py-2 flex items-center gap-2 text-[#D9D2C5] hover:bg-[#1A201D] hover:text-[#F4F0E8] transition-colors"
                 >
                   <Layers className="w-3.5 h-3.5" />
                   <span>Module Overview</span>
                 </Link>
                 <Link
                   href="/history"
-                  className="w-full px-3 py-1.5 flex items-center gap-2 text-[#D9D2C5] hover:bg-[#1A201D] hover:text-[#F4F0E8] transition-colors"
+                  className="w-full px-3 py-2 flex items-center gap-2 text-[#D9D2C5] hover:bg-[#1A201D] hover:text-[#F4F0E8] transition-colors"
                 >
                   <History className="w-3.5 h-3.5" />
                   <span>4D History Scrubber</span>
                 </Link>
                 <Link
                   href="/evidence"
-                  className="w-full px-3 py-1.5 flex items-center gap-2 text-[#D9D2C5] hover:bg-[#1A201D] hover:text-[#F4F0E8] transition-colors"
+                  className="w-full px-3 py-2 flex items-center gap-2 text-[#D9D2C5] hover:bg-[#1A201D] hover:text-[#F4F0E8] transition-colors"
                 >
                   <FileCheck2 className="w-3.5 h-3.5" />
                   <span>Cryptographic Vault</span>
@@ -431,7 +451,7 @@ export const WorkspaceTopBar: React.FC<WorkspaceTopBarProps> = ({
               <div className="pt-1 border-t border-[rgba(244,240,232,0.08)]">
                 <button
                   onClick={() => logout()}
-                  className="w-full px-3 py-1.5 flex items-center gap-2 text-[#C47B50] hover:bg-[#B56E48]/20 transition-colors text-left"
+                  className="w-full px-3 py-2 flex items-center gap-2 text-[#C47B50] hover:bg-[#B56E48]/20 transition-colors text-left"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out</span>

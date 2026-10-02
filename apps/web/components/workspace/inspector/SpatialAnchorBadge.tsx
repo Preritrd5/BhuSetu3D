@@ -20,8 +20,8 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
   onClearSelection,
   className = "",
 }) => {
-  // If City level and not minimized, anchor badge isn't needed
-  if (selection.entityType === "CITY" && !isMinimized) return null;
+  // At City level, no specific entity is selected to restore inspector for
+  if (selection.entityType === "CITY") return null;
 
   const renderIcon = (level: SpatialLevel) => {
     switch (level) {
@@ -41,8 +41,9 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
   return (
     <div
       className={`fixed z-20 pointer-events-auto select-none transition-all duration-200 animate-in fade-in slide-in-from-right-4 max-w-[calc(100vw-120px)] ${className}`}
-      style={{ top: "116px", right: "16px" }}
+      style={{ top: "64px", right: "16px" }}
     >
+
       <div className="flex items-center gap-1.5 p-1.5 pl-3 rounded-[8px] bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-xl text-xs font-mono">
         <div className="flex items-center gap-2">
           {renderIcon(selection.entityType)}

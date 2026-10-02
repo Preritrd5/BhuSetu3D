@@ -52,8 +52,9 @@ export const BottomSpatialToolStrip: React.FC<BottomSpatialToolStripProps> = ({
     <div
       role="toolbar"
       aria-label="3D Spatial Tools"
-      className="absolute bottom-3 sm:bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none select-none px-2"
+      className="absolute bottom-11 sm:bottom-12 inset-x-0 z-20 flex justify-center pointer-events-none select-none px-2"
     >
+
       <div className="pointer-events-auto flex items-center gap-1 sm:gap-2 bg-[#141816]/95 backdrop-blur-md border border-[rgba(244,240,232,0.08)] p-1 sm:p-1.5 rounded-[10px] shadow-2xl max-w-full touch-manipulation">
         {/* P0-1: Select / Inspect Tool */}
         <button

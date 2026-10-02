@@ -40,6 +40,11 @@ import {
   CameraTelemetry,
 } from "@/types/tools";
 import { ConflictItem } from "@/types/intelligence";
+import { MobileFloorCarousel } from "@/components/mobile/MobileFloorCarousel";
+import { MobileContextBar } from "@/components/mobile/MobileContextBar";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+
+
 
 // Client-only dynamic loading of Cesium 3D Viewer to prevent SSR Node window/document errors
 const CesiumViewer = dynamic(
@@ -96,22 +101,30 @@ function City3DContent() {
   const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(urlLevel ? urlLevel !== "CITY" : false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState<boolean>(false);
   const [isWideScreen, setIsWideScreen] = useState<boolean>(true);
+  /** true when the viewport is < 768px (phone portrait / small landscape) */
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   // Responsive layout adaptation across desktop, tablet, and mobile
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handleResize = () => {
-      const wide = window.innerWidth >= 1280;
+      const wide = window.innerWidth >= 1440;
+      const mobile = window.innerWidth < 768;
       setIsWideScreen(wide);
-      // On tablets and mobile (< 1024px), default left panel to collapsed so 3D world is dominant
-      if (window.innerWidth < 1024) {
+      setIsMobile(mobile);
+      // On screens < 1440px (1280x720, 1366x768), default left panel to collapsed when right panel is open so 3D world is dominant
+      if (window.innerWidth < 1440 && isRightPanelOpen) {
+        setIsLeftPanelCollapsed(true);
+      } else if (window.innerWidth < 1024) {
         setIsLeftPanelCollapsed(true);
       }
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isRightPanelOpen]);
+
+
 
   // Layer visibility state
   const [layers, setLayers] = useState<LayerVisibilityState>({
@@ -724,8 +737,10 @@ function City3DContent() {
             highlightEntityIds={aiHighlightEntityIds}
             treeData={treeData}
             isRightPanelOpen={isRightPanelOpen}
+            hideMobileFloorPanel={isMobile}
           />
         </main>
+
 
         {/* Floating Top Omnibar & Macro KPI Strip */}
         <WorkspaceTopBar
@@ -748,53 +763,75 @@ function City3DContent() {
           }}
         />
 
-        {/* Progressive Multi-Level Spatial Breadcrumb Navigation */}
-        <WorkspaceBreadcrumb
-          currentLevel={currentLevel}
-          parcelName={parcelDisplayName}
-          buildingName={buildingDisplayName}
-          floorName={floorDisplayName}
-          unitName={unitDisplayName}
-          roomName={roomDisplayName}
-          elementName={elementDisplayName}
-          onNavigateToLevel={handleSelectLevel}
-          onUpOneLevel={handleUpOneLevel}
-          isLeftPanelCollapsed={isLeftPanelCollapsed}
-          isRightPanelOpen={isRightPanelOpen}
-        />
+        {/* ── DESKTOP: Progressive Multi-Level Spatial Breadcrumb ─────────── */}
+        <div className="hidden md:block">
+          <WorkspaceBreadcrumb
+            currentLevel={currentLevel}
+            parcelName={parcelDisplayName}
+            buildingName={buildingDisplayName}
+            floorName={floorDisplayName}
+            unitName={unitDisplayName}
+            roomName={roomDisplayName}
+            elementName={elementDisplayName}
+            onNavigateToLevel={handleSelectLevel}
+            onUpOneLevel={handleUpOneLevel}
+            isLeftPanelCollapsed={isLeftPanelCollapsed}
+            isRightPanelOpen={isRightPanelOpen}
+          />
+        </div>
+
+        {/* ── MOBILE: Compact spatial context bar (replaces breadcrumb) ────── */}
+        <div
+          className="md:hidden absolute left-0 right-0 z-20"
+          style={{ top: "56px" }} /* just below the TopBar */
+        >
+          <MobileContextBar
+            currentLevel={currentLevel}
+            buildingName={buildingDisplayName}
+            floorName={floorDisplayName}
+            selectedFloorId={selectedFloorId}
+            totalFloors={7}
+            onUpOneLevel={handleUpOneLevel}
+            onNavigateToLevel={handleSelectLevel}
+            isVisible={currentLevel !== "CITY"}
+          />
+        </div>
 
         {/* Floating Left Spatial Control Panel [Layers | Outliner | Tools] */}
-        <LeftSpatialControlPanel
-          layers={layers}
-          onToggleLayer={handleToggleLayer}
-          currentLevel={currentLevel}
-          selectedParcelId={selectedParcelId}
-          selectedBuildingId={selectedBuildingId}
-          selectedFloorId={selectedFloorId}
-          selectedUnitId={selectedUnitId}
-          selectedRoomId={selectedRoomId}
-          selectedElementId={selectedElementId}
-          treeData={treeData}
-          isLoadingTree={isLoadingTree}
-          onSelectLevel={handleSelectLevel}
-          onOpenExtractionModal={() => setIsExtractionModalOpen(true)}
-          onSetCameraPreset={(preset) => {
-            setCameraPreset(preset);
-            setTimeout(() => setCameraPreset(null), 100);
-          }}
-          measurementActive={activeSpatialTool === "MEASURE"}
-          onToggleMeasurement={() => handleSelectTool("MEASURE")}
-          measurementResult={
-            measurementResult
-              ? {
-                  distance: measurementResult.distance || 0,
-                  heightDelta: measurementResult.heightDelta || 0,
-                }
-              : null
-          }
-          isCollapsed={isLeftPanelCollapsed}
-          onToggleCollapse={() => setIsLeftPanelCollapsed((p) => !p)}
-        />
+        {/* ── DESKTOP: Left Spatial Control Panel [Layers | Outliner | Tools] ── */}
+        <div className="hidden md:block">
+          <LeftSpatialControlPanel
+            layers={layers}
+            onToggleLayer={handleToggleLayer}
+            currentLevel={currentLevel}
+            selectedParcelId={selectedParcelId}
+            selectedBuildingId={selectedBuildingId}
+            selectedFloorId={selectedFloorId}
+            selectedUnitId={selectedUnitId}
+            selectedRoomId={selectedRoomId}
+            selectedElementId={selectedElementId}
+            treeData={treeData}
+            isLoadingTree={isLoadingTree}
+            onSelectLevel={handleSelectLevel}
+            onOpenExtractionModal={() => setIsExtractionModalOpen(true)}
+            onSetCameraPreset={(preset) => {
+              setCameraPreset(preset);
+              setTimeout(() => setCameraPreset(null), 100);
+            }}
+            measurementActive={activeSpatialTool === "MEASURE"}
+            onToggleMeasurement={() => handleSelectTool("MEASURE")}
+            measurementResult={
+              measurementResult
+                ? {
+                    distance: measurementResult.distance || 0,
+                    heightDelta: measurementResult.heightDelta || 0,
+                  }
+                : null
+            }
+            isCollapsed={isLeftPanelCollapsed}
+            onToggleCollapse={() => setIsLeftPanelCollapsed((p) => !p)}
+          />
+        </div>
 
         {/* Dynamic Metric Spatial Scale Bar (shifts left when right inspector is open) */}
         <div
@@ -843,77 +880,82 @@ function City3DContent() {
           </SpatialErrorBoundary>
         )}
 
-        {/* Floating Right Contextual Intelligence Panel */}
-        {isRightPanelOpen && !comparisonState.isActive && (
-          <RightContextualPanel
-            currentLevel={currentLevel}
-            selectedParcelId={selectedParcelId}
-            selectedBuildingId={selectedBuildingId}
-            selectedFloorId={selectedFloorId}
-            selectedUnitId={selectedUnitId}
-            selectedRoomId={selectedRoomId}
-            selectedElementId={selectedElementId}
-            selectedInfrastructureId={selectedInfrastructureId}
-            treeData={treeData}
-            isolateBuilding={isolateBuilding}
-            isolateFloor={isolateFloor}
-            explodeFloors={explodeFloors}
-            onToggleIsolateBuilding={() => setIsolateBuilding((prev) => !prev)}
-            onToggleIsolateFloor={(iso) => setIsolateFloor(iso)}
-            onToggleExplodeFloors={() => setExplodeFloors((prev) => !prev)}
-            onClose={() => setIsRightPanelOpen(false)}
-            onMinimize={() => setIsRightPanelOpen(false)}
-            isMinimized={!isRightPanelOpen}
-            onSelectLevel={handleSelectLevel}
-            onFocusEntity={(id) => handleSelectLevel("BUILDING", id)}
+        {/* ── DESKTOP: Floating Right Contextual Intelligence Panel ─────────── */}
+        <div className="hidden md:block">
+          {isRightPanelOpen && !comparisonState.isActive && (
+            <RightContextualPanel
+              currentLevel={currentLevel}
+              selectedParcelId={selectedParcelId}
+              selectedBuildingId={selectedBuildingId}
+              selectedFloorId={selectedFloorId}
+              selectedUnitId={selectedUnitId}
+              selectedRoomId={selectedRoomId}
+              selectedElementId={selectedElementId}
+              selectedInfrastructureId={selectedInfrastructureId}
+              treeData={treeData}
+              isolateBuilding={isolateBuilding}
+              isolateFloor={isolateFloor}
+              explodeFloors={explodeFloors}
+              onToggleIsolateBuilding={() => setIsolateBuilding((prev) => !prev)}
+              onToggleIsolateFloor={(iso) => setIsolateFloor(iso)}
+              onToggleExplodeFloors={() => setExplodeFloors((prev) => !prev)}
+              onClose={() => setIsRightPanelOpen(false)}
+              onMinimize={() => setIsRightPanelOpen(false)}
+              isMinimized={!isRightPanelOpen}
+              onSelectLevel={handleSelectLevel}
+              onFocusEntity={(id) => handleSelectLevel("BUILDING", id)}
+              onOpenAI={() => setIsAIModalOpen(true)}
+              onMeasureConflict={handleMeasureConflict}
+              onOpenAIWithQuery={handleOpenAIWithQuery}
+              precomputedSelection={{
+                selection,
+                activeParcel,
+                activeBuilding,
+                activeFloor,
+                activeUnit,
+                activeRoom,
+                activeElement,
+              }}
+            />
+          )}
+
+          {/* Floating 3D Spatial Selection Anchor / HUD Badge (when inspector is closed) */}
+          {!isRightPanelOpen && !comparisonState.isActive && selection.entityType !== "CITY" && (
+            <SpatialAnchorBadge
+              selection={selection}
+              isMinimized={true}
+              onRestoreInspector={() => setIsRightPanelOpen(true)}
+              onClearSelection={() => handleSelectLevel("CITY")}
+            />
+          )}
+
+        </div>
+
+        {/* ── DESKTOP: Floating Bottom Spatial Tool Strip ───────────────────── */}
+        <div className="hidden md:block">
+          <BottomSpatialToolStrip
+            activeTool={activeSpatialTool}
+            onSelectTool={handleSelectTool}
+            onToggleLayers={() => setIsLeftPanelCollapsed((prev) => !prev)}
             onOpenAI={() => setIsAIModalOpen(true)}
-            onMeasureConflict={handleMeasureConflict}
-            onOpenAIWithQuery={handleOpenAIWithQuery}
-            precomputedSelection={{
-              selection,
-              activeParcel,
-              activeBuilding,
-              activeFloor,
-              activeUnit,
-              activeRoom,
-              activeElement,
+            onResetCamera={() => {
+              setCameraPreset("BUILDING");
+              setTimeout(() => setCameraPreset(null), 100);
+            }}
+            onSetCameraPreset={(preset) => {
+              setCameraPreset(preset);
+              setTimeout(() => setCameraPreset(null), 100);
+            }}
+            onNavigate2D={() => {
+              router.push(`/properties?parcel=${selectedParcelId || "66666666-6666-4000-8000-000000000102"}`);
+            }}
+            heading={cameraTelemetry.heading}
+            onResetNorth={() => {
+              setCameraPreset("NORTH");
+              setTimeout(() => setCameraPreset(null), 100);
             }}
           />
-        )}
-
-        {/* Floating 3D Spatial Selection Anchor / HUD Badge (when inspector is closed or minimized) */}
-        {!isRightPanelOpen && !comparisonState.isActive && (
-          <SpatialAnchorBadge
-            selection={selection}
-            isMinimized={true}
-            onRestoreInspector={() => setIsRightPanelOpen(true)}
-            onClearSelection={() => handleSelectLevel("CITY")}
-          />
-        )}
-
-        {/* Floating Bottom Spatial Tool Strip */}
-        <BottomSpatialToolStrip
-          activeTool={activeSpatialTool}
-          onSelectTool={handleSelectTool}
-          onToggleLayers={() => setIsLeftPanelCollapsed((prev) => !prev)}
-          onOpenAI={() => setIsAIModalOpen(true)}
-          onResetCamera={() => {
-            setCameraPreset("BUILDING");
-            setTimeout(() => setCameraPreset(null), 100);
-          }}
-          onSetCameraPreset={(preset) => {
-            setCameraPreset(preset);
-            setTimeout(() => setCameraPreset(null), 100);
-          }}
-          onNavigate2D={() => {
-            router.push(`/properties?parcel=${selectedParcelId || "66666666-6666-4000-8000-000000000102"}`);
-          }}
-          heading={cameraTelemetry.heading}
-          onResetNorth={() => {
-            setCameraPreset("NORTH");
-            setTimeout(() => setCameraPreset(null), 100);
-          }}
-        />
+        </div>
 
         {/* Floating 4D Temporal Timeline */}
         {activeSpatialTool === "TIMELINE" && (
@@ -943,10 +985,61 @@ function City3DContent() {
           onClose={() => setIsExtractionModalOpen(false)}
           onExtractionComplete={handleExtractionComplete}
         />
+
+        {/* ══════════════════════════════════════════════════════════════════
+            MOBILE SPATIAL WORKSPACE  (< 768px)
+            All mobile components are hidden on md+ screens.
+            They share the same selection state as the desktop — no duplication.
+        ══════════════════════════════════════════════════════════════════ */}
+
+        {/* Mobile floor carousel — bottom of viewport, above nav bar */}
+        {isMobile &&
+          (currentLevel === "BUILDING" ||
+            currentLevel === "FLOOR" ||
+            currentLevel === "UNIT" ||
+            currentLevel === "ROOM" ||
+            currentLevel === "ELEMENT" ||
+            currentLevel === "CORRIDOR") &&
+          selectedBuildingId && (
+            <div
+              className="fixed left-0 right-0 z-30 bg-[#141816]/98 backdrop-blur-md border-t border-[rgba(244,240,232,0.10)] shadow-2xl"
+              style={{ bottom: "57px" /* height of MobileBottomNav */ }}
+            >
+              <MobileFloorCarousel
+                selectedFloorId={selectedFloorId}
+                onSelectFloor={handleSelectLevel}
+                isolateFloor={isolateFloor}
+                explodeFloors={explodeFloors}
+                onToggleIsolateFloor={() => setIsolateFloor((prev) => !prev)}
+                onToggleExplodeFloors={() => setExplodeFloors((prev) => !prev)}
+              />
+            </div>
+          )}
+
+        {/* Mobile bottom navigation bar */}
+        {isMobile && (
+          <MobileBottomNav
+            activeTool={activeSpatialTool}
+            onSelectTool={handleSelectTool}
+            isLeftPanelOpen={!isLeftPanelCollapsed}
+            onToggleLayers={() => setIsLeftPanelCollapsed((prev) => !prev)}
+            onOpenAI={() => setIsAIModalOpen(true)}
+            onNavigate2D={() => {
+              router.push(`/properties?parcel=${selectedParcelId || "66666666-6666-4000-8000-000000000102"}`);
+            }}
+            onResetCamera={() => {
+              setCameraPreset("BUILDING");
+              setTimeout(() => setCameraPreset(null), 100);
+            }}
+            onOpenTimeline={() => handleSelectTool("TIMELINE")}
+            onOpenCompare={() => handleSelectTool("COMPARE")}
+          />
+        )}
       </div>
     </ProtectedRoute>
   );
 }
+
 
 export default function City3DPage() {
   return (

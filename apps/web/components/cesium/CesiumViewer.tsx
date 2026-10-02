@@ -102,7 +102,10 @@ interface CesiumViewerProps {
   treeData?: any;
   onSourceStatusChange?: (status: SpatialSourceStatus) => void;
   isRightPanelOpen?: boolean;
+  /** When true the internal desktop floor panel is hidden (mobile carousel takes over) */
+  hideMobileFloorPanel?: boolean;
 }
+
 
 // Backward-compatibility aliases for existing sub-component references
 const PRIMARY_BUILDINGS = URBAN_BUILDINGS.map((b) => ({
@@ -172,7 +175,9 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   treeData,
   onSourceStatusChange,
   isRightPanelOpen = false,
+  hideMobileFloorPanel = false,
 }) => {
+
   const { token } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
@@ -2319,7 +2324,8 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       )}
 
       {/* Floating Inspection Mode Prompts & Exit Actions */}
-      <div className="absolute top-[204px] inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none select-none max-w-xl">
+      <div className="absolute top-[116px] inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none select-none max-w-xl">
+
         {isolateFloor && (
           <div className="pointer-events-auto flex items-center gap-2.5 px-4 py-2 rounded-[10px] bg-[#141816]/95 backdrop-blur-md border border-[#B56E48]/60 text-[#C47B50] text-xs font-mono shadow-2xl animate-in fade-in slide-in-from-top-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#C47B50] animate-ping" />
@@ -2373,10 +2379,11 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       <div
         className={`absolute z-20 flex flex-col items-end gap-2.5 transition-all duration-300 pointer-events-none select-none ${
           isRightPanelOpen
-            ? "top-[156px] right-[390px] sm:right-[400px] md:right-[410px] lg:right-[420px] xl:right-[435px]"
-            : "top-[156px] right-3.5 sm:right-4"
+            ? "top-[64px] right-[390px] sm:right-[400px] md:right-[408px] lg:right-[415px] xl:right-[425px]"
+            : "top-[64px] right-3.5 sm:right-4"
         }`}
       >
+
         {/* Camera Toolbar — Mode toggle + utility controls */}
         <div className="pointer-events-auto flex items-center gap-1 bg-[#141816]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-[8px] border border-[rgba(244,240,232,0.12)] shadow-2xl">
 
@@ -2471,18 +2478,19 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         </div>
 
         {/* Immersive Mode Active — status banner */}
-        {cameraMode === "IMMERSIVE" && (
+        {/* {cameraMode === "IMMERSIVE" && (
           <div className="pointer-events-none flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#0A1A18]/95 backdrop-blur-md border border-[#23847D]/50 shadow-2xl animate-in fade-in slide-in-from-top-2 w-[245px] sm:w-[265px]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#2EB8B0] animate-ping shrink-0" />
             <span className="text-[10px] font-mono font-bold text-[#2EB8B0] uppercase tracking-wider">
               IMMERSIVE VIEW — DRAG TO LOOK 360°
             </span>
           </div>
-        )}
+        )} */}
 
 
-        {/* Floating Floor Selector Rail (Visible during Building / Floor Inspection) */}
-        {(currentLevel === "BUILDING" ||
+        {/* Floating Floor Selector Rail — desktop only (hidden when mobile carousel is used) */}
+        {!hideMobileFloorPanel && (currentLevel === "BUILDING" ||
+
           currentLevel === "FLOOR" ||
           currentLevel === "UNIT" ||
           currentLevel === "ROOM" ||

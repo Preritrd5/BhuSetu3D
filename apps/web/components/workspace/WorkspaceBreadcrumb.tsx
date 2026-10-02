@@ -57,6 +57,17 @@ export const WorkspaceBreadcrumb: React.FC<WorkspaceBreadcrumbProps> = ({
   isRightPanelOpen = true,
 }) => {
   const isCity = currentLevel === "CITY";
+  const hasFloorPanel =
+    currentLevel === "BUILDING" ||
+    currentLevel === "FLOOR" ||
+    currentLevel === "UNIT" ||
+    currentLevel === "ROOM" ||
+    currentLevel === "ELEMENT" ||
+    currentLevel === "DOOR" ||
+    currentLevel === "WINDOW" ||
+    currentLevel === "HALL" ||
+    currentLevel === "CORRIDOR";
+
   const [isWide, setIsWide] = React.useState(true);
 
   React.useEffect(() => {
@@ -67,18 +78,29 @@ export const WorkspaceBreadcrumb: React.FC<WorkspaceBreadcrumbProps> = ({
     return () => window.removeEventListener("resize", checkWidth);
   }, []);
 
+  const rightOffset = !isWide
+    ? "12px"
+    : isRightPanelOpen
+    ? hasFloorPanel
+      ? "690px"
+      : "420px"
+    : hasFloorPanel
+    ? "300px"
+    : "16px";
+
   return (
     <nav
       role="navigation"
       aria-label="Spatial hierarchy navigation breadcrumb"
       className="absolute z-20 flex pointer-events-none select-none transition-all duration-300 ease-out justify-start"
       style={{
-        top: "116px",
+        top: "64px",
         left: isWide ? (isLeftPanelCollapsed ? "68px" : "344px") : "12px",
-        right: isWide ? (isRightPanelOpen ? "415px" : (!isCity ? "320px" : "20px")) : "12px",
+        right: rightOffset,
       }}
     >
       <div className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-xl text-xs sm:text-[13px] font-mono max-w-full overflow-x-auto no-scrollbar scroll-smooth flex-nowrap touch-manipulation">
+
         {/* Up One Level Action Button */}
         {!isCity && (
           <button
