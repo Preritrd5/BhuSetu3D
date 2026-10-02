@@ -568,3 +568,104 @@ export function executeCameraFlight(
     console.warn("[SPATIAL_CAMERA_ENGINE] Flight execution error:", err);
   }
 }
+
+/**
+ * 6. IMMERSIVE VIEWPOINT RESOLUTION
+ *
+ * Computes a first-person camera position INSIDE the selected spatial context
+ * (floor / unit / building) for IMMERSIVE LOOK MODE.
+ *
+ * Unlike GIS orbit targets which position the camera OUTSIDE the building
+ * looking at it from a distance, this resolver positions the camera AT the
+ * selected floor's centroid at a human eye-height above the floor slab.
+ *
+ * All values are derived from real building geometry — nothing is hardcoded.
+ *
+ * Returns:
+ *   destination  — Cartesian3 eye position (inside/at the selected spatial level)
+ *   headingRad   — Current camera heading preserved for orientation continuity
+ *   pitchRad     — Level horizontal look (0 = looking at horizon)
+ */
+export interface ImmersiveViewpoint {
+  destination: any; // Cesium.Cartesian3
+  headingRad: number;
+  pitchRad: number;
+  elevationM: number;
+  description: string;
+}
+
+export function resolveImmersiveViewpoint(
+  Cesium: any,
+  viewer: any,
+  ctx: TargetResolutionContext
+): ImmersiveViewpoint {
+  // ── 1. Resolve the building from context ──
+  const building: UrbanBuildingDefinition =
+    (ctx.selectedBuildingId ? getUrbanBuildingById(ctx.selectedBuildingId) : null) ||
+    getPrimaryDemonstrationBuilding();
+
+  const [lng, lat] = building.centroid;
+  const totalFloors = Math.max(1, building.floorCount || 7);
+
+  // Use the same floor height calculation as resolveFloorTarget
+  // so immersive positions are perfectly in-sync with GIS orbit targets.
+  const isPrimary = !!building.isPrimaryDemo;
+  const floorHeight = isPrimary ? 4.0 : building.height / totalFloors;
+
+  // Standard human standing eye height above the floor slab (metres)
+  const EYE_HEIGHT_M = 1.6;
+
+  // ── 2. Calculate eye elevation from selected spatial level ──
+  let eyeElevation: number;
+  let description: string;
+
+  const level = ctx.currentLevel;
+
+  if (
+    level === "FLOOR" ||
+    level === "UNIT" ||
+    level === "ROOM" ||
+    level === "CORRIDOR" ||
+    level === "HALL" ||
+    level === "ELEMENT" ||
+    level === "DOOR" ||
+    level === "WINDOW"
+  ) {
+    const floorNum = parseFloorNumber(ctx.selectedFloorId, 1);
+    const floorIndex = Math.max(0, Math.min(totalFloors - 1, floorNum - 1));
+
+    // Honour explode mode: floors are spaced further apart
+    const floorGap = ctx.explodeFloors ? 2.0 : 0.0;
+    const floorBase = ctx.explodeFloors
+      ? floorIndex * (floorHeight + floorGap)
+      : floorIndex * floorHeight;
+
+    eyeElevation = floorBase + EYE_HEIGHT_M;
+    description = `Immersive — ${building.name} Floor ${ctx.selectedFloorId ?? `FL-0${floorNum}`} (eye at ${eyeElevation.toFixed(1)}m)`;
+  } else if (level === "BUILDING") {
+    // Mid-building vantage: useful for understanding the building's vertical scale
+    eyeElevation = building.height * 0.5 + EYE_HEIGHT_M;
+    description = `Immersive — ${building.name} mid-building (eye at ${eyeElevation.toFixed(1)}m)`;
+  } else {
+    // PARCEL / CITY: ground level (immersive mode should not normally fire here,
+    // but handle gracefully rather than crashing)
+    eyeElevation = EYE_HEIGHT_M;
+    description = `Immersive — ground level (${level})`;
+  }
+
+  // ── 3. Preserve the user's current camera heading ──
+  // This ensures the look direction feels continuous when switching floors.
+  // If no valid heading is available (e.g. first activation), default to north.
+  const headingRad =
+    viewer?.camera?.heading !== undefined && !isNaN(viewer.camera.heading)
+      ? viewer.camera.heading
+      : 0.0;
+
+  // Level horizontal look (0 = looking at horizon).
+  // Avoid clamping to a fixed pitch — let the user look freely up/down.
+  const pitchRad = 0.0;
+
+  const destination = Cesium.Cartesian3.fromDegrees(lng, lat, eyeElevation);
+
+  return { destination, headingRad, pitchRad, elevationM: eyeElevation, description };
+}

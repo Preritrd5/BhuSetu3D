@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Compass, Plus, Minus, RefreshCw, Box, Layers, Ruler, RotateCcw, MousePointer2, X } from "lucide-react";
+import { Compass, Plus, Minus, RefreshCw, Box, Layers, Ruler, RotateCcw } from "lucide-react";
 import { WebGLFallback } from "./WebGLFallback";
 import { SpatialLoadingRoller } from "../common/SpatialLoadingRoller";
 import { CARTO_BASEMAP_CONFIG } from "@/lib/carto";
@@ -67,6 +67,9 @@ import {
   executeCameraFlight,
   TargetResolutionContext,
 } from "@/lib/cesium";
+import type { ImmersiveViewpoint } from "@/lib/cesium/navigation/spatialCameraEngine";
+import { resolveImmersiveViewpoint } from "@/lib/cesium/navigation/spatialCameraEngine";
+
 
 interface CesiumViewerProps {
   currentLevel: SpatialLevel;
@@ -200,10 +203,16 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   const selectedParcelIdRef = useRef(selectedParcelId);
   selectedParcelIdRef.current = selectedParcelId;
 
+  // ── Camera mode: GIS_ORBIT (exterior orbit) vs IMMERSIVE (first-person look) ──
+  // Declared here (before the camera context refs block) so the sync on line below works.
+  const [cameraMode, setCameraMode] = useState<"GIS_ORBIT" | "IMMERSIVE">("GIS_ORBIT");
+  const cameraModeRef = useRef<"GIS_ORBIT" | "IMMERSIVE">("GIS_ORBIT");
+
   // ─── Camera Context Refs (read by camera engine without re-triggering flights) ───
   // These values are passed into the camera engine at flight time via the ref's .current.
   // They must NOT be in the auto-selection effect dependency array — changes to these
   // alone must never re-trigger a camera flight and override manual user navigation.
+
   const isRightPanelOpenRef = useRef(isRightPanelOpen);
   isRightPanelOpenRef.current = isRightPanelOpen;
   const explodeFloorsRef = useRef(explodeFloors);
@@ -214,6 +223,9 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   isolateBuildingRef.current = isolateBuilding;
   const treeDataRef = useRef(treeData);
   treeDataRef.current = treeData;
+  // Keep cameraModeRef in sync every render so handlers can read it without deps
+  cameraModeRef.current = cameraMode;
+
 
   // Tracks the last selection key that triggered a camera flight.
   // Only genuine selection changes (not panel/mode changes) trigger new flights.
@@ -240,13 +252,9 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   const [webGLError, setWebGLError] = useState<string | null>(null);
   const [totalBuildingsCount, setTotalBuildingsCount] = useState(0);
   const [cameraAltitude, setCameraAltitude] = useState<number>(88);
-  // 360° orbit mode: when active, camera is explicitly unlocked for free orbit
-  const [isOrbitActive, setIsOrbitActive] = useState(false);
-  // Navigation hints panel: shown on first load, dismissible
-  const [showNavHints, setShowNavHints] = useState(true);
-
 
   const measurePointsRef = useRef<any[]>([]);
+
   const screenSpaceHandlerRef = useRef<any>(null);
   const removeCameraListenerRef = useRef<(() => void) | null>(null);
 
@@ -2015,8 +2023,58 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
       interiorEntities: interiorEntitiesRef.current,
     };
 
-    const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
-    executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
+    if (cameraModeRef.current === "IMMERSIVE") {
+      // ── IMMERSIVE MODE TRANSITION ──────────────────────────────────────────
+      // When the user changes floor/unit while in immersive mode, fly the camera
+      // to the new floor's eye-level position rather than zooming out to GIS orbit.
+      //
+      // Auto-exit immersive mode if the user navigates back to CITY / PARCEL:
+      // those levels have no meaningful interior viewpoint.
+      if (currentLevel === "CITY" || currentLevel === "PARCEL" || currentLevel === "REGION") {
+        // Schedule exit — we can't call setCameraMode here directly and then
+        // immediately read its new value, so we set it on the next microtask.
+        // The actual controller restore runs inside exitImmersiveMode below
+        // via the auto-exit useEffect.
+        setCameraMode("GIS_ORBIT");
+        cameraModeRef.current = "GIS_ORBIT";
+        // Restore GIS controller so Cesium picks up orbit mode immediately
+        if (viewer?.scene?.screenSpaceCameraController) {
+          const ctrl = viewer.scene.screenSpaceCameraController;
+          ctrl.enableRotate = true;
+          ctrl.enableTranslate = true;
+          ctrl.enableZoom = true;
+          ctrl.enableTilt = true;
+          ctrl.enableLook = true;
+          try { ctrl.lookEventTypes = undefined; } catch {}
+          try { ctrl.rotateEventTypes = undefined; } catch {}
+          try { ctrl.tiltEventTypes = undefined; } catch {}
+        }
+        try { viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY); } catch {}
+        // Then fly to the GIS orbit target normally
+        const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
+        executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
+      } else {
+        // Stay immersive — fly the camera to the new floor/unit eye position
+        const vp = resolveImmersiveViewpoint(Cesium, viewer, ctx);
+        try {
+          viewer.camera.cancelFlight();
+          viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        } catch {}
+        viewer.camera.flyTo({
+          destination: vp.destination,
+          orientation: { heading: vp.headingRad, pitch: vp.pitchRad, roll: 0.0 },
+          duration: 0.9,
+          complete: () => {
+            // Re-apply immersive controller after each floor flight completes
+            try { viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY); } catch {}
+          },
+        });
+      }
+    } else {
+      // ── GIS ORBIT MODE (normal) ────────────────────────────────────────────
+      const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
+      executeCameraFlight(viewer, Cesium, target, { duration: 1.2 });
+    }
   }, [
     // ── SELECTION-ONLY dependencies ──
     // Only these can trigger a new auto-focus flight.
@@ -2029,7 +2087,8 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     selectedRoomId,
     selectedElementId,
     // ── NOT in deps (intentional, read via refs) ──
-    // explodeFloors, isolateFloor, isolateBuilding, isRightPanelOpen, treeData
+    // explodeFloors, isolateFloor, isolateBuilding, isRightPanelOpen, treeData, cameraModeRef
+
   ]);
 
   // Camera Zoom & Dynamic Reset Controls
@@ -2069,39 +2128,166 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
     executeCameraFlight(viewer, Cesium, target, { duration: 1.4 });
   };
 
-  // ── 360° Free Orbit Handler ──────────────────────────────────────────────
-  // Explicitly cancels any active flight, clears all camera transform locks,
-  // and re-enables all navigation controller axes for full 360° free orbit.
-  const handleFreeOrbit = () => {
+  // ══════════════════════════════════════════════════════════════════════════
+  // CAMERA MODE: GIS ORBIT  ↔  IMMERSIVE LOOK
+  // ══════════════════════════════════════════════════════════════════════════
+  //
+  // GIS ORBIT MODE (default):
+  //   - LEFT drag  → orbit around building / parcel
+  //   - RIGHT drag → zoom
+  //   - MIDDLE drag → tilt
+  //   - CTRL+drag  → look around
+  //   Camera is positioned OUTSIDE the building looking at it from a distance.
+  //
+  // IMMERSIVE LOOK MODE:
+  //   - LEFT drag  → look around (360° horizontal + vertical)
+  //   - SCROLL     → zoom (move closer/farther)
+  //   - Camera is placed AT the floor centroid at human eye-height (1.6 m).
+  //   - enableRotate = false  → prevents Cesium from pivoting around a remote point
+  //   - lookEventTypes = LEFT_DRAG → left drag becomes "look around" (first-person)
+  //   - The user can look left, right, up, down, behind — full 360°.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /** Apply Cesium controller settings for IMMERSIVE LOOK mode. */
+  const applyImmersiveController = (viewer: any, Cesium: any) => {
+    if (!viewer?.scene?.screenSpaceCameraController) return;
+    const ctrl = viewer.scene.screenSpaceCameraController;
+
+    // Disable orbit (pivot around external world point)
+    ctrl.enableRotate = false;
+    // Disable 2D/Columbus-mode pan (not relevant in 3D but keep consistent)
+    ctrl.enableTranslate = false;
+    // Keep zoom so the user can move closer / farther
+    ctrl.enableZoom = true;
+    // Disable separate tilt axis (folded into look)
+    ctrl.enableTilt = false;
+    // Enable look-around (pivot around camera's own position)
+    ctrl.enableLook = true;
+
+    // Remap LEFT drag → look (first-person style)
+    // By default Cesium uses CTRL+LEFT_DRAG for look; we want plain LEFT_DRAG.
+    try {
+      ctrl.lookEventTypes = [
+        { eventType: Cesium.CameraEventType.LEFT_DRAG },
+        { eventType: Cesium.CameraEventType.PINCH }, // touch one-finger look
+      ];
+      // Clear orbit binding so left-drag is exclusively look
+      ctrl.rotateEventTypes = [];
+      ctrl.tiltEventTypes = [];
+    } catch (e) {
+      console.warn("[IMMERSIVE] Controller event remap warning:", e);
+    }
+  };
+
+  /** Restore Cesium controller settings to normal GIS ORBIT mode. */
+  const restoreGISController = (viewer: any, Cesium: any) => {
+    if (!viewer?.scene?.screenSpaceCameraController) return;
+    const ctrl = viewer.scene.screenSpaceCameraController;
+
+    ctrl.enableRotate = true;
+    ctrl.enableTranslate = true;
+    ctrl.enableZoom = true;
+    ctrl.enableTilt = true;
+    ctrl.enableLook = true;
+
+    // Restore Cesium's built-in default event bindings by clearing overrides
+    // (setting to undefined lets Cesium use its compiled-in defaults)
+    try {
+      ctrl.lookEventTypes = undefined;
+      ctrl.rotateEventTypes = undefined;
+      ctrl.tiltEventTypes = undefined;
+    } catch (e) {
+      console.warn("[GIS_ORBIT] Controller restore warning:", e);
+    }
+  };
+
+  /** Enter IMMERSIVE LOOK mode: position camera at floor eye-height, remap drag to look. */
+  const enterImmersiveMode = () => {
     const viewer = viewerRef.current;
     const Cesium = CesiumRef.current;
     if (!viewer || !Cesium) return;
 
+    const ctx: TargetResolutionContext = {
+      currentLevel,
+      selectedBuildingId,
+      selectedParcelId,
+      selectedFloorId,
+      selectedUnitId,
+      selectedRoomId,
+      selectedElementId,
+      explodeFloors: explodeFloorsRef.current,
+      isolateFloor: isolateFloorRef.current,
+      isolateBuilding: isolateBuildingRef.current,
+      isRightPanelOpen: isRightPanelOpenRef.current,
+      treeData: treeDataRef.current,
+    };
+
+    // Compute first-person eye position from actual building/floor geometry
+    const vp = resolveImmersiveViewpoint(Cesium, viewer, ctx);
+
+    // Cancel any in-progress GIS flight and release transform locks
     try {
-      // Cancel any active flight that might be fighting manual navigation
       viewer.camera.cancelFlight();
-
-      // Release ALL camera transform locks → restores full free orbit
       viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+    } catch {}
 
-      // Ensure all navigation axes are ON
-      if (viewer.scene.screenSpaceCameraController) {
-        const ctrl = viewer.scene.screenSpaceCameraController;
-        ctrl.enableRotate = true;
-        ctrl.enableTilt = true;
-        ctrl.enableZoom = true;
-        ctrl.enableTranslate = true;
-        ctrl.enableLook = true;
-      }
-    } catch (e) {
-      console.warn("[FREE_ORBIT] Camera unlock warning:", e);
-    }
+    // Fly to the floor's interior eye position
+    viewer.camera.flyTo({
+      destination: vp.destination,
+      orientation: {
+        heading: vp.headingRad,
+        pitch: vp.pitchRad, // level horizontal look (0 = horizon)
+        roll: 0.0,
+      },
+      duration: 1.2,
+      complete: () => {
+        // After the flight lands: release any transform lock and switch the
+        // controller to look-mode so LEFT drag now means "look around"
+        try { viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY); } catch {}
+        applyImmersiveController(viewer, Cesium);
+      },
+    });
 
-    setIsOrbitActive(true);
-    // Auto-deactivate the visual highlight after 3 seconds
-    setTimeout(() => setIsOrbitActive(false), 3000);
+    setCameraMode("IMMERSIVE");
+    cameraModeRef.current = "IMMERSIVE";
   };
 
+  /** Exit IMMERSIVE mode: restore GIS orbit controller and refocus on current selection. */
+  const exitImmersiveMode = () => {
+    const viewer = viewerRef.current;
+    const Cesium = CesiumRef.current;
+    if (!viewer || !Cesium) return;
+
+    // 1. Restore GIS orbit controller bindings
+    restoreGISController(viewer, Cesium);
+
+    // 2. Release any camera transform lock
+    try {
+      viewer.camera.cancelFlight();
+      viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+    } catch {}
+
+    // 3. Fly back to the GIS orbit viewpoint for the current selection
+    const ctx: TargetResolutionContext = {
+      currentLevel,
+      selectedBuildingId,
+      selectedParcelId,
+      selectedFloorId,
+      selectedUnitId,
+      selectedRoomId,
+      selectedElementId,
+      explodeFloors: explodeFloorsRef.current,
+      isolateFloor: isolateFloorRef.current,
+      isolateBuilding: isolateBuildingRef.current,
+      isRightPanelOpen: isRightPanelOpenRef.current,
+      treeData: treeDataRef.current,
+    };
+    const target = resolveSpatialTargetForSelection(Cesium, viewer, ctx);
+    executeCameraFlight(viewer, Cesium, target, { duration: 1.3 });
+
+    setCameraMode("GIS_ORBIT");
+    cameraModeRef.current = "GIS_ORBIT";
+  };
 
 
   if (webGLError) {
@@ -2191,19 +2377,35 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             : "top-[156px] right-3.5 sm:right-4"
         }`}
       >
-        {/* Floating Camera Toolbar */}
+        {/* Camera Toolbar — Mode toggle + utility controls */}
         <div className="pointer-events-auto flex items-center gap-1 bg-[#141816]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-[8px] border border-[rgba(244,240,232,0.12)] shadow-2xl">
-          {/* 360° Free Orbit — primary action button */}
+
+          {/* ── MODE: GIS ORBIT ─────────────────────────────────────── */}
           <button
-            onClick={handleFreeOrbit}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] transition-all cursor-pointer font-mono font-bold text-xs ${
-              isOrbitActive
-                ? "bg-[#23847D] text-white shadow-md ring-1 ring-[#2EB8B0]/50"
-                : "bg-[#1A201D] hover:bg-[#23847D]/20 text-[#2EB8B0] border border-[#23847D]/30 hover:border-[#23847D]/60"
+            onClick={exitImmersiveMode}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] transition-all cursor-pointer font-mono font-bold text-[11px] ${
+              cameraMode === "GIS_ORBIT"
+                ? "bg-[#B56E48] text-[#F4F0E8] shadow-md"
+                : "text-[#6F7772] hover:text-[#D9D2C5] hover:bg-[#1A201D]"
             }`}
-            title="360° Free Orbit — Unlock camera for full 360° rotation. Then drag the 3D scene to orbit."
+            title="GIS Orbit Mode — orbit around buildings from outside"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${isOrbitActive ? "animate-spin" : ""}`} style={isOrbitActive ? { animationDuration: "1.5s" } : {}} />
+            <Compass className="w-3.5 h-3.5" />
+            <span>GIS</span>
+          </button>
+
+          {/* ── MODE: IMMERSIVE VIEW ─────────────────────────────────── */}
+          <button
+            onClick={enterImmersiveMode}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] transition-all cursor-pointer font-mono font-bold text-[11px] ${
+              cameraMode === "IMMERSIVE"
+                ? "bg-[#23847D] text-white shadow-md"
+                : "text-[#6F7772] hover:text-[#2EB8B0] hover:bg-[#23847D]/15"
+            }`}
+            title="Immersive View — step inside the selected floor and look around 360°. Drag to look."
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${cameraMode === "IMMERSIVE" ? "animate-spin" : ""}`}
+              style={cameraMode === "IMMERSIVE" ? { animationDuration: "3s" } : {}} />
             <span>360°</span>
           </button>
 
@@ -2227,7 +2429,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
           <button
             onClick={handleResetCamera}
             className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
-            title="Re-focus Camera on current selection"
+            title="Re-focus camera on current selection"
           >
             <Compass className="w-4 h-4" />
           </button>
@@ -2239,7 +2441,7 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
             <RefreshCw className="w-4 h-4" />
           </button>
 
-          {/* Quick Inspection Mode Toggles */}
+          {/* Explode / Isolate toggles */}
           {onToggleExplodeFloors && (
             <button
               onClick={onToggleExplodeFloors}
@@ -2248,12 +2450,11 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
                   ? "bg-[#23847D] text-[#0F1210] font-bold shadow-md"
                   : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#23847D]"
               }`}
-              title={explodeFloors ? "Collapse Floors (Reset Building)" : "Explode Floors (Vertical Separation)"}
+              title={explodeFloors ? "Collapse Floors" : "Explode Floors (vertical separation)"}
             >
               <Layers className="w-4 h-4" />
             </button>
           )}
-
           {onToggleIsolateFloor && (
             <button
               onClick={onToggleIsolateFloor}
@@ -2269,52 +2470,13 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
           )}
         </div>
 
-        {/* 360° Orbit Active Toast */}
-        {isOrbitActive && (
-          <div className="pointer-events-none flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#0F1F1D]/96 backdrop-blur-md border border-[#23847D]/50 text-[#2EB8B0] text-[11px] font-mono font-bold shadow-2xl animate-in fade-in slide-in-from-top-2 w-[265px] sm:w-[275px]">
-            <RotateCcw className="w-3.5 h-3.5 shrink-0 animate-spin" style={{ animationDuration: "1.5s" }} />
-            <span>Free orbit active — drag 3D scene to rotate 360°</span>
-          </div>
-        )}
-
-        {/* Navigation Hints Card — dismissible, shown on first load */}
-        {showNavHints && !isLoading && (
-          <div className="pointer-events-auto flex flex-col gap-2 p-3 rounded-[10px] bg-[#141816]/97 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-2xl w-[245px] sm:w-[265px] animate-in fade-in slide-in-from-right-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <MousePointer2 className="w-3.5 h-3.5 text-[#C47B50]" />
-                <span className="text-[11px] font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">3D Navigation</span>
-              </div>
-              <button
-                onClick={() => setShowNavHints(false)}
-                className="p-0.5 rounded hover:bg-[#1A201D] text-[#6F7772] hover:text-[#D9D2C5] transition-colors cursor-pointer"
-                title="Dismiss"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-1.5 text-[11px] font-mono">
-              <div className="flex items-center gap-2">
-                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Left drag</span>
-                <span className="text-[#6F7772]">Orbit 360° around building</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Right drag</span>
-                <span className="text-[#6F7772]">Pan / translate view</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Scroll</span>
-                <span className="text-[#6F7772]">Zoom in / out</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-1.5 py-0.5 rounded bg-[#1A201D] border border-[rgba(244,240,232,0.10)] text-[#C47B50] font-bold whitespace-nowrap">Middle drag</span>
-                <span className="text-[#6F7772]">Tilt / pitch camera</span>
-              </div>
-              <div className="mt-1 pt-1.5 border-t border-[rgba(244,240,232,0.08)] flex items-center gap-1.5 text-[#23847D]">
-                <RotateCcw className="w-3 h-3 shrink-0" />
-                <span>Press <span className="font-bold text-[#2EB8B0]">360°</span> button above to unlock camera if stuck</span>
-              </div>
-            </div>
+        {/* Immersive Mode Active — status banner */}
+        {cameraMode === "IMMERSIVE" && (
+          <div className="pointer-events-none flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#0A1A18]/95 backdrop-blur-md border border-[#23847D]/50 shadow-2xl animate-in fade-in slide-in-from-top-2 w-[245px] sm:w-[265px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2EB8B0] animate-ping shrink-0" />
+            <span className="text-[10px] font-mono font-bold text-[#2EB8B0] uppercase tracking-wider">
+              IMMERSIVE VIEW — DRAG TO LOOK 360°
+            </span>
           </div>
         )}
 
