@@ -67,6 +67,88 @@ function getHeaders(token?: string | null): HeadersInit {
   return headers;
 }
 
+import { URBAN_PARCELS, URBAN_BUILDINGS } from "../cesium/data/urbanEnvironmentData";
+
+export function buildFallbackSpatialHierarchyTree(): SpatialHierarchyTreeResponse {
+  const parcels = URBAN_PARCELS.map((p) => {
+    const blds = URBAN_BUILDINGS.filter((b) => b.parcelId === p.parcelId || b.legacyParcelId === p.legacyId);
+    const mappedBuildings = blds.map((b) => {
+      const isAura = b.isPrimaryDemo || b.code === "BLD-KA-BLR-102";
+      const floorCount = b.floorCount || 2;
+      const floors = Array.from({ length: floorCount }, (_, i) => {
+        const num = i + 1;
+        const code = `FL-0${num}`;
+        const isUnsanctioned = isAura && num === 3;
+        return {
+          id: `fl-${b.buildingId}-${num}`,
+          building_id: b.legacyId || b.buildingId,
+          floor_number: num,
+          floor_code: code,
+          floor_label: `Floor 0${num}`,
+          base_elevation: 920.0 + i * 3.5,
+          ceiling_elevation: 920.0 + (i + 1) * 3.5,
+          floor_height: 3.5,
+          floor_area_sqm: 220.0,
+          status_3d: "AVAILABLE",
+          is_unsanctioned: isUnsanctioned,
+          units: [],
+        };
+      });
+
+      return {
+        id: b.legacyId || b.buildingId,
+        parcel_id: p.legacyId || p.parcelId,
+        building_code: b.code,
+        name: b.name,
+        building_type: b.typologyLabel || "Commercial",
+        ground_elevation: 920.0,
+        building_height: b.height,
+        detected_floors: b.floorCount,
+        sanctioned_floors: Math.max(1, b.floorCount - (b.hasConflict ? 1 : 0)),
+        has_discrepancy: Boolean(b.hasConflict),
+        status_3d: "VERIFIED",
+        floors,
+      };
+    });
+
+    return {
+      id: p.legacyId || p.parcelId,
+      city_id: "11111111-1111-4000-8000-000000000001",
+      region_id: "22222222-2222-4000-8000-000000000001",
+      ulpin_2d: p.ulpin,
+      survey_number: p.surveyNumber,
+      land_use: p.category,
+      recorded_area_sqm: p.areaSqm,
+      computed_area_sqm: p.areaSqm,
+      elevation_base: 920.0,
+      buildings: mappedBuildings,
+    };
+  });
+
+  return {
+    city: {
+      id: "11111111-1111-4000-8000-000000000001",
+      code: "BLR",
+      name: "Bengaluru Municipal Corporation",
+      state: "Karnataka",
+      country: "India",
+      regions: [
+        {
+          id: "22222222-2222-4000-8000-000000000001",
+          city_id: "11111111-1111-4000-8000-000000000001",
+          code: "W-101",
+          name: "Malleshwaram Zone",
+          parcels,
+        },
+      ],
+    },
+    total_parcels: parcels.length,
+    total_buildings: URBAN_BUILDINGS.length,
+    total_floors: parcels.reduce((acc, p) => acc + p.buildings.reduce((bAcc, b) => bAcc + b.floors.length, 0), 0),
+    total_units: 0,
+  };
+}
+
 /**
  * Retrieves the complete spatial hierarchy outliner tree:
  * City -> Regions -> Parcels -> Buildings -> Floors -> Units -> Spatial Elements
@@ -86,17 +168,22 @@ export async function getSpatialHierarchyTree(
   const url = new URL(`${API_BASE}/properties/hierarchy/tree`);
   if (cityId) url.searchParams.append("city_id", cityId);
 
-  const res = await fetch(url.toString(), {
-    headers: getHeaders(token),
-  });
+  try {
+    const res = await fetch(url.toString(), {
+      headers: getHeaders(token),
+    });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `Failed to fetch hierarchy tree: ${res.statusText}`);
+    if (!res.ok) {
+      console.warn(`[BHUSETU_3D] Hierarchy tree API returned status ${res.status}, falling back to static hierarchy.`);
+      return buildFallbackSpatialHierarchyTree();
+    }
+    const data = await res.json();
+    setCached(cacheKey, data);
+    return data;
+  } catch (err) {
+    console.warn("[BHUSETU_3D] Network error fetching hierarchy tree, falling back to static hierarchy:", err);
+    return buildFallbackSpatialHierarchyTree();
   }
-  const data = await res.json();
-  setCached(cacheKey, data);
-  return data;
 }
 
 /**

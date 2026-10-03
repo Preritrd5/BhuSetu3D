@@ -29,7 +29,6 @@ import { getUrbanBuildingById, getUrbanParcelById } from "@/lib/cesium";
 import { SpatialHierarchyTreeResponse } from "@/types/property";
 import { useSpatialSelection } from "@/hooks/useSpatialSelection";
 import { ActiveSpatialSelection } from "@/types/selection";
-import { SpatialAnchorBadge } from "@/components/workspace/inspector/SpatialAnchorBadge";
 import { SpatialLoadingRoller } from "@/components/common/SpatialLoadingRoller";
 import {
   SpatialToolType,
@@ -43,6 +42,8 @@ import { ConflictItem } from "@/types/intelligence";
 import { MobileFloorCarousel } from "@/components/mobile/MobileFloorCarousel";
 import { MobileContextBar } from "@/components/mobile/MobileContextBar";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { MobileHeader } from "@/components/mobile/MobileHeader";
+import { MobileInspectorSheet } from "@/components/mobile/MobileInspectorSheet";
 
 
 
@@ -73,24 +74,25 @@ function City3DContent() {
   const urlElementId = searchParams.get("element");
 
   // Multi-Level Spatial State (8-Tier Progressive Inspection)
-  const [currentLevel, setCurrentLevel] = useState<SpatialLevel>(urlLevel || "BUILDING");
+  const initialLevel: SpatialLevel = urlLevel || "BUILDING";
+  const [currentLevel, setCurrentLevel] = useState<SpatialLevel>(initialLevel);
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(
-    urlParcelId || "66666666-6666-4000-8000-000000000102"
+    urlParcelId || (initialLevel === "CITY" || initialLevel === "REGION" ? null : "66666666-6666-4000-8000-000000000102")
   );
   const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(
-    urlBuildingId || "77777777-7777-4000-8000-000000000102"
+    urlBuildingId || (initialLevel === "CITY" || initialLevel === "REGION" || initialLevel === "PARCEL" ? null : "77777777-7777-4000-8000-000000000102")
   );
   const [selectedFloorId, setSelectedFloorId] = useState<string | null>(
-    urlFloorId || "FL-03"
+    urlFloorId || (initialLevel === "FLOOR" || initialLevel === "UNIT" || initialLevel === "ROOM" || initialLevel === "ELEMENT" || initialLevel === "DOOR" || initialLevel === "WINDOW" ? "FL-03" : null)
   );
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(
-    urlUnitId || "unit-302"
+    urlUnitId || (initialLevel === "UNIT" || initialLevel === "ROOM" || initialLevel === "ELEMENT" || initialLevel === "DOOR" || initialLevel === "WINDOW" ? "unit-302" : null)
   );
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(
-    urlRoomId || "room-302"
+    urlRoomId || (initialLevel === "ROOM" || initialLevel === "ELEMENT" || initialLevel === "DOOR" || initialLevel === "WINDOW" ? "room-302" : null)
   );
   const [selectedElementId, setSelectedElementId] = useState<string | null>(
-    urlElementId || "door-302"
+    urlElementId || (initialLevel === "ELEMENT" || initialLevel === "DOOR" || initialLevel === "WINDOW" ? "door-302" : null)
   );
   const [selectedInfrastructureId, setSelectedInfrastructureId] = useState<string | null>(null);
 
@@ -233,22 +235,30 @@ function City3DContent() {
   };
 
   // Progressive Level Selection across full 8-tier hierarchy
-  const handleSelectLevel = (level: SpatialLevel, id?: string) => {
+  const handleSelectLevel = (
+    level: SpatialLevel,
+    id?: string,
+    parentBuildingId?: string,
+    parentParcelId?: string
+  ) => {
     setCurrentLevel(level);
 
     if (level === "CITY") {
       setIsRightPanelOpen(false); // Section 12, 51: City view minimizes inspector so 3D world is 100% hero
+      setSelectedParcelId(null);
       setSelectedBuildingId(null);
       setSelectedFloorId(null);
       setSelectedUnitId(null);
       setSelectedRoomId(null);
       setSelectedElementId(null);
+      setSelectedInfrastructureId(null);
       setIsolateBuilding(false);
       setIsolateFloor(false);
       setExplodeFloors(false);
     } else {
       setIsRightPanelOpen(true); // Section 12, 52: Selection opens inspector smoothly
       if (level === "REGION") {
+        setSelectedParcelId(null);
         setSelectedBuildingId(null);
         setSelectedFloorId(null);
         setSelectedUnitId(null);
@@ -260,13 +270,10 @@ function City3DContent() {
       } else if (level === "PARCEL") {
         if (id) {
           setSelectedParcelId(id);
-          const pclMeta = getUrbanParcelById(id);
-          if (pclMeta?.primaryBuildingIds?.length) {
-            setSelectedBuildingId(pclMeta.primaryBuildingIds[0]);
-          } else {
-            setSelectedBuildingId(null);
-          }
         }
+        // When selecting a parcel, do NOT borrow or auto-select a building!
+        // Selected building is strictly null so the parcel itself is inspected.
+        setSelectedBuildingId(null);
         setSelectedFloorId(null);
         setSelectedUnitId(null);
         setSelectedRoomId(null);
@@ -277,12 +284,31 @@ function City3DContent() {
       } else if (level === "BUILDING") {
         if (id) {
           setSelectedBuildingId(id);
-          const bldMeta = getUrbanBuildingById(id);
-          if (bldMeta) {
-            setSelectedParcelId(bldMeta.legacyParcelId || bldMeta.parcelId);
+          if (parentParcelId) {
+            setSelectedParcelId(parentParcelId);
+          } else {
+            let foundParcelId: string | null = null;
+            if (treeData?.city?.regions) {
+              for (const r of treeData.city.regions) {
+                for (const p of r.parcels || []) {
+                  if (p.buildings?.some((b) => b.id === id || b.building_code === id)) {
+                    foundParcelId = p.id;
+                    break;
+                  }
+                }
+                if (foundParcelId) break;
+              }
+            }
+            if (!foundParcelId) {
+              const bldMeta = getUrbanBuildingById(id);
+              if (bldMeta) {
+                foundParcelId = bldMeta.legacyParcelId || bldMeta.parcelId;
+              }
+            }
+            if (foundParcelId) {
+              setSelectedParcelId(foundParcelId);
+            }
           }
-        } else if (!selectedBuildingId) {
-          setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
         }
         setSelectedFloorId(null);
         setSelectedUnitId(null);
@@ -290,44 +316,80 @@ function City3DContent() {
         setSelectedElementId(null);
         setIsolateFloor(false);
       } else if (level === "FLOOR") {
-        if (!selectedBuildingId) setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
-        if (id) setSelectedFloorId(id);
-        else if (!selectedFloorId) setSelectedFloorId("FL-03");
+        if (parentBuildingId) {
+          setSelectedBuildingId(parentBuildingId);
+        }
+        if (parentParcelId) {
+          setSelectedParcelId(parentParcelId);
+        }
+        if (id) {
+          setSelectedFloorId(id);
+        }
+        // Resolve owning building from treeData if parentBuildingId wasn't passed directly
+        if (!parentBuildingId && id && treeData?.city?.regions) {
+          let resolved = false;
+          if (selectedBuildingId) {
+            for (const r of treeData.city.regions) {
+              for (const p of r.parcels || []) {
+                const b = p.buildings?.find((b) => b.id === selectedBuildingId || b.building_code === selectedBuildingId);
+                if (b?.floors?.some((f) => f.floor_code === id || f.id === id)) {
+                  resolved = true;
+                  break;
+                }
+              }
+              if (resolved) break;
+            }
+          }
+          if (!resolved) {
+            for (const r of treeData.city.regions) {
+              for (const p of r.parcels || []) {
+                for (const b of p.buildings || []) {
+                  if (b.floors?.some((f) => f.floor_code === id || f.id === id)) {
+                    setSelectedBuildingId(b.id);
+                    setSelectedParcelId(p.id);
+                    resolved = true;
+                    break;
+                  }
+                }
+                if (resolved) break;
+              }
+              if (resolved) break;
+            }
+          }
+        }
         setSelectedUnitId(null);
         setSelectedRoomId(null);
         setSelectedElementId(null);
       } else if (level === "UNIT") {
-        if (!selectedBuildingId) setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
-        if (!selectedFloorId) setSelectedFloorId("FL-03");
         if (id) setSelectedUnitId(id);
-        else if (!selectedUnitId) setSelectedUnitId("unit-302");
+        if (treeData?.city?.regions && id) {
+          for (const r of treeData.city.regions) {
+            for (const p of r.parcels || []) {
+              for (const b of p.buildings || []) {
+                for (const fl of b.floors || []) {
+                  if (fl.units?.some((u) => u.id === id || u.unit_number === id)) {
+                    setSelectedFloorId(fl.floor_code);
+                    setSelectedBuildingId(b.id);
+                    setSelectedParcelId(p.id);
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
         setSelectedRoomId(null);
         setSelectedElementId(null);
       } else if (level === "ROOM") {
-        if (!selectedBuildingId) setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
-        if (!selectedFloorId) setSelectedFloorId("FL-03");
-        if (!selectedUnitId) setSelectedUnitId("unit-302");
         if (id) setSelectedRoomId(id);
-        else if (!selectedRoomId) setSelectedRoomId("room-302");
         setSelectedElementId(null);
       } else if (level === "CORRIDOR") {
-        if (!selectedBuildingId) setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
-        if (!selectedFloorId) setSelectedFloorId("FL-03");
         setSelectedRoomId(null);
         setSelectedElementId(null);
       } else if (level === "ELEMENT" || level === "DOOR" || level === "WINDOW") {
-        if (!selectedBuildingId) setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
-        if (!selectedFloorId) setSelectedFloorId("FL-03");
-        if (!selectedUnitId) setSelectedUnitId("unit-302");
-        if (!selectedRoomId) setSelectedRoomId("room-302");
         if (id) setSelectedElementId(id);
-        else if (!selectedElementId) setSelectedElementId(level === "WINDOW" ? "window-302" : "door-302");
       } else if (level === "HALL") {
-        if (!selectedBuildingId) setSelectedBuildingId("77777777-7777-4000-8000-000000000102");
-        if (!selectedFloorId) setSelectedFloorId("FL-03");
-        if (!selectedUnitId) setSelectedUnitId("unit-302");
         if (id) setSelectedRoomId(id);
-        else setSelectedRoomId("room-301");
         setSelectedElementId(null);
       } else if (level === "INFRASTRUCTURE") {
         if (id) setSelectedInfrastructureId(id);
@@ -424,80 +486,59 @@ function City3DContent() {
       }
     }
 
-    if (id === "77777777-7777-4000-8000-000000000102" || id === "b-102") {
-      return {
-        entityId: "77777777-7777-4000-8000-000000000102",
-        entityType: "BUILDING",
-        title: "Aura Horizon Commercial Complex",
-        code: "BLD-KA-BLR-102",
-        hierarchyPath: [
-          { level: "CITY", id: "city", name: "Bengaluru Urban" },
-          { level: "PARCEL", id: "p-102", name: "Parcel 102/3B" },
-          { level: "BUILDING", id: "b-102", name: "Aura Horizon Commercial Complex", code: "BLD-KA-BLR-102" },
-        ],
-        source: "AUTHORITATIVE",
-        verificationState: "DISCREPANCY_DETECTED",
-        selectionState: "SELECTED",
-        inspectionMode: {},
-        metadata: {
-          detected_floors: 3,
-          observed_height: 14.5,
-          sanctioned_height: 11.5,
-          building_type: "Commercial",
-          has_discrepancy: true,
-          recorded_area_sqm: 480,
-        },
-      };
+    if (level === "PARCEL") {
+      const pcl = getUrbanParcelById(id);
+      if (pcl) {
+        return {
+          entityId: pcl.legacyId || pcl.parcelId,
+          entityType: "PARCEL",
+          title: pcl.surveyNumber,
+          code: pcl.ulpin,
+          hierarchyPath: [
+            { level: "CITY", id: "city", name: "Bengaluru Urban" },
+            { level: "PARCEL", id: pcl.legacyId || pcl.parcelId, name: pcl.surveyNumber, code: pcl.ulpin },
+          ],
+          source: "AUTHORITATIVE",
+          verificationState: "VERIFIED",
+          selectionState: "SELECTED",
+          inspectionMode: {},
+          metadata: {
+            recorded_area_sqm: pcl.areaSqm,
+            land_use: pcl.category,
+            has_discrepancy: false,
+          },
+        };
+      }
     }
-    if (id === "77777777-7777-4000-8000-000000000101" || id === "b-101") {
-      return {
-        entityId: "77777777-7777-4000-8000-000000000101",
-        entityType: "BUILDING",
-        title: "Malleshwaram Residency",
-        code: "BLD-KA-BLR-101",
-        hierarchyPath: [
-          { level: "CITY", id: "city", name: "Bengaluru Urban" },
-          { level: "PARCEL", id: "p-101", name: "Parcel 101/2A" },
-          { level: "BUILDING", id: "b-101", name: "Malleshwaram Residency", code: "BLD-KA-BLR-101" },
-        ],
-        source: "AUTHORITATIVE",
-        verificationState: "VERIFIED",
-        selectionState: "SELECTED",
-        inspectionMode: {},
-        metadata: {
-          detected_floors: 2,
-          observed_height: 10.5,
-          sanctioned_height: 10.5,
-          building_type: "Residential",
-          has_discrepancy: false,
-          recorded_area_sqm: 350,
-        },
-      };
-    }
-    if (id === "77777777-7777-4000-8000-000000000103" || id === "b-103") {
-      return {
-        entityId: "77777777-7777-4000-8000-000000000103",
-        entityType: "BUILDING",
-        title: "Green Valley Arcade",
-        code: "BLD-KA-BLR-103",
-        hierarchyPath: [
-          { level: "CITY", id: "city", name: "Bengaluru Urban" },
-          { level: "PARCEL", id: "p-103", name: "Parcel 103/1" },
-          { level: "BUILDING", id: "b-103", name: "Green Valley Arcade", code: "BLD-KA-BLR-103" },
-        ],
-        source: "AUTHORITATIVE",
-        verificationState: "VERIFIED",
-        selectionState: "SELECTED",
-        inspectionMode: {},
-        metadata: {
-          detected_floors: 2,
-          observed_height: 7.5,
-          sanctioned_height: 7.5,
-          building_type: "Retail Arcade",
-          has_discrepancy: false,
-          recorded_area_sqm: 290,
-        },
-      };
+
+    if (level === "BUILDING") {
+      const bld = getUrbanBuildingById(id);
+      if (bld) {
+        const parentPcl = getUrbanParcelById(bld.parcelId) || getUrbanParcelById(bld.legacyParcelId || "");
+        return {
+          entityId: bld.legacyId || bld.buildingId,
+          entityType: "BUILDING",
+          title: bld.name,
+          code: bld.code,
+          hierarchyPath: [
+            { level: "CITY", id: "city", name: "Bengaluru Urban" },
+            ...(parentPcl ? [{ level: "PARCEL" as const, id: parentPcl.legacyId || parentPcl.parcelId, name: parentPcl.surveyNumber }] : []),
+            { level: "BUILDING" as const, id: bld.legacyId || bld.buildingId, name: bld.name, code: bld.code },
+          ],
+          source: "AUTHORITATIVE",
+          verificationState: bld.hasConflict ? "DISCREPANCY_DETECTED" : "VERIFIED",
+          selectionState: "SELECTED",
+          inspectionMode: {},
+          metadata: {
+            detected_floors: bld.floorCount,
+            observed_height: bld.height,
+            sanctioned_height: bld.sanctionedHeight,
+            building_type: bld.typologyLabel || "Commercial",
+            has_discrepancy: Boolean(bld.hasConflict),
+            recorded_area_sqm: parentPcl?.areaSqm || 400,
+          },
+        };
+      }
     }
 
     return {
@@ -694,12 +735,28 @@ function City3DContent() {
     explodeFloors,
   });
 
-  const parcelDisplayName = activeParcel ? `Parcel ${activeParcel.survey_number}` : "Parcel 102/3B";
-  const buildingDisplayName = activeBuilding ? activeBuilding.name : "Aura Horizon Commercial";
-  const floorDisplayName = activeFloor ? (activeFloor.floor_label || `Floor ${activeFloor.floor_code}`) : "Floor 03";
-  const unitDisplayName = activeUnit ? (activeUnit.unit_label || `Unit ${activeUnit.unit_number}`) : "Unit 301";
-  const roomDisplayName = activeRoom ? activeRoom.name : "Room 302";
-  const elementDisplayName = activeElement ? activeElement.name : "Door D-302-A";
+  const parcelDisplayName = activeParcel
+    ? `Parcel ${activeParcel.survey_number}`
+    : selectedParcelId
+    ? `Parcel ${selectedParcelId}`
+    : "Parcel";
+  const buildingDisplayName = activeBuilding
+    ? activeBuilding.name
+    : selectedBuildingId
+    ? `Building ${selectedBuildingId}`
+    : "Building";
+  const floorDisplayName = activeFloor
+    ? (activeFloor.floor_label || `Floor ${activeFloor.floor_code}`)
+    : selectedFloorId
+    ? `Floor ${selectedFloorId}`
+    : "Floor";
+  const unitDisplayName = activeUnit
+    ? (activeUnit.unit_label || `Unit ${activeUnit.unit_number}`)
+    : selectedUnitId
+    ? `Unit ${selectedUnitId}`
+    : "Unit";
+  const roomDisplayName = activeRoom ? activeRoom.name : selectedRoomId ? `Room ${selectedRoomId}` : "Room";
+  const elementDisplayName = activeElement ? activeElement.name : selectedElementId ? `Element ${selectedElementId}` : "Element";
 
   return (
     <ProtectedRoute moduleName="3D City Digital Twin">
@@ -738,30 +795,52 @@ function City3DContent() {
             treeData={treeData}
             isRightPanelOpen={isRightPanelOpen}
             hideMobileFloorPanel={isMobile}
+            selection={selection}
+            onRestoreInspector={() => setIsRightPanelOpen(true)}
+            onCloseInspector={() => setIsRightPanelOpen(false)}
+            onClearSelection={() => handleSelectLevel("CITY")}
           />
         </main>
 
 
-        {/* Floating Top Omnibar & Macro KPI Strip */}
-        <WorkspaceTopBar
-          activeMode="3D"
-          onOpenAI={() => setIsAIModalOpen(true)}
-          onSelectEntity={(id, type) => {
-            if (type === "BUILDING") handleSelectLevel("BUILDING", id);
-            else if (type === "PARCEL") handleSelectLevel("PARCEL", id);
-            else if (type === "FLOOR") handleSelectLevel("FLOOR", id);
-            else if (type === "UNIT") handleSelectLevel("UNIT", id);
-            else if (type === "ROOM") handleSelectLevel("ROOM", id);
-          }}
-          treeData={treeData}
-          stats={{
-            parcels: treeData?.total_parcels || 3,
-            buildings: treeData?.total_buildings || 3,
-            units: treeData?.total_units || 4,
-            qualityIndex: 94.2,
-            conflicts: 2,
-          }}
-        />
+        {/* ── DESKTOP: Floating Top Omnibar & Macro KPI Strip ──────────────── */}
+        <div className="hidden md:block">
+          <WorkspaceTopBar
+            activeMode="3D"
+            onOpenAI={() => setIsAIModalOpen(true)}
+            onSelectEntity={(id, type) => {
+              if (type === "BUILDING") handleSelectLevel("BUILDING", id);
+              else if (type === "PARCEL") handleSelectLevel("PARCEL", id);
+              else if (type === "FLOOR") handleSelectLevel("FLOOR", id);
+              else if (type === "UNIT") handleSelectLevel("UNIT", id);
+              else if (type === "ROOM") handleSelectLevel("ROOM", id);
+            }}
+            treeData={treeData}
+            stats={{
+              parcels: treeData?.total_parcels || 3,
+              buildings: treeData?.total_buildings || 3,
+              units: treeData?.total_units || 4,
+              qualityIndex: 94.2,
+              conflicts: 2,
+            }}
+          />
+        </div>
+
+        {/* ── MOBILE: Dedicated Compact Header (Brand + Search Sheet + Menu Drawer) ── */}
+        <div className="md:hidden">
+          <MobileHeader
+            onOpenAI={() => setIsAIModalOpen(true)}
+            onSelectEntity={(id, type) => {
+              if (type === "BUILDING") handleSelectLevel("BUILDING", id);
+              else if (type === "PARCEL") handleSelectLevel("PARCEL", id);
+              else if (type === "FLOOR") handleSelectLevel("FLOOR", id);
+              else if (type === "UNIT") handleSelectLevel("UNIT", id);
+              else if (type === "ROOM") handleSelectLevel("ROOM", id);
+            }}
+            treeData={treeData}
+            onNavigate={(path) => router.push(path)}
+          />
+        </div>
 
         {/* ── DESKTOP: Progressive Multi-Level Spatial Breadcrumb ─────────── */}
         <div className="hidden md:block">
@@ -782,8 +861,8 @@ function City3DContent() {
 
         {/* ── MOBILE: Compact spatial context bar (replaces breadcrumb) ────── */}
         <div
-          className="md:hidden absolute left-0 right-0 z-20"
-          style={{ top: "56px" }} /* just below the TopBar */
+          className="md:hidden absolute left-0 right-0 z-20 pointer-events-auto"
+          style={{ top: "56px" }} /* just below the MobileHeader */
         >
           <MobileContextBar
             currentLevel={currentLevel}
@@ -797,41 +876,39 @@ function City3DContent() {
           />
         </div>
 
-        {/* Floating Left Spatial Control Panel [Layers | Outliner | Tools] */}
-        {/* ── DESKTOP: Left Spatial Control Panel [Layers | Outliner | Tools] ── */}
-        <div className="hidden md:block">
-          <LeftSpatialControlPanel
-            layers={layers}
-            onToggleLayer={handleToggleLayer}
-            currentLevel={currentLevel}
-            selectedParcelId={selectedParcelId}
-            selectedBuildingId={selectedBuildingId}
-            selectedFloorId={selectedFloorId}
-            selectedUnitId={selectedUnitId}
-            selectedRoomId={selectedRoomId}
-            selectedElementId={selectedElementId}
-            treeData={treeData}
-            isLoadingTree={isLoadingTree}
-            onSelectLevel={handleSelectLevel}
-            onOpenExtractionModal={() => setIsExtractionModalOpen(true)}
-            onSetCameraPreset={(preset) => {
-              setCameraPreset(preset);
-              setTimeout(() => setCameraPreset(null), 100);
-            }}
-            measurementActive={activeSpatialTool === "MEASURE"}
-            onToggleMeasurement={() => handleSelectTool("MEASURE")}
-            measurementResult={
-              measurementResult
-                ? {
-                    distance: measurementResult.distance || 0,
-                    heightDelta: measurementResult.heightDelta || 0,
-                  }
-                : null
-            }
-            isCollapsed={isLeftPanelCollapsed}
-            onToggleCollapse={() => setIsLeftPanelCollapsed((p) => !p)}
-          />
-        </div>
+        {/* Left Spatial Control Panel [Layers | Outliner | Tools] — desktop floating, mobile drawer */}
+        <LeftSpatialControlPanel
+          layers={layers}
+          onToggleLayer={handleToggleLayer}
+          currentLevel={currentLevel}
+          selectedParcelId={selectedParcelId}
+          selectedBuildingId={selectedBuildingId}
+          selectedFloorId={selectedFloorId}
+          selectedUnitId={selectedUnitId}
+          selectedRoomId={selectedRoomId}
+          selectedElementId={selectedElementId}
+          treeData={treeData}
+          isLoadingTree={isLoadingTree}
+          onSelectLevel={handleSelectLevel}
+          onOpenExtractionModal={() => setIsExtractionModalOpen(true)}
+          onSetCameraPreset={(preset) => {
+            setCameraPreset(preset);
+            setTimeout(() => setCameraPreset(null), 100);
+          }}
+          measurementActive={activeSpatialTool === "MEASURE"}
+          onToggleMeasurement={() => handleSelectTool("MEASURE")}
+          measurementResult={
+            measurementResult
+              ? {
+                  distance: measurementResult.distance || 0,
+                  heightDelta: measurementResult.heightDelta || 0,
+                }
+              : null
+          }
+          isCollapsed={isLeftPanelCollapsed}
+          onToggleCollapse={() => setIsLeftPanelCollapsed((p) => !p)}
+        />
+
 
         {/* Dynamic Metric Spatial Scale Bar (shifts left when right inspector is open) */}
         <div
@@ -880,56 +957,46 @@ function City3DContent() {
           </SpatialErrorBoundary>
         )}
 
-        {/* ── DESKTOP: Floating Right Contextual Intelligence Panel ─────────── */}
-        <div className="hidden md:block">
-          {isRightPanelOpen && !comparisonState.isActive && (
-            <RightContextualPanel
-              currentLevel={currentLevel}
-              selectedParcelId={selectedParcelId}
-              selectedBuildingId={selectedBuildingId}
-              selectedFloorId={selectedFloorId}
-              selectedUnitId={selectedUnitId}
-              selectedRoomId={selectedRoomId}
-              selectedElementId={selectedElementId}
-              selectedInfrastructureId={selectedInfrastructureId}
-              treeData={treeData}
-              isolateBuilding={isolateBuilding}
-              isolateFloor={isolateFloor}
-              explodeFloors={explodeFloors}
-              onToggleIsolateBuilding={() => setIsolateBuilding((prev) => !prev)}
-              onToggleIsolateFloor={(iso) => setIsolateFloor(iso)}
-              onToggleExplodeFloors={() => setExplodeFloors((prev) => !prev)}
-              onClose={() => setIsRightPanelOpen(false)}
-              onMinimize={() => setIsRightPanelOpen(false)}
-              isMinimized={!isRightPanelOpen}
-              onSelectLevel={handleSelectLevel}
-              onFocusEntity={(id) => handleSelectLevel("BUILDING", id)}
-              onOpenAI={() => setIsAIModalOpen(true)}
-              onMeasureConflict={handleMeasureConflict}
-              onOpenAIWithQuery={handleOpenAIWithQuery}
-              precomputedSelection={{
-                selection,
-                activeParcel,
-                activeBuilding,
-                activeFloor,
-                activeUnit,
-                activeRoom,
-                activeElement,
-              }}
-            />
-          )}
+        {/* Contextual Intelligence Panel — desktop floating right panel, mobile bottom sheet */}
+        {isRightPanelOpen && !comparisonState.isActive && (
+          <RightContextualPanel
+            currentLevel={currentLevel}
+            selectedParcelId={selectedParcelId}
+            selectedBuildingId={selectedBuildingId}
+            selectedFloorId={selectedFloorId}
+            selectedUnitId={selectedUnitId}
+            selectedRoomId={selectedRoomId}
+            selectedElementId={selectedElementId}
+            selectedInfrastructureId={selectedInfrastructureId}
+            treeData={treeData}
+            isolateBuilding={isolateBuilding}
+            isolateFloor={isolateFloor}
+            explodeFloors={explodeFloors}
+            onToggleIsolateBuilding={() => setIsolateBuilding((prev) => !prev)}
+            onToggleIsolateFloor={(iso) => setIsolateFloor(iso)}
+            onToggleExplodeFloors={() => setExplodeFloors((prev) => !prev)}
+            onClose={() => setIsRightPanelOpen(false)}
+            onMinimize={() => setIsRightPanelOpen(false)}
+            isMinimized={!isRightPanelOpen}
+            onSelectLevel={handleSelectLevel}
+            onFocusEntity={(id) => handleSelectLevel("BUILDING", id)}
+            onOpenAI={() => setIsAIModalOpen(true)}
+            onMeasureConflict={handleMeasureConflict}
+            onOpenAIWithQuery={handleOpenAIWithQuery}
+            precomputedSelection={{
+              selection,
+              activeParcel,
+              activeBuilding,
+              activeFloor,
+              activeUnit,
+              activeRoom,
+              activeElement,
+            }}
+          />
+        )}
 
-          {/* Floating 3D Spatial Selection Anchor / HUD Badge (when inspector is closed) */}
-          {!isRightPanelOpen && !comparisonState.isActive && selection.entityType !== "CITY" && (
-            <SpatialAnchorBadge
-              selection={selection}
-              isMinimized={true}
-              onRestoreInspector={() => setIsRightPanelOpen(true)}
-              onClearSelection={() => handleSelectLevel("CITY")}
-            />
-          )}
 
-        </div>
+
 
         {/* ── DESKTOP: Floating Bottom Spatial Tool Strip ───────────────────── */}
         <div className="hidden md:block">
@@ -1007,6 +1074,17 @@ function City3DContent() {
             >
               <MobileFloorCarousel
                 selectedFloorId={selectedFloorId}
+                selectedBuildingId={selectedBuildingId}
+                selectedParcelId={selectedParcelId}
+                floors={activeBuilding?.floors && activeBuilding.floors.length > 0
+                  ? activeBuilding.floors.map((fl) => ({
+                      id: fl.floor_code || fl.id,
+                      label: fl.floor_label || `Floor ${fl.floor_code}`,
+                      sublabel: fl.is_unsanctioned ? "Unsanctioned Addition" : `Level 0${fl.floor_number}`,
+                      badge: fl.is_unsanctioned ? "+3m VIOLATION" : "VERIFIED",
+                      isConflict: Boolean(fl.is_unsanctioned),
+                    }))
+                  : undefined}
                 onSelectFloor={handleSelectLevel}
                 isolateFloor={isolateFloor}
                 explodeFloors={explodeFloors}
@@ -1023,6 +1101,8 @@ function City3DContent() {
             onSelectTool={handleSelectTool}
             isLeftPanelOpen={!isLeftPanelCollapsed}
             onToggleLayers={() => setIsLeftPanelCollapsed((prev) => !prev)}
+            isInspectorOpen={isRightPanelOpen}
+            onToggleInspector={() => setIsRightPanelOpen((prev) => !prev)}
             onOpenAI={() => setIsAIModalOpen(true)}
             onNavigate2D={() => {
               router.push(`/properties?parcel=${selectedParcelId || "66666666-6666-4000-8000-000000000102"}`);
@@ -1035,6 +1115,7 @@ function City3DContent() {
             onOpenCompare={() => handleSelectTool("COMPARE")}
           />
         )}
+
       </div>
     </ProtectedRoute>
   );

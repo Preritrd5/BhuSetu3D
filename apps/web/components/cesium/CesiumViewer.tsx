@@ -4,7 +4,7 @@
  * BhuSetu 3D Immersive Cesium Digital Twin Viewer
  * Multi-Level Spatial Property Intelligence & Digital-Twin Visualization
  */
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Compass, Plus, Minus, RefreshCw, Box, Layers, Ruler, RotateCcw } from "lucide-react";
 import { WebGLFallback } from "./WebGLFallback";
@@ -25,6 +25,8 @@ function isWebGLSupported(): boolean {
   }
 }
 import { SpatialLevel } from "../workspace/WorkspaceBreadcrumb";
+import { RightSpatialControlRail } from "../workspace/RightSpatialControlRail";
+import { ActiveSpatialSelection } from "@/types/selection";
 import {
   SpatialToolType,
   MeasurementMode,
@@ -80,7 +82,7 @@ interface CesiumViewerProps {
   selectedRoomId: string | null;
   selectedElementId: string | null;
   selectedCorridorId?: string | null;
-  onSelectLevel: (level: SpatialLevel, id?: string) => void;
+  onSelectLevel: (level: SpatialLevel, id?: string, parentBuildingId?: string, parentParcelId?: string) => void;
   isolateBuilding?: boolean;
   isolateFloor?: boolean;
   explodeFloors?: boolean;
@@ -104,6 +106,10 @@ interface CesiumViewerProps {
   isRightPanelOpen?: boolean;
   /** When true the internal desktop floor panel is hidden (mobile carousel takes over) */
   hideMobileFloorPanel?: boolean;
+  selection?: ActiveSpatialSelection | null;
+  onRestoreInspector?: () => void;
+  onCloseInspector?: () => void;
+  onClearSelection?: () => void;
 }
 
 
@@ -176,6 +182,10 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   onSourceStatusChange,
   isRightPanelOpen = false,
   hideMobileFloorPanel = false,
+  selection,
+  onRestoreInspector,
+  onCloseInspector,
+  onClearSelection,
 }) => {
 
   const { token } = useAuth();
@@ -207,6 +217,87 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
   selectedBuildingIdRef.current = selectedBuildingId;
   const selectedParcelIdRef = useRef(selectedParcelId);
   selectedParcelIdRef.current = selectedParcelId;
+
+  // Resolve Dynamic Floors for the currently selected building
+  const activeBuildingFloors = useMemo(() => {
+    if (!selectedBuildingId) return [];
+
+    // 1. Look in treeData
+    if (treeData?.city?.regions) {
+      for (const r of treeData.city.regions) {
+        for (const p of r.parcels || []) {
+          const b = p.buildings?.find(
+            (b: any) => b.id === selectedBuildingId || b.building_code === selectedBuildingId
+          );
+          if (b) {
+            if (b.floors && b.floors.length > 0) {
+              const sorted = [...b.floors].sort((f1: any, f2: any) => f2.floor_number - f1.floor_number);
+              return sorted.map((fl: any) => ({
+                id: fl.floor_code || fl.id,
+                label: fl.floor_label || `Floor ${fl.floor_code}`,
+                sublabel: fl.is_unsanctioned ? "Unsanctioned Addition" : `Level 0${fl.floor_number}`,
+                badge: fl.is_unsanctioned ? "+3m VIOLATION" : "VERIFIED",
+                badgeColor: fl.is_unsanctioned
+                  ? "bg-rose-900/80 text-rose-200 font-bold"
+                  : "bg-[#23847D]/20 text-[#2EB8B0]",
+                isConflict: Boolean(fl.is_unsanctioned),
+              }));
+            }
+            const count = b.detected_floors || 2;
+            return Array.from({ length: count }, (_, idx) => {
+              const num = count - idx;
+              const code = `FL-0${num}`;
+              const isUnsanctioned = b.has_discrepancy && num === count;
+              return {
+                id: code,
+                label: `Floor 0${num}`,
+                sublabel: num === 1 ? "Ground Concourse" : `Level 0${num}`,
+                badge: isUnsanctioned ? "+3m VIOLATION" : "VERIFIED",
+                badgeColor: isUnsanctioned
+                  ? "bg-rose-900/80 text-rose-200 font-bold"
+                  : "bg-[#23847D]/20 text-[#2EB8B0]",
+                isConflict: isUnsanctioned,
+              };
+            });
+          }
+        }
+      }
+    }
+
+    // 2. Look in urbanEnvironmentData
+    const bldMeta = getUrbanBuildingById(selectedBuildingId);
+    const isAuraHorizon =
+      selectedBuildingId === "77777777-7777-4000-8000-000000000102" ||
+      selectedBuildingId === "BLD-KA-BLR-102" ||
+      selectedBuildingId === "BLDG-001" ||
+      selectedBuildingId === "b-102";
+
+    if (isAuraHorizon) {
+      return [
+        { id: "FL-07", label: "Floor 07", sublabel: "Sky Lounge", badge: "DEMO", badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]", isConflict: false },
+        { id: "FL-06", label: "Floor 06", sublabel: "R&D Studios", badge: "DEMO", badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]", isConflict: false },
+        { id: "FL-05", label: "Floor 05", sublabel: "Corporate Advisory", badge: "DEMO", badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]", isConflict: false },
+        { id: "FL-04", label: "Floor 04", sublabel: "Tech Workstations", badge: "DEMO", badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]", isConflict: false },
+        { id: "FL-03", label: "Floor 03", sublabel: "Executive Suite", badge: "+3m AUTH", badgeColor: "bg-rose-900/80 text-rose-200 font-bold", isConflict: true },
+        { id: "FL-02", label: "Floor 02", sublabel: "Commercial Banking", badge: "DEMO", badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]", isConflict: false },
+        { id: "FL-01", label: "Floor 01", sublabel: "Ground Lobby", badge: "DEMO", badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]", isConflict: false },
+      ];
+    }
+
+    const count = bldMeta?.floorCount || 2;
+    return Array.from({ length: count }, (_, idx) => {
+      const num = count - idx;
+      const code = `FL-0${num}`;
+      return {
+        id: code,
+        label: `Floor 0${num}`,
+        sublabel: num === 1 ? "Ground Concourse" : `Level 0${num}`,
+        badge: "VERIFIED",
+        badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
+        isConflict: false,
+      };
+    });
+  }, [selectedBuildingId, treeData]);
 
   // ── Camera mode: GIS_ORBIT (exterior orbit) vs IMMERSIVE (first-person look) ──
   // Declared here (before the camera context refs block) so the sync on line below works.
@@ -2375,267 +2466,32 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         )}
       </div>
 
-      {/* Unified Right-Docked Spatial Controls Container (Camera Toolbar + Floors Panel) */}
-      <div
-        className={`absolute z-20 flex flex-col items-end gap-2.5 transition-all duration-300 pointer-events-none select-none ${
-          isRightPanelOpen
-            ? "top-[64px] right-[390px] sm:right-[400px] md:right-[408px] lg:right-[415px] xl:right-[425px]"
-            : "top-[64px] right-3.5 sm:right-4"
-        }`}
-      >
-
-        {/* Camera Toolbar — Mode toggle + utility controls */}
-        <div className="pointer-events-auto flex items-center gap-1 bg-[#141816]/95 backdrop-blur-md p-1 sm:p-1.5 rounded-[8px] border border-[rgba(244,240,232,0.12)] shadow-2xl">
-
-          {/* ── MODE: GIS ORBIT ─────────────────────────────────────── */}
-          <button
-            onClick={exitImmersiveMode}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] transition-all cursor-pointer font-mono font-bold text-[11px] ${
-              cameraMode === "GIS_ORBIT"
-                ? "bg-[#B56E48] text-[#F4F0E8] shadow-md"
-                : "text-[#6F7772] hover:text-[#D9D2C5] hover:bg-[#1A201D]"
-            }`}
-            title="GIS Orbit Mode — orbit around buildings from outside"
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span>GIS</span>
-          </button>
-
-          {/* ── MODE: IMMERSIVE VIEW ─────────────────────────────────── */}
-          <button
-            onClick={enterImmersiveMode}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] transition-all cursor-pointer font-mono font-bold text-[11px] ${
-              cameraMode === "IMMERSIVE"
-                ? "bg-[#23847D] text-white shadow-md"
-                : "text-[#6F7772] hover:text-[#2EB8B0] hover:bg-[#23847D]/15"
-            }`}
-            title="Immersive View — step inside the selected floor and look around 360°. Drag to look."
-          >
-            <RotateCcw className={`w-3.5 h-3.5 ${cameraMode === "IMMERSIVE" ? "animate-spin" : ""}`}
-              style={cameraMode === "IMMERSIVE" ? { animationDuration: "3s" } : {}} />
-            <span>360°</span>
-          </button>
-
-          {/* Divider */}
-          <div className="w-px h-5 bg-[rgba(244,240,232,0.10)] mx-0.5" />
-
-          <button
-            onClick={handleZoomIn}
-            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
-            title="Zoom In"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleZoomOut}
-            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
-            title="Zoom Out"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleResetCamera}
-            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
-            title="Re-focus camera on current selection"
-          >
-            <Compass className="w-4 h-4" />
-          </button>
-          <button
-            onClick={renderBuildings}
-            className="p-1.5 sm:p-2 rounded-[6px] hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50] transition-all cursor-pointer"
-            title="Refresh 3D Scene"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-
-          {/* Explode / Isolate toggles */}
-          {onToggleExplodeFloors && (
-            <button
-              onClick={onToggleExplodeFloors}
-              className={`p-1.5 sm:p-2 rounded-[6px] transition-all cursor-pointer ${
-                explodeFloors
-                  ? "bg-[#23847D] text-[#0F1210] font-bold shadow-md"
-                  : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#23847D]"
-              }`}
-              title={explodeFloors ? "Collapse Floors" : "Explode Floors (vertical separation)"}
-            >
-              <Layers className="w-4 h-4" />
-            </button>
-          )}
-          {onToggleIsolateFloor && (
-            <button
-              onClick={onToggleIsolateFloor}
-              className={`p-1.5 sm:p-2 rounded-[6px] transition-all cursor-pointer ${
-                isolateFloor
-                  ? "bg-[#B56E48] text-[#F4F0E8] font-bold shadow-md"
-                  : "hover:bg-[#1A201D] text-[#D9D2C5] hover:text-[#C47B50]"
-              }`}
-              title={isolateFloor ? "Exit Floor Isolation" : "Isolate Current Floor"}
-            >
-              <Box className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Immersive Mode Active — status banner */}
-        {/* {cameraMode === "IMMERSIVE" && (
-          <div className="pointer-events-none flex items-center gap-2 px-3 py-2 rounded-[8px] bg-[#0A1A18]/95 backdrop-blur-md border border-[#23847D]/50 shadow-2xl animate-in fade-in slide-in-from-top-2 w-[245px] sm:w-[265px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2EB8B0] animate-ping shrink-0" />
-            <span className="text-[10px] font-mono font-bold text-[#2EB8B0] uppercase tracking-wider">
-              IMMERSIVE VIEW — DRAG TO LOOK 360°
-            </span>
-          </div>
-        )} */}
-
-
-        {/* Floating Floor Selector Rail — desktop only (hidden when mobile carousel is used) */}
-        {!hideMobileFloorPanel && (currentLevel === "BUILDING" ||
-
-          currentLevel === "FLOOR" ||
-          currentLevel === "UNIT" ||
-          currentLevel === "ROOM" ||
-          currentLevel === "ELEMENT" ||
-          currentLevel === "CORRIDOR") && selectedBuildingId && (
-          <div className="pointer-events-auto flex flex-col bg-[#141816]/98 backdrop-blur-md rounded-[10px] border border-[rgba(244,240,232,0.12)] shadow-2xl overflow-hidden w-[245px] sm:w-[265px] xl:w-[275px]">
-            {/* Header */}
-            <div className="px-3 py-2 bg-[#0F1210] border-b border-[rgba(244,240,232,0.08)] flex items-center justify-between">
-              <span className="text-xs font-mono font-bold text-[#A2B3A8] uppercase tracking-wider">
-                FLOORS
-              </span>
-              <span className="text-[11px] font-mono text-[#C47B50] font-bold bg-[#C47B50]/15 px-2 py-0.5 rounded-[4px] border border-[#C47B50]/25">
-                7 LEVELS
-              </span>
-            </div>
-
-            {/* Floor Items (Rendered top to bottom: FL-07 down to FL-01) */}
-            <div className="flex flex-col p-1.5 gap-1 max-h-[calc(100vh-280px)] sm:max-h-[380px] overflow-y-auto no-scrollbar">
-              {[
-                {
-                  id: "FL-07",
-                  label: "Floor 07",
-                  sublabel: "Sky Lounge",
-                  badge: "DEMO",
-                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-                },
-                {
-                  id: "FL-06",
-                  label: "Floor 06",
-                  sublabel: "R&D Studios",
-                  badge: "DEMO",
-                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-                },
-                {
-                  id: "FL-05",
-                  label: "Floor 05",
-                  sublabel: "Corporate Advisory",
-                  badge: "DEMO",
-                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-                },
-                {
-                  id: "FL-04",
-                  label: "Floor 04",
-                  sublabel: "Tech Workstations",
-                  badge: "DEMO",
-                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-                },
-                {
-                  id: "FL-03",
-                  label: "Floor 03",
-                  sublabel: "Executive Suite",
-                  badge: "+3m AUTH",
-                  badgeColor: "bg-rose-900/80 text-rose-200 font-bold",
-                },
-                {
-                  id: "FL-02",
-                  label: "Floor 02",
-                  sublabel: "Commercial Banking",
-                  badge: "DEMO",
-                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-                },
-                {
-                  id: "FL-01",
-                  label: "Floor 01",
-                  sublabel: "Ground Lobby",
-                  badge: "DEMO",
-                  badgeColor: "bg-[#23847D]/20 text-[#2EB8B0]",
-                },
-              ].map((fl) => {
-                const isSelected = selectedFloorId === fl.id;
-                return (
-                  <button
-                    key={fl.id}
-                    onClick={() => onSelectLevel("FLOOR", fl.id)}
-                    className={`px-3 py-2 rounded-[6px] text-left transition-all flex items-center justify-between group cursor-pointer ${
-                      isSelected
-                        ? "bg-[#C47B50] text-[#F4F0E8] shadow-md font-bold"
-                        : "hover:bg-[#1A201D] text-[#D9D2C5]"
-                    }`}
-                  >
-                    <div className="min-w-0 pr-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs sm:text-[13px] font-mono font-bold">{fl.label}</span>
-                        <span
-                          className={`text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded ${fl.badgeColor}`}
-                        >
-                          {fl.badge}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-[11px] font-sans block truncate mt-0.5 ${
-                          isSelected ? "text-[#F4F0E8]/90 font-medium" : "text-[#77867C]"
-                        }`}
-                      >
-                        {fl.sublabel}
-                      </span>
-                    </div>
-                    <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        isSelected
-                          ? "bg-white"
-                          : fl.id === "FL-03"
-                          ? "bg-rose-400"
-                          : "bg-[#23847D]"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Quick mode toggles */}
-            <div className="p-2 bg-[#0F1210] border-t border-[rgba(244,240,232,0.08)] grid grid-cols-2 gap-1.5 text-xs font-mono font-bold">
-              {onToggleIsolateFloor && (
-                <button
-                  onClick={onToggleIsolateFloor}
-                  className={`py-1.5 px-2 rounded-[6px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isolateFloor
-                      ? "bg-[#B56E48] text-[#F4F0E8] shadow-sm font-bold"
-                      : "bg-[#1A201D] hover:bg-[#222A26] text-[#A2B3A8] hover:text-[#F4F0E8] border border-[rgba(244,240,232,0.08)]"
-                  }`}
-                  title="Isolate selected floor"
-                >
-                  <Box className="w-3.5 h-3.5" />
-                  <span>{isolateFloor ? "ISOLATED" : "ISOLATE"}</span>
-                </button>
-              )}
-              {onToggleExplodeFloors && (
-                <button
-                  onClick={onToggleExplodeFloors}
-                  className={`py-1.5 px-2 rounded-[6px] transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    explodeFloors
-                      ? "bg-[#23847D] text-[#0F1210] shadow-sm font-bold"
-                      : "bg-[#1A201D] hover:bg-[#222A26] text-[#A2B3A8] hover:text-[#F4F0E8] border border-[rgba(244,240,232,0.08)]"
-                  }`}
-                  title="Explode all floors vertically"
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>{explodeFloors ? "COLLAPSE" : "EXPLODE"}</span>
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Unified Right-Docked Spatial Controls Rail (1. INSPECT -> 2. 360° -> 3. FLOORS) */}
+      <RightSpatialControlRail
+        selection={selection}
+        onRestoreInspector={onRestoreInspector}
+        onCloseInspector={onCloseInspector}
+        onClearSelection={onClearSelection}
+        isRightPanelOpen={isRightPanelOpen}
+        cameraMode={cameraMode}
+        onEnterImmersiveMode={enterImmersiveMode}
+        onExitImmersiveMode={exitImmersiveMode}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onResetCamera={handleResetCamera}
+        onRefreshScene={renderBuildings}
+        currentLevel={currentLevel}
+        selectedBuildingId={selectedBuildingId}
+        selectedFloorId={selectedFloorId}
+        selectedParcelId={selectedParcelId}
+        activeBuildingFloors={activeBuildingFloors}
+        onSelectLevel={onSelectLevel}
+        isolateFloor={isolateFloor}
+        explodeFloors={explodeFloors}
+        onToggleIsolateFloor={onToggleIsolateFloor}
+        onToggleExplodeFloors={onToggleExplodeFloors}
+        hideMobileFloorPanel={hideMobileFloorPanel}
+      />
 
       {/* Measurement Mode Prompt Bar (Fallback when onMeasurementUpdate not supplied) */}
       {measurementActive && !onMeasurementUpdate && (
@@ -2647,8 +2503,9 @@ export const CesiumViewer: React.FC<CesiumViewerProps> = ({
         </div>
       )}
 
-      {/* Bottom Telemetry Bar */}
-      <div className="absolute bottom-0 inset-x-0 h-8 bg-[#0F1210] border-t border-[rgba(244,240,232,0.08)] px-4 flex items-center justify-between z-20 text-[11px] font-mono text-[#6F7772]">
+      {/* Bottom Telemetry Bar — desktop only, hidden on mobile */}
+      <div className="hidden md:flex absolute bottom-0 inset-x-0 h-8 bg-[#0F1210] border-t border-[rgba(244,240,232,0.08)] px-4 items-center justify-between z-20 text-[11px] font-mono text-[#6F7772]">
+
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
             <Box className="w-3.5 h-3.5 text-[#23847D]" />

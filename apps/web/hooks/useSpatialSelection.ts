@@ -65,6 +65,8 @@ export function useSpatialSelection({
 
   // 1. Resolve Active Parcel
   const activeParcel = useMemo<ParcelHierarchyNode | null>(() => {
+    if (currentLevel === "CITY") return null;
+
     if (selectedParcelId) {
       const pclMeta = getUrbanParcelById(selectedParcelId);
       const match = parcels.find(
@@ -72,7 +74,7 @@ export function useSpatialSelection({
           p.id === selectedParcelId ||
           p.ulpin_2d === selectedParcelId ||
           p.survey_number === selectedParcelId ||
-          (pclMeta && (p.ulpin_2d === pclMeta.ulpin || p.id === pclMeta.legacyId))
+          (pclMeta && (p.ulpin_2d === pclMeta.ulpin || p.id === pclMeta.legacyId || p.survey_number === pclMeta.surveyNumber))
       );
       if (match) return match;
     }
@@ -90,11 +92,13 @@ export function useSpatialSelection({
       );
       if (parent) return parent;
     }
-    return parcels[0] || null;
-  }, [parcels, selectedParcelId, selectedBuildingId]);
+    return null;
+  }, [parcels, selectedParcelId, selectedBuildingId, currentLevel]);
 
   // 2. Resolve Active Building
   const activeBuilding = useMemo<BuildingHierarchyNode | null>(() => {
+    if (currentLevel === "CITY" || currentLevel === "REGION") return null;
+
     if (selectedBuildingId) {
       const bldMeta = getUrbanBuildingById(selectedBuildingId);
       const match = allBuildings.find(
@@ -105,15 +109,27 @@ export function useSpatialSelection({
       );
       if (match) return match;
     }
-    if (activeParcel?.buildings?.length) {
-      return activeParcel.buildings[0];
+
+    // Auto-resolve building from activeParcel only if currentLevel is BUILDING or deeper
+    if (
+      currentLevel === "BUILDING" ||
+      currentLevel === "FLOOR" ||
+      currentLevel === "UNIT" ||
+      currentLevel === "ROOM" ||
+      currentLevel === "HALL" ||
+      currentLevel === "CORRIDOR" ||
+      currentLevel === "ELEMENT" ||
+      currentLevel === "DOOR" ||
+      currentLevel === "WINDOW"
+    ) {
+      if (activeParcel?.buildings && activeParcel.buildings.length > 0) {
+        return activeParcel.buildings[0];
+      }
     }
-    return (
-      allBuildings.find((b) => b.id === "77777777-7777-4000-8000-000000000102") ||
-      allBuildings[0] ||
-      null
-    );
-  }, [allBuildings, activeParcel, selectedBuildingId]);
+
+    // If currentLevel is PARCEL, or if activeParcel has 0 buildings, strictly return null!
+    return null;
+  }, [allBuildings, activeParcel, selectedBuildingId, currentLevel]);
 
   // Canonical 7-Floor Definitions for Aura Horizon (FL-01 to FL-07)
   const CANONICAL_7_FLOORS = useMemo<FloorHierarchyNode[]>(() => [
@@ -233,9 +249,49 @@ export function useSpatialSelection({
 
   // 3. Resolve Active Floor
   const activeFloor = useMemo<FloorHierarchyNode | null>(() => {
-    const availableFloors = (activeBuilding?.floors && activeBuilding.floors.length > 0)
-      ? activeBuilding.floors
-      : CANONICAL_7_FLOORS;
+    // If not inspecting floor or deeper, or if no active building, activeFloor is strictly null
+    if (
+      !activeBuilding ||
+      currentLevel === "CITY" ||
+      currentLevel === "REGION" ||
+      currentLevel === "PARCEL" ||
+      currentLevel === "BUILDING"
+    ) {
+      return null;
+    }
+
+    let availableFloors: FloorHierarchyNode[] = [];
+    if (activeBuilding.floors && activeBuilding.floors.length > 0) {
+      availableFloors = activeBuilding.floors;
+    } else {
+      const isAuraHorizon =
+        activeBuilding.id === "77777777-7777-4000-8000-000000000102" ||
+        activeBuilding.building_code === "BLD-KA-BLR-102" ||
+        activeBuilding.id === "BLDG-001" ||
+        activeBuilding.id === "b-102";
+      if (isAuraHorizon) {
+        availableFloors = CANONICAL_7_FLOORS;
+      } else {
+        const count = activeBuilding.detected_floors || 2;
+        availableFloors = Array.from({ length: count }, (_, i) => {
+          const num = i + 1;
+          const code = `FL-0${num}`;
+          return {
+            id: `fl-${activeBuilding.id}-${num}`,
+            building_id: activeBuilding.id,
+            floor_number: num,
+            floor_code: code,
+            floor_label: `Floor 0${num}`,
+            base_elevation: (activeBuilding.ground_elevation || 920.0) + i * 3.5,
+            ceiling_elevation: (activeBuilding.ground_elevation || 920.0) + (i + 1) * 3.5,
+            floor_height: 3.5,
+            floor_area_sqm: 200,
+            is_unsanctioned: false,
+            units: [],
+          };
+        });
+      }
+    }
 
     if (selectedFloorId) {
       const match = availableFloors.find(
@@ -243,55 +299,69 @@ export function useSpatialSelection({
       );
       if (match) return match;
     }
-    return (
-      availableFloors.find((f) => f.floor_code === "FL-03" || f.floor_code === "floor-3") ||
-      availableFloors[0] ||
-      null
-    );
-  }, [activeBuilding, selectedFloorId, CANONICAL_7_FLOORS]);
+
+    return availableFloors[0] || null;
+  }, [activeBuilding, selectedFloorId, currentLevel, CANONICAL_7_FLOORS]);
 
   // 4. Resolve Active Unit
   const activeUnit = useMemo<UnitHierarchyNode | null>(() => {
-    const units = activeFloor?.units?.length
-      ? activeFloor.units
-      : activeBuilding?.floors?.flatMap((f) => f.units) || [];
+    if (
+      !activeFloor ||
+      currentLevel === "CITY" ||
+      currentLevel === "REGION" ||
+      currentLevel === "PARCEL" ||
+      currentLevel === "BUILDING" ||
+      currentLevel === "FLOOR"
+    ) {
+      return null;
+    }
+    const units = activeFloor.units?.length ? activeFloor.units : [];
     if (!units.length) return null;
     if (selectedUnitId) {
       const match = units.find((u) => u.id === selectedUnitId || u.unit_number === selectedUnitId);
       if (match) return match;
     }
-    if (selectedRoomId) {
-      const match = units.find((u) => u.spatial_elements?.some((e) => e.id === selectedRoomId));
-      if (match) return match;
-    }
-    return (
-      units.find((u) => u.unit_number === "301" || u.unit_number === "unit-302") ||
-      units[0] ||
-      null
-    );
-  }, [activeFloor, activeBuilding, selectedUnitId, selectedRoomId]);
+    return units[0] || null;
+  }, [activeFloor, selectedUnitId, currentLevel]);
 
   // 5. Resolve Active Room / Hall
   const activeRoom = useMemo<SpatialElementNode | null>(() => {
-    const elements = activeUnit?.spatial_elements || [];
+    if (
+      !activeUnit ||
+      currentLevel === "CITY" ||
+      currentLevel === "REGION" ||
+      currentLevel === "PARCEL" ||
+      currentLevel === "BUILDING" ||
+      currentLevel === "FLOOR" ||
+      currentLevel === "UNIT"
+    ) {
+      return null;
+    }
+    const elements = activeUnit.spatial_elements || [];
     if (!elements.length) return null;
     if (selectedRoomId) {
       const match = elements.find((e) => e.id === selectedRoomId);
       if (match) return match;
     }
-    return elements.find((e) => e.id === "room-302") || elements[0] || null;
-  }, [activeUnit, selectedRoomId]);
+    return elements[0] || null;
+  }, [activeUnit, selectedRoomId, currentLevel]);
 
   // 6. Resolve Active Element (Door, Window, etc.)
   const activeElement = useMemo<SpatialElementNode | null>(() => {
-    const elements = activeRoom?.elements || activeUnit?.spatial_elements || [];
+    if (
+      !activeRoom ||
+      (currentLevel !== "ELEMENT" && currentLevel !== "DOOR" && currentLevel !== "WINDOW")
+    ) {
+      return null;
+    }
+    const elements = activeRoom.elements || [];
     if (!elements.length) return null;
     if (selectedElementId) {
       const match = elements.find((e) => e.id === selectedElementId);
       if (match) return match;
     }
     return elements[0] || null;
-  }, [activeRoom, activeUnit, selectedElementId]);
+  }, [activeRoom, selectedElementId, currentLevel]);
 
   // Construct Canonical ActiveSpatialSelection
   const selection = useMemo<ActiveSpatialSelection>(() => {
@@ -299,10 +369,10 @@ export function useSpatialSelection({
     if (city) {
       hierarchyPath.push({ level: "CITY", id: city.id, name: city.name, code: city.code });
     }
-    if (region) {
+    if (currentLevel !== "CITY" && region) {
       hierarchyPath.push({ level: "REGION", id: region.id, name: region.name, code: region.code });
     }
-    if (activeParcel) {
+    if (currentLevel !== "CITY" && currentLevel !== "REGION" && activeParcel) {
       hierarchyPath.push({
         level: "PARCEL",
         id: activeParcel.id,
@@ -310,7 +380,18 @@ export function useSpatialSelection({
         code: activeParcel.ulpin_2d,
       });
     }
-    if (activeBuilding) {
+    if (
+      (currentLevel === "BUILDING" ||
+        currentLevel === "FLOOR" ||
+        currentLevel === "UNIT" ||
+        currentLevel === "ROOM" ||
+        currentLevel === "HALL" ||
+        currentLevel === "CORRIDOR" ||
+        currentLevel === "ELEMENT" ||
+        currentLevel === "DOOR" ||
+        currentLevel === "WINDOW") &&
+      activeBuilding
+    ) {
       hierarchyPath.push({
         level: "BUILDING",
         id: activeBuilding.id,
@@ -318,7 +399,17 @@ export function useSpatialSelection({
         code: activeBuilding.building_code,
       });
     }
-    if (activeFloor) {
+    if (
+      (currentLevel === "FLOOR" ||
+        currentLevel === "UNIT" ||
+        currentLevel === "ROOM" ||
+        currentLevel === "HALL" ||
+        currentLevel === "CORRIDOR" ||
+        currentLevel === "ELEMENT" ||
+        currentLevel === "DOOR" ||
+        currentLevel === "WINDOW") &&
+      activeFloor
+    ) {
       hierarchyPath.push({
         level: "FLOOR",
         id: activeFloor.id,
@@ -326,7 +417,16 @@ export function useSpatialSelection({
         code: activeFloor.floor_code,
       });
     }
-    if (activeUnit) {
+    if (
+      (currentLevel === "UNIT" ||
+        currentLevel === "ROOM" ||
+        currentLevel === "HALL" ||
+        currentLevel === "CORRIDOR" ||
+        currentLevel === "ELEMENT" ||
+        currentLevel === "DOOR" ||
+        currentLevel === "WINDOW") &&
+      activeUnit
+    ) {
       hierarchyPath.push({
         level: "UNIT",
         id: activeUnit.id,
@@ -334,15 +434,26 @@ export function useSpatialSelection({
         code: activeUnit.ulpin_3d,
       });
     }
-    if (activeRoom && (currentLevel === "ROOM" || currentLevel === "HALL" || currentLevel === "CORRIDOR" || currentLevel === "ELEMENT" || currentLevel === "DOOR" || currentLevel === "WINDOW")) {
+    if (
+      (currentLevel === "ROOM" ||
+        currentLevel === "HALL" ||
+        currentLevel === "CORRIDOR" ||
+        currentLevel === "ELEMENT" ||
+        currentLevel === "DOOR" ||
+        currentLevel === "WINDOW") &&
+      activeRoom
+    ) {
       hierarchyPath.push({
-        level: "ROOM",
+        level: currentLevel === "HALL" ? "HALL" : currentLevel === "CORRIDOR" ? "CORRIDOR" : "ROOM",
         id: activeRoom.id,
         name: activeRoom.name,
         code: activeRoom.id,
       });
     }
-    if (activeElement && (currentLevel === "ELEMENT" || currentLevel === "DOOR" || currentLevel === "WINDOW")) {
+    if (
+      (currentLevel === "ELEMENT" || currentLevel === "DOOR" || currentLevel === "WINDOW") &&
+      activeElement
+    ) {
       hierarchyPath.push({
         level: currentLevel,
         id: activeElement.id,
@@ -552,63 +663,67 @@ export function useSpatialSelection({
       }
 
       case "BUILDING": {
+        const bldName = activeBuilding?.name || (selectedBuildingId ? `Building ${selectedBuildingId}` : "Unspecified Building");
+        const bldCode = activeBuilding?.building_code || selectedBuildingId || "BLD-UNKNOWN";
         return {
           entityType: "BUILDING",
-          entityId: activeBuilding?.id || "BLD-KA-BLR-102",
+          entityId: activeBuilding?.id || selectedBuildingId || "BLD-UNKNOWN",
           parentId: activeParcel?.id || null,
           parentType: "PARCEL",
-          title: activeBuilding?.name || "Aura Horizon Commercial Complex",
-          subtitle: activeBuilding?.building_code || "BLD-KA-BLR-102",
-          code: activeBuilding?.building_code || "BLD-KA-BLR-102",
+          title: bldName,
+          subtitle: bldCode,
+          code: bldCode,
           hierarchyPath,
           geometryReference: "LoD2 Volumetric Extrusion",
           source: "AUTHORITATIVE",
           confidence: 0.99,
           verificationState: activeBuilding?.has_discrepancy ? "DISCREPANCY_DETECTED" : "VERIFIED",
           selectionState: "SELECTED",
-          cameraTarget: activeBuilding?.id,
+          cameraTarget: activeBuilding?.id || selectedBuildingId || undefined,
           inspectionMode,
           metadata: {
-            building_code: activeBuilding?.building_code || "BLD-KA-BLR-102",
+            building_code: bldCode,
             building_type: activeBuilding?.building_type || "COMMERCIAL",
             ground_elevation: activeBuilding?.ground_elevation ?? 920.5,
             observed_height: activeBuilding?.building_height ?? 14.5,
-            sanctioned_height: 11.5,
-            height_delta: (activeBuilding?.building_height ?? 14.5) - 11.5,
+            sanctioned_height: activeBuilding?.sanctioned_floors ? activeBuilding.sanctioned_floors * 3.5 : 11.5,
+            height_delta: (activeBuilding?.building_height ?? 14.5) - (activeBuilding?.sanctioned_floors ? activeBuilding.sanctioned_floors * 3.5 : 11.5),
             detected_floors: activeBuilding?.detected_floors ?? 4,
             sanctioned_floors: activeBuilding?.sanctioned_floors ?? 3,
             has_discrepancy: Boolean(activeBuilding?.has_discrepancy),
-            floors_count: activeBuilding?.floors?.length || 4,
+            floors_count: activeBuilding?.floors ? activeBuilding.floors.length : 0,
           },
           rawNode: activeBuilding,
         };
       }
 
       case "PARCEL": {
+        const parcelTitle = activeParcel ? `Cadastral Parcel ${activeParcel.survey_number}` : (selectedParcelId ? `Parcel ${selectedParcelId}` : "Cadastral Parcel");
+        const parcelCode = activeParcel?.ulpin_2d || selectedParcelId || "PARCEL-UNKNOWN";
         return {
           entityType: "PARCEL",
-          entityId: activeParcel?.id || "KA-BLR-2026-P102",
+          entityId: activeParcel?.id || selectedParcelId || "PARCEL-UNKNOWN",
           parentId: region?.id || null,
           parentType: "REGION",
-          title: `Cadastral Parcel ${activeParcel?.survey_number || "102/3B"}`,
-          subtitle: activeParcel?.ulpin_2d || "KA-BLR-2026-P102",
-          code: activeParcel?.ulpin_2d || "KA-BLR-2026-P102",
+          title: parcelTitle,
+          subtitle: parcelCode,
+          code: parcelCode,
           hierarchyPath,
           geometryReference: "PostGIS 2D Boundary Polygon (EPSG:4326 / SRID:32643)",
           source: "AUTHORITATIVE",
           confidence: 1.0,
           verificationState: "VERIFIED",
           selectionState: "SELECTED",
-          cameraTarget: activeParcel?.id,
+          cameraTarget: activeParcel?.id || selectedParcelId || undefined,
           inspectionMode,
           metadata: {
-            ulpin_2d: activeParcel?.ulpin_2d || "KA-BLR-2026-P102",
-            survey_number: activeParcel?.survey_number || "102/3B",
+            ulpin_2d: parcelCode,
+            survey_number: activeParcel?.survey_number || selectedParcelId || "Unknown Survey",
             land_use: activeParcel?.land_use || "COMMERCIAL_MIXED",
             recorded_area_sqm: activeParcel?.recorded_area_sqm ?? 520.0,
             computed_area_sqm: activeParcel?.computed_area_sqm ?? 520.0,
             elevation_base: activeParcel?.elevation_base ?? 920.0,
-            buildings_count: activeParcel?.buildings?.length || 1,
+            buildings_count: activeParcel?.buildings ? activeParcel.buildings.length : 0,
           },
           rawNode: activeParcel,
         };

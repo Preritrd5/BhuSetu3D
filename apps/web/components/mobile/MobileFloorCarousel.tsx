@@ -65,11 +65,22 @@ export const FLOOR_DEFINITIONS = [
   },
 ] as const;
 
+export interface FloorItemDefinition {
+  id: string;
+  label: string;
+  sublabel: string;
+  badge?: string;
+  isConflict?: boolean;
+}
+
 export type FloorId = (typeof FLOOR_DEFINITIONS)[number]["id"];
 
 interface MobileFloorCarouselProps {
   selectedFloorId: string | null;
-  onSelectFloor: (level: SpatialLevel, id: string) => void;
+  onSelectFloor: (level: SpatialLevel, id: string, parentBuildingId?: string, parentParcelId?: string) => void;
+  floors?: FloorItemDefinition[];
+  selectedBuildingId?: string | null;
+  selectedParcelId?: string | null;
   isolateFloor?: boolean;
   explodeFloors?: boolean;
   onToggleIsolateFloor?: () => void;
@@ -81,6 +92,9 @@ interface MobileFloorCarouselProps {
 export function MobileFloorCarousel({
   selectedFloorId,
   onSelectFloor,
+  floors,
+  selectedBuildingId,
+  selectedParcelId,
   isolateFloor = false,
   explodeFloors = false,
   onToggleIsolateFloor,
@@ -88,13 +102,14 @@ export function MobileFloorCarousel({
   isImmersive = false,
 }: MobileFloorCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const effectiveFloors = floors && floors.length > 0 ? floors : (FLOOR_DEFINITIONS as unknown as FloorItemDefinition[]);
 
   // Auto-scroll selected floor into the centre on mount and when selection changes
   const scrollToSelected = useCallback(() => {
     const container = scrollRef.current;
     if (!container || !selectedFloorId) return;
 
-    const index = FLOOR_DEFINITIONS.findIndex((f) => f.id === selectedFloorId);
+    const index = effectiveFloors.findIndex((f) => f.id === selectedFloorId);
     if (index === -1) return;
 
     // Each card is roughly 112px wide + 8px gap
@@ -105,7 +120,7 @@ export function MobileFloorCarousel({
     const scrollTarget = targetLeft - containerW / 2 + CARD_W / 2;
 
     container.scrollTo({ left: Math.max(0, scrollTarget), behavior: "smooth" });
-  }, [selectedFloorId]);
+  }, [selectedFloorId, effectiveFloors]);
 
   useEffect(() => {
     // Short delay so the DOM has rendered before we measure
@@ -115,7 +130,7 @@ export function MobileFloorCarousel({
 
   // In immersive mode, collapse to a tiny pill showing current floor
   if (isImmersive) {
-    const curr = FLOOR_DEFINITIONS.find((f) => f.id === selectedFloorId);
+    const curr = effectiveFloors.find((f) => f.id === selectedFloorId);
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-[#141816]/90 backdrop-blur-md rounded-full border border-[rgba(244,240,232,0.12)] shadow-lg pointer-events-auto">
         <span className="w-1.5 h-1.5 rounded-full bg-[#2EB8B0] animate-ping shrink-0" />
@@ -126,11 +141,17 @@ export function MobileFloorCarousel({
     );
   }
 
-  const totalFloors = FLOOR_DEFINITIONS.length;
-  const selectedIndex = FLOOR_DEFINITIONS.findIndex((f) => f.id === selectedFloorId);
+  const totalFloors = effectiveFloors.length;
+  const selectedIndex = effectiveFloors.findIndex((f) => f.id === selectedFloorId);
 
   return (
-    <div className="flex flex-col gap-0 w-full pointer-events-auto">
+    <div
+      className="flex flex-col gap-0 w-full pointer-events-auto"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
+
       {/* ── Header row ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-3 py-2 bg-[#0F1210]/98">
         <div className="flex items-center gap-2">
@@ -181,12 +202,12 @@ export function MobileFloorCarousel({
         className="flex flex-row items-stretch gap-2 overflow-x-auto no-scrollbar px-3 py-2.5 bg-[#141816]/98 border-t border-[rgba(244,240,232,0.06)]"
         style={{ WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" }}
       >
-        {FLOOR_DEFINITIONS.map((fl) => {
+        {effectiveFloors.map((fl) => {
           const isSelected = selectedFloorId === fl.id;
           return (
             <button
               key={fl.id}
-              onClick={() => onSelectFloor("FLOOR", fl.id)}
+              onClick={() => onSelectFloor("FLOOR", fl.id, selectedBuildingId || undefined, selectedParcelId || undefined)}
               style={{ scrollSnapAlign: "center", minWidth: "112px", maxWidth: "112px" }}
               className={`flex flex-col items-start justify-between p-2.5 rounded-[8px] border transition-all cursor-pointer shrink-0 ${
                 isSelected

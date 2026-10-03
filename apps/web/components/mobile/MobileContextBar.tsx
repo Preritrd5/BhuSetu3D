@@ -101,7 +101,12 @@ export function MobileContextBar({
       : floorName || buildingName;
 
   return (
-    <div className="flex items-center gap-0 w-full min-w-0 bg-[#0F1210]/95 backdrop-blur-md border-b border-[rgba(244,240,232,0.08)]">
+    <div
+      className="flex items-center gap-0 w-full min-w-0 bg-[#0F1210]/95 backdrop-blur-md border-b border-[rgba(244,240,232,0.08)] pointer-events-auto select-none"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+    >
+
       {/* Back button */}
       {currentLevel !== "CITY" && currentLevel !== "REGION" && (
         <button

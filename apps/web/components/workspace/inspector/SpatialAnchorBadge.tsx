@@ -10,6 +10,7 @@ interface SpatialAnchorBadgeProps {
   isMinimized: boolean;
   onRestoreInspector: () => void;
   onClearSelection?: () => void;
+  hasFloorPanel?: boolean;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
   isMinimized,
   onRestoreInspector,
   onClearSelection,
+  hasFloorPanel = false,
   className = "",
 }) => {
   // At City level, no specific entity is selected to restore inspector for
@@ -38,12 +40,21 @@ export const SpatialAnchorBadge: React.FC<SpatialAnchorBadgeProps> = ({
     }
   };
 
+  /**
+   * Position calculation to guarantee ZERO OVERLAP:
+   * When inspector is closed:
+   * - If hasFloorPanel is true: The Floors panel occupies the right rail (width 265px at right: 16px).
+   *   SpatialAnchorBadge docks to the LEFT of the Floors panel at right: 296px with a 15px gap.
+   * - If hasFloorPanel is false: The Camera toolbar occupies the right rail (width ~190px at right: 16px).
+   *   SpatialAnchorBadge docks to the LEFT of the Camera toolbar at right: 220px with a 14px gap.
+   */
+  const rightOffset = hasFloorPanel ? "296px" : "220px";
+
   return (
     <div
-      className={`fixed z-20 pointer-events-auto select-none transition-all duration-200 animate-in fade-in slide-in-from-right-4 max-w-[calc(100vw-120px)] ${className}`}
-      style={{ top: "64px", right: "16px" }}
+      className={`fixed z-20 pointer-events-auto select-none transition-all duration-300 animate-in fade-in slide-in-from-right-4 max-w-[calc(100vw-120px)] ${className}`}
+      style={{ top: "64px", right: rightOffset }}
     >
-
       <div className="flex items-center gap-1.5 p-1.5 pl-3 rounded-[8px] bg-[#141816]/98 backdrop-blur-md border border-[rgba(244,240,232,0.12)] shadow-xl text-xs font-mono">
         <div className="flex items-center gap-2">
           {renderIcon(selection.entityType)}

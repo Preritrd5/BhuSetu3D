@@ -54,7 +54,7 @@ interface LeftSpatialControlPanelProps {
   selectedElementId?: string | null;
   treeData?: SpatialHierarchyTreeResponse | null;
   isLoadingTree?: boolean;
-  onSelectLevel: (level: SpatialLevel, id?: string) => void;
+  onSelectLevel: (level: SpatialLevel, id?: string, parentBuildingId?: string, parentParcelId?: string) => void;
   onOpenExtractionModal: () => void;
   onSetCameraPreset: (preset: "CITY" | "PARCEL" | "BUILDING" | "FLOOR" | "UNIT" | "ROOM") => void;
   measurementActive: boolean;
@@ -477,11 +477,17 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                   }`}
                                 >
                                   <div className="flex items-center gap-1.5 truncate">
-                                    {hasBuildings && (
+                                    {hasBuildings ? (
                                       isParcelExpanded ? (
                                         <ChevronDown className="w-2.5 h-2.5 text-[#6F7772] flex-shrink-0" />
                                       ) : (
                                         <ChevronRight className="w-2.5 h-2.5 text-[#6F7772] flex-shrink-0" />
+                                      )
+                                    ) : (
+                                      isParcelExpanded ? (
+                                        <ChevronDown className="w-2.5 h-2.5 text-[#6F7772]/60 flex-shrink-0" />
+                                      ) : (
+                                        <ChevronRight className="w-2.5 h-2.5 text-[#6F7772]/60 flex-shrink-0" />
                                       )
                                     )}
                                     <MapPin className="w-3 h-3 text-[#23847D] flex-shrink-0" />
@@ -493,88 +499,97 @@ export const LeftSpatialControlPanel: React.FC<LeftSpatialControlPanelProps> = (
                                 </button>
 
                                 {/* Buildings under Parcel */}
-                                {isParcelExpanded && hasBuildings && (
-                                  <div className="pl-3 pr-1 pb-1 pt-0.5 space-y-1 border-t border-[rgba(244,240,232,0.04)]">
-                                    {parcel.buildings.map((building) => {
-                                      const bldgKey = `b-${building.id}`;
-                                      const isBldgExpanded = outlinerFilter ? true : !!expandedNodes[bldgKey];
-                                      const isBldgActive =
-                                        currentLevel === "BUILDING" && selectedBuildingId === building.id;
-                                      const hasFloors = building.floors && building.floors.length > 0;
+                                {isParcelExpanded && (
+                                  hasBuildings ? (
+                                    <div className="pl-3 pr-1 pb-1 pt-0.5 space-y-1 border-t border-[rgba(244,240,232,0.04)]">
+                                      {parcel.buildings.map((building) => {
+                                        const bldgKey = `b-${building.id}`;
+                                        const isBldgExpanded = outlinerFilter ? true : !!expandedNodes[bldgKey];
+                                        const isBldgActive =
+                                          (currentLevel === "BUILDING" || currentLevel === "FLOOR" || currentLevel === "UNIT" || currentLevel === "ROOM" || currentLevel === "ELEMENT") &&
+                                          selectedBuildingId === building.id;
+                                        const hasFloors = building.floors && building.floors.length > 0;
 
-                                      return (
-                                        <div
-                                          key={building.id}
-                                          className={`rounded-[4px] border ${
-                                            isBldgActive
-                                              ? "border-[#B56E48] bg-[#1A201D]"
-                                              : "border-[rgba(244,240,232,0.04)] bg-[#141816]"
-                                          }`}
-                                        >
-                                          <button
-                                            onClick={() => {
-                                              toggleNode(bldgKey);
-                                              onSelectLevel("BUILDING", building.id);
-                                            }}
-                                            className={`w-full text-left px-2 py-1 flex items-center justify-between transition-colors ${
+                                        return (
+                                          <div
+                                            key={building.id}
+                                            className={`rounded-[4px] border ${
                                               isBldgActive
-                                                ? "text-[#F4F0E8] font-bold"
-                                                : "hover:bg-[#1A201D] text-[#D9D2C5]"
+                                                ? "border-[#B56E48] bg-[#1A201D]"
+                                                : "border-[rgba(244,240,232,0.04)] bg-[#141816]"
                                             }`}
                                           >
-                                            <div className="flex items-center gap-1.5 truncate">
-                                              {hasFloors && (
-                                                isBldgExpanded ? (
-                                                  <ChevronDown className="w-2.5 h-2.5 text-[#6F7772] flex-shrink-0" />
-                                                ) : (
-                                                  <ChevronRight className="w-2.5 h-2.5 text-[#6F7772] flex-shrink-0" />
-                                                )
+                                            <button
+                                              onClick={() => {
+                                                toggleNode(bldgKey);
+                                                onSelectLevel("BUILDING", building.id, building.id, parcel.id);
+                                              }}
+                                              className={`w-full text-left px-2 py-1 flex items-center justify-between transition-colors ${
+                                                isBldgActive
+                                                  ? "text-[#F4F0E8] font-bold"
+                                                  : "hover:bg-[#1A201D] text-[#D9D2C5]"
+                                              }`}
+                                            >
+                                              <div className="flex items-center gap-1.5 truncate">
+                                                {hasFloors && (
+                                                  isBldgExpanded ? (
+                                                    <ChevronDown className="w-2.5 h-2.5 text-[#6F7772] flex-shrink-0" />
+                                                  ) : (
+                                                    <ChevronRight className="w-2.5 h-2.5 text-[#6F7772] flex-shrink-0" />
+                                                  )
+                                                )}
+                                                <Building2 className="w-3 h-3 text-[#C47B50] flex-shrink-0" />
+                                                <span className="truncate">{building.name}</span>
+                                              </div>
+                                              {building.has_discrepancy && (
+                                                <span className="text-[11px] px-1.5 py-0.5 rounded font-mono font-semibold bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/40">
+                                                  Review
+                                                </span>
                                               )}
-                                              <Building2 className="w-3 h-3 text-[#C47B50] flex-shrink-0" />
-                                              <span className="truncate">{building.name}</span>
-                                            </div>
-                                            {building.has_discrepancy && (
-                                              <span className="text-[11px] px-1.5 py-0.5 rounded font-mono font-semibold bg-[#B56E48]/20 text-[#C47B50] border border-[#B56E48]/40">
-                                                Review
-                                              </span>
-                                            )}
-                                          </button>
+                                            </button>
 
-                                          {hasFloors && isBldgExpanded && (
-                                            <div className="pl-5 pr-1 py-1 space-y-0.5 border-t border-[rgba(244,240,232,0.06)] bg-[#101412]">
-                                              {building.floors.map((floor) => {
-                                                const isFloorActive =
-                                                  currentLevel === "FLOOR" && selectedFloorId === floor.floor_code;
-                                                return (
-                                                  <button
-                                                    key={floor.id}
-                                                    onClick={() => onSelectLevel("FLOOR", floor.floor_code)}
-                                                    className={`w-full text-left px-2 py-1 rounded-[3px] flex items-center justify-between text-[11px] transition-colors ${
-                                                      isFloorActive
-                                                        ? "bg-[#B56E48] text-[#F4F0E8] font-bold"
-                                                        : "hover:bg-[#1A201D] text-[#A7B3AB]"
-                                                    }`}
-                                                  >
-                                                    <div className="flex items-center gap-1.5 truncate">
-                                                      <Layers className="w-2.5 h-2.5 text-[#B56E48] flex-shrink-0" />
-                                                      <span className="truncate">
-                                                        {floor.floor_label || `Floor ${floor.floor_code}`}
-                                                      </span>
-                                                    </div>
-                                                    {floor.is_unsanctioned && (
-                                                      <span className="text-[9px] px-1 py-0.2 rounded bg-rose-900/70 text-rose-200 font-mono font-bold">
-                                                        UNSANCTIONED
-                                                      </span>
-                                                    )}
-                                                  </button>
-                                                );
-                                              })}
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
+                                            {hasFloors && isBldgExpanded && (
+                                              <div className="pl-5 pr-1 py-1 space-y-0.5 border-t border-[rgba(244,240,232,0.06)] bg-[#101412]">
+                                                {building.floors.map((floor) => {
+                                                  const isFloorActive =
+                                                    currentLevel === "FLOOR" &&
+                                                    selectedBuildingId === building.id &&
+                                                    selectedFloorId === floor.floor_code;
+                                                  return (
+                                                    <button
+                                                      key={floor.id}
+                                                      onClick={() => onSelectLevel("FLOOR", floor.floor_code, building.id, parcel.id)}
+                                                      className={`w-full text-left px-2 py-1 rounded-[3px] flex items-center justify-between text-[11px] transition-colors ${
+                                                        isFloorActive
+                                                          ? "bg-[#B56E48] text-[#F4F0E8] font-bold"
+                                                          : "hover:bg-[#1A201D] text-[#A7B3AB]"
+                                                      }`}
+                                                    >
+                                                      <div className="flex items-center gap-1.5 truncate">
+                                                        <Layers className="w-2.5 h-2.5 text-[#B56E48] flex-shrink-0" />
+                                                        <span className="truncate">
+                                                          {floor.floor_label || `Floor ${floor.floor_code}`}
+                                                        </span>
+                                                      </div>
+                                                      {floor.is_unsanctioned && (
+                                                        <span className="text-[9px] px-1 py-0.2 rounded bg-rose-900/70 text-rose-200 font-mono font-bold">
+                                                          UNSANCTIONED
+                                                        </span>
+                                                      )}
+                                                    </button>
+                                                  );
+                                                })}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  ) : (
+                                    <div className="pl-6 pr-2 py-1.5 text-[11px] text-[#6F7772] italic border-t border-[rgba(244,240,232,0.04)]">
+                                      No mapped buildings
+                                    </div>
+                                  )
                                 )}
                               </div>
                             );

@@ -81,12 +81,9 @@ export const WorkspaceBreadcrumb: React.FC<WorkspaceBreadcrumbProps> = ({
   const rightOffset = !isWide
     ? "12px"
     : isRightPanelOpen
-    ? hasFloorPanel
-      ? "690px"
-      : "420px"
-    : hasFloorPanel
-    ? "300px"
-    : "16px";
+    ? "720px"
+    : "315px";
+
 
   return (
     <nav
