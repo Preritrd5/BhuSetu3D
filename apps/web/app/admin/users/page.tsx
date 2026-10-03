@@ -51,6 +51,11 @@ const ROLE_CONFIG: Record<string, { badge: string; clearance: string; capabiliti
     clearance: "Level 2 (Spatial Analytics)",
     capabilities: "Topological conflict analysis, AI spatial investigator, 4D temporal changes, and explainable quality scoring.",
   },
+  CUSTOM: {
+    badge: "bg-[#3B2D54]/30 text-[#C084FC] border-[#7E22CE]/40",
+    clearance: "Custom Clearance",
+    capabilities: "Custom institutional role with tailored permissions and workflow access.",
+  },
 };
 
 const INITIAL_PERSONAS: UserPersona[] = [
@@ -104,6 +109,8 @@ interface AddUserForm {
   name: string;
   email: string;
   role: string;
+  customRole: string;
+  clearanceLevel: string;
   department: string;
 }
 
@@ -111,6 +118,8 @@ const EMPTY_FORM: AddUserForm = {
   name: "",
   email: "",
   role: "GOVERNMENT_OFFICER",
+  customRole: "",
+  clearanceLevel: "Level 2 (Field Operations / Spatial Analytics)",
   department: "",
 };
 
@@ -133,6 +142,7 @@ function AddUserModal({
   const validate = (): string | null => {
     if (!form.name.trim()) return "Full name is required.";
     if (!form.email.trim() || !form.email.includes("@")) return "A valid email address is required.";
+    if (form.role === "CUSTOM" && !form.customRole.trim()) return "Custom role title / designation is required.";
     if (!form.department.trim()) return "Department is required.";
     return null;
   };
@@ -151,12 +161,24 @@ function AddUserModal({
       // For now we optimistically add locally and show success
       await new Promise((r) => setTimeout(r, 600)); // simulate API call
 
-      const roleConfig = ROLE_CONFIG[form.role] || ROLE_CONFIG.GOVERNMENT_OFFICER;
+      const isCustom = form.role === "CUSTOM";
+      const finalRole = isCustom
+        ? form.customRole.trim()
+        : form.role;
+
+      const roleConfig = isCustom
+        ? {
+            badge: "bg-[#3B2D54]/30 text-[#C084FC] border-[#7E22CE]/40",
+            clearance: form.clearanceLevel || "Custom Clearance",
+            capabilities: `Custom institutional role assigned with ${form.clearanceLevel || "tailored clearance"}.`,
+          }
+        : ROLE_CONFIG[form.role] || ROLE_CONFIG.GOVERNMENT_OFFICER;
+
       const newPersona: UserPersona = {
         id: `user_${Date.now()}`,
         name: form.name.trim(),
         email: form.email.trim().toLowerCase(),
-        role: form.role,
+        role: finalRole,
         department: form.department.trim(),
         clearance: roleConfig.clearance,
         status: "Active Institutional",
@@ -264,9 +286,46 @@ function AddUserModal({
                 <option value="GOVERNMENT_OFFICER">GOVERNMENT OFFICER — Level 3 (Review & Seal)</option>
                 <option value="SURVEYOR">SURVEYOR — Level 2 (Field Operations)</option>
                 <option value="ANALYST">ANALYST — Level 2 (Spatial Analytics)</option>
+                <option value="CUSTOM">CUSTOM — Custom Role / Designation...</option>
               </select>
             </div>
-            {form.role && (
+
+            {/* Custom Role Fields */}
+            {form.role === "CUSTOM" && (
+              <div className="mt-3 space-y-3 p-3.5 rounded-[8px] bg-[#121614] border border-[#7E22CE]/35 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div>
+                  <label className="block text-[11px] font-mono font-semibold text-[#C084FC] uppercase tracking-wider mb-1.5">
+                    Custom Role Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={form.customRole}
+                    onChange={(e) => update("customRole", e.target.value)}
+                    placeholder="e.g. Senior Town Planner, Chief Legal Counsel"
+                    className="w-full bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[6px] px-3 py-2 text-sm font-sans text-[#F4F0E8] placeholder:text-[#4A5568] outline-none focus:border-[#C084FC] transition-colors"
+                    autoComplete="off"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono font-semibold text-[#77867C] uppercase tracking-wider mb-1.5">
+                    Clearance Level
+                  </label>
+                  <select
+                    value={form.clearanceLevel}
+                    onChange={(e) => update("clearanceLevel", e.target.value)}
+                    className="w-full bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[6px] px-3 py-2 text-sm font-mono text-[#F4F0E8] outline-none focus:border-[#C084FC] transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="Level 1 (Read-Only / Basic Verification)">Level 1 (Read-Only / Basic Verification)</option>
+                    <option value="Level 2 (Field Operations / Spatial Analytics)">Level 2 (Field Operations / Spatial Analytics)</option>
+                    <option value="Level 3 (Review & Seal / Statutory Authority)">Level 3 (Review & Seal / Statutory Authority)</option>
+                    <option value="Level 4 (Super Admin / Full Institutional Access)">Level 4 (Super Admin / Full Institutional Access)</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {form.role && form.role !== "CUSTOM" && (
               <p className="text-[10px] text-[#77867C] font-sans mt-1.5 leading-relaxed">
                 {ROLE_CONFIG[form.role]?.capabilities}
               </p>
