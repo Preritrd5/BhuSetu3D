@@ -13,10 +13,7 @@ import {
   Search,
   UserPlus,
   X,
-  Eye,
-  EyeOff,
   Shield,
-  KeyRound,
   AlertCircle,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -108,7 +105,6 @@ interface AddUserForm {
   email: string;
   role: string;
   department: string;
-  password: string;
 }
 
 const EMPTY_FORM: AddUserForm = {
@@ -116,7 +112,6 @@ const EMPTY_FORM: AddUserForm = {
   email: "",
   role: "GOVERNMENT_OFFICER",
   department: "",
-  password: "",
 };
 
 function AddUserModal({
@@ -127,7 +122,6 @@ function AddUserModal({
   onAdd: (persona: UserPersona) => void;
 }) {
   const [form, setForm] = useState<AddUserForm>(EMPTY_FORM);
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -140,7 +134,6 @@ function AddUserModal({
     if (!form.name.trim()) return "Full name is required.";
     if (!form.email.trim() || !form.email.includes("@")) return "A valid email address is required.";
     if (!form.department.trim()) return "Department is required.";
-    if (form.password.length < 8) return "Password must be at least 8 characters.";
     return null;
   };
 
@@ -298,31 +291,11 @@ function AddUserModal({
             </div>
           </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-[11px] font-mono font-semibold text-[#77867C] uppercase tracking-wider mb-1.5">
-              Temporary Password *
-            </label>
-            <div className="relative">
-              <KeyRound className="absolute left-3 top-2.5 w-3.5 h-3.5 text-[#4A5568]" />
-              <input
-                type={showPassword ? "text" : "password"}
-                value={form.password}
-                onChange={(e) => update("password", e.target.value)}
-                placeholder="Min. 8 characters"
-                className="w-full bg-[#141816] border border-[rgba(244,240,232,0.12)] rounded-[6px] pl-9 pr-10 py-2 text-sm font-mono text-[#F4F0E8] placeholder:text-[#4A5568] outline-none focus:border-[#B56E48] transition-colors"
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-2.5 text-[#4A5568] hover:text-[#94A3B8] transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-            <p className="text-[10px] text-[#4A5568] font-sans mt-1">
-              User will be prompted to change this on first login.
+          {/* Info note: user sets their own password during signup */}
+          <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-[6px] bg-[#176C68]/10 border border-[#23847D]/20">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#2EB8B0] shrink-0 mt-0.5" />
+            <p className="text-[11px] text-[#77867C] font-sans leading-relaxed">
+              The user will receive a signup invitation and set their own password during account activation.
             </p>
           </div>
 

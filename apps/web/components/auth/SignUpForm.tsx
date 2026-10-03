@@ -12,10 +12,8 @@ import { AuthError } from "./AuthError";
 import {
   ArrowLeft,
   ArrowRight,
-  Building,
   CheckCircle2,
   Mail,
-  User,
 } from "lucide-react";
 
 export const SignUpForm: React.FC = () => {
@@ -27,8 +25,6 @@ export const SignUpForm: React.FC = () => {
     error: authError,
   } = useAuth();
 
-  const [fullName, setFullName] = useState("");
-  const [organization, setOrganization] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -42,18 +38,6 @@ export const SignUpForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
-
-    if (!fullName.trim()) {
-      setLocalError("Please enter your full name.");
-      return;
-    }
-
-    if (!organization.trim()) {
-      setLocalError(
-        "Please specify your organization or municipal department."
-      );
-      return;
-    }
 
     if (!email.trim()) {
       setLocalError("Please enter your institutional work email.");
@@ -94,9 +78,7 @@ export const SignUpForm: React.FC = () => {
     try {
       const res = await signUp(
         email.trim(),
-        password,
-        fullName.trim(),
-        organization.trim()
+        password
       );
 
       if (res.success) {
@@ -172,8 +154,8 @@ export const SignUpForm: React.FC = () => {
       <div className="shrink-0">
         {/* Header */}
         <AuthHeader
-          title="Create Workspace Account"
-          subtitle="Set up your organization environment for 3D digital-twin property intelligence."
+          title="Activate Your Account"
+          subtitle="Your account has been provisioned by your administrator. Set your password to complete activation."
         />
 
         {/* Error */}
@@ -188,32 +170,12 @@ export const SignUpForm: React.FC = () => {
           className="space-y-3"
           noValidate
         >
-          {/* Full Name + Organization */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <AuthInput
-              id="signup-name"
-              label="Full Name"
-              placeholder="Kavita Sharma"
-              autoComplete="name"
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-                setLocalError(null);
-              }}
-              icon={<User className="w-3.5 h-3.5" />}
-            />
-
-            <AuthInput
-              id="signup-org"
-              label="Organization / Department"
-              placeholder="Town Planning Directorate"
-              value={organization}
-              onChange={(e) => {
-                setOrganization(e.target.value);
-                setLocalError(null);
-              }}
-              icon={<Building className="w-3.5 h-3.5" />}
-            />
+          {/* Info note: admin-provisioned details */}
+          <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-[6px] bg-[#176C68]/10 border border-[#23847D]/20">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#2EB8B0] shrink-0 mt-0.5" />
+            <p className="text-[11px] text-[#77867C] font-sans leading-relaxed">
+              Your name, department, and role have been pre-configured by your administrator. Enter your institutional email and set your own password to activate your account.
+            </p>
           </div>
 
           {/* Email */}
@@ -282,7 +244,7 @@ export const SignUpForm: React.FC = () => {
               isLoading={isSubmitting || authLoading}
               disabled={isSubmitting || authLoading}
             >
-              Create Workspace & Enter Platform
+              Activate Account & Enter Platform
             </AuthButton>
           </div>
         </form>
